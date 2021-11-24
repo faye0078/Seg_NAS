@@ -47,6 +47,7 @@ class Trainer(object):
 
         self.criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode=args.loss_type)
 
+        torch.cuda.empty_cache()
         # 定义网络
         model = AutoDeeplab (self.nclass, 12, self.criterion, self.args.filter_multiplier,
                              self.args.block_multiplier, self.args.step)
@@ -74,6 +75,7 @@ class Trainer(object):
 
 
         # 使用apex支持混合精度分布式训练
+        self.use_amp = False
         if self.use_amp and args.cuda:
             keep_batchnorm_fp32 = True if (self.opt_level == 'O2' or self.opt_level == 'O3') else None
 

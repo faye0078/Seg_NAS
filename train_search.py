@@ -31,7 +31,7 @@ def main():
     print('Total Epoches:', trainer.args.epochs)
 
     start_epoch = 0 #暂时先设置为0，需要读取保存过的模型
-    for epoch in range(start_epoch, trainer.args.epochs):
+    for epoch in range(trainer.start_epoch, trainer.args.epochs):
         trainer.training(epoch)
         trainer.validation(epoch)
 
