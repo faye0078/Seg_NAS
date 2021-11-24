@@ -69,12 +69,12 @@ def make_data_loader(args, **kwargs):
         train_set1, train_set2 = random_split(train_set, [n_train, n_examples - n_train])
 
         print(" Created train setB = {} examples, train setB = {}, val set = {} examples".format(len(train_set1), len(train_set2), len(val_set)))
-        train_loader = DataLoader(train_set, batch_size=args.train_batch_size, shuffle=True, **kwargs)
-        train_loader1 = DataLoader(train_set1, batch_size=args.train_batch_size, shuffle=True, **kwargs)
-        train_loader2 = DataLoader(train_set2, batch_size=args.train_batch_size, shuffle=True, **kwargs)
-        val_loader = DataLoader(val_set, batch_size=args.val_batch_size, shuffle=False, **kwargs)
+        train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, **kwargs)
+        train_loader1 = DataLoader(train_set1, batch_size=args.batch_size, shuffle=True, **kwargs)
+        train_loader2 = DataLoader(train_set2, batch_size=args.batch_size, shuffle=True, **kwargs)
+        val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False, **kwargs)
         if args.nas == 'retrain':
-            test_loader = DataLoader(test_set, batch_size=args.val_batch_size, shuffle=False, **kwargs)
+            test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False, **kwargs)
         if args.nas == 'search':
             return train_loader1, train_loader2, val_loader, num_class
         elif args.nas == 'retrain':

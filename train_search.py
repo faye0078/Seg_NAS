@@ -5,9 +5,9 @@ from configs.search_args import obtain_search_args
 from engine.search_trainer import Trainer
 
 # 设置所使用的GPU
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 # 为每个卷积层搜索最适合它的卷积实现算法
-torch.backends.cudnn.benchmark=True
+# torch.backends.cudnn.benchmark=True
 
 def main():
     args = obtain_search_args()
@@ -33,6 +33,7 @@ def main():
     start_epoch = 0 #暂时先设置为0，需要读取保存过的模型
     for epoch in range(start_epoch, trainer.args.epochs):
         trainer.training(epoch)
+        trainer.validation(epoch)
 
     trainer.writer.close()
 

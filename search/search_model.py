@@ -22,7 +22,7 @@ class AutoDeeplab(nn.Module):
         half_f_initial = int(f_initial / 2)
 
         self.stem0 = nn.Sequential(
-            nn.Conv2d(3, half_f_initial * self._block_multiplier, 3, stride=2, padding=1),
+            nn.Conv2d(4, half_f_initial * self._block_multiplier, 3, stride=2, padding=1),
             nn.BatchNorm2d(half_f_initial * self._block_multiplier),
             nn.ReLU()
         )

@@ -6,16 +6,19 @@ import torch
 from collections import OrderedDict
 
 import sys 
-sys.path.append("../../apex")
+sys.path.append("./apex")
+
+import sys 
+sys.path.append("..")
 
 try:
     from apex import amp
     APEX_AVAILABLE = True
 except ModuleNotFoundError:
     APEX_AVAILABLE = False
-
-from dataloaders import make_data_loader
 from search.loss import SegmentationLosses
+from dataloaders import make_data_loader
+
 from search.lr_scheduler import LR_Scheduler
 from search.saver import Saver
 # from utils.summaries import TensorboardSummary
@@ -98,12 +101,13 @@ class Trainer(object):
 
         # 加载模型
         self.best_pred = 0.0
+        args.resume = '/media/data/wy/Seg_NAS/run/GID/12layers/model_best.pth.tar'
         if args.resume is not None:
             if not os.path.isfile(args.resume):
                 raise RuntimeError("=> no checkpoint found at '{}'" .format(args.resume))
             checkpoint = torch.load(args.resume)
             args.start_epoch = checkpoint['epoch']
-            copy_state_dict(self.model.state_dict(), checkpoint['state_dict'])
+            self.model.load_state_dict(checkpoint['state_dict'])
 
             if not args.ft:
                 # self.optimizer.load_state_dict(checkpoint['optimizer'])
@@ -127,9 +131,9 @@ class Trainer(object):
         tbar = tqdm(self.train_loaderA)
 
         for i, sample in enumerate(tbar):
-            # image = sample["image"]
-            # target = sample["mask"]
-            image, target = sample['image'], sample['label']
+            image = sample["image"]
+            target = sample["mask"]
+            # image, target = sample['image'], sample['label']
             if self.args.cuda:
                 image, target = image.cuda(), target.cuda()
             self.scheduler(self.optimizer, i, epoch, self.best_pred)
@@ -174,7 +178,7 @@ class Trainer(object):
         print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
         print('Loss: %.3f' % train_loss)
 
-        if self.args.no_val:
+        if not self.args.val:
             # save checkpoint every epoch
             is_best = False
             if torch.cuda.device_count() > 1:
@@ -196,7 +200,7 @@ class Trainer(object):
         test_loss = 0.0
 
         for i, sample in enumerate(tbar):
-            image, target = sample['image'], sample['label']
+            image, target = sample['image'], sample['mask']
             if self.args.cuda:
                 image, target = image.cuda(), target.cuda()
             with torch.no_grad():
