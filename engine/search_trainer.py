@@ -75,7 +75,6 @@ class Trainer(object):
 
 
         # 使用apex支持混合精度分布式训练
-        self.use_amp = False
         if self.use_amp and args.cuda:
             keep_batchnorm_fp32 = True if (self.opt_level == 'O2' or self.opt_level == 'O3') else None
 
@@ -108,7 +107,7 @@ class Trainer(object):
             if not os.path.isfile(args.resume):
                 raise RuntimeError("=> no checkpoint found at '{}'" .format(args.resume))
             checkpoint = torch.load(args.resume)
-            args.start_epoch = checkpoint['epoch']
+            self.start_epoch = checkpoint['epoch']
             self.model.load_state_dict(checkpoint['state_dict'])
 
             if not args.ft:
@@ -120,7 +119,7 @@ class Trainer(object):
 
         # Clear start epoch if fine-tuning
         if args.ft:
-            args.start_epoch = 0
+            self.start_epoch = 0
 
     def training(self, epoch):
         train_loss = 0.0
