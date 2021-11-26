@@ -61,6 +61,15 @@ def make_data_loader(args, **kwargs):
             test_set = GID.GIDDataset(data_file=data_path['test_list'],
                                         data_dir=data_path['dir'],
                                         transform_val=composed_test,)
+        # elif args.nas == 'retrain':
+        #     train_set = GID.GIDDataset(data_file=data_path['mini_train_list'],
+        #                                 data_dir=data_path['dir'],
+        #                                 transform_trn=composed_trn,
+        #                                 transform_val=composed_val,)
+        #     val_set = GID.GIDDataset(data_file=data_path['mini_val_list'],
+        #                                 data_dir=data_path['dir'],
+        #                                 transform_trn=composed_trn,
+        #                                 transform_val=composed_val,)
         else:
             raise Exception('nas param not set properly')
 
@@ -74,11 +83,13 @@ def make_data_loader(args, **kwargs):
         train_loader2 = DataLoader(train_set2, batch_size=args.batch_size, shuffle=True, **kwargs)
         val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False, **kwargs)
         if args.nas == 'retrain':
+            # a = 1
             test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False, **kwargs)
         if args.nas == 'search':
             return train_loader1, train_loader2, val_loader, num_class
         elif args.nas == 'retrain':
             return train_loader, val_loader, test_loader, num_class
+            # return train_loader, val_loader, num_class
 
     elif args.dataset == 'cityscapes':
         if args.autodeeplab == 'search':

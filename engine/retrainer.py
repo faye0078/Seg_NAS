@@ -5,10 +5,10 @@ from tqdm import tqdm
 import torch
 from collections import OrderedDict
 
-import sys 
+import sys
 sys.path.append("./apex")
 
-import sys 
+import sys
 sys.path.append("..")
 
 try:
@@ -18,12 +18,12 @@ except ModuleNotFoundError:
     APEX_AVAILABLE = False
 from search.loss import SegmentationLosses
 from dataloaders import make_data_loader
-
+# from decoder import Decoder
 from search.lr_scheduler import LR_Scheduler
-from search.saver import Saver
+from retrain.saver import Saver
 # from utils.summaries import TensorboardSummary
 from search.evaluator import Evaluator
-from search.search_model import AutoDeeplab
+from retrain.model_onepath import Retrain_Autodeeplab as Onepath_Autodeeplab
 from search.copy_state_dict import copy_state_dict
 
 class Trainer(object):
@@ -42,27 +42,22 @@ class Trainer(object):
 
         # 定义dataloader
         kwargs = {'num_workers': args.workers, 'pin_memory': True, 'drop_last':True}
-        self.train_loaderA, self.train_loaderB, self.val_loader, self.nclass = make_data_loader(args, **kwargs)
+        self.train_loader, self.val_loader, self.test_loader, self.nclass = make_data_loader(args, **kwargs)
 
 
         self.criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode=args.loss_type)
 
         torch.cuda.empty_cache()
         # 定义网络
-        model = AutoDeeplab (self.nclass, 12, self.criterion, self.args.filter_multiplier,
-                             self.args.block_multiplier, self.args.step)
+        model = Onepath_Autodeeplab(args)
         optimizer = torch.optim.SGD(
-                model.weight_parameters(),
+                model.parameters(),
                 args.lr,
                 momentum=args.momentum,
                 weight_decay=args.weight_decay
             )
 
         self.model, self.optimizer = model, optimizer
-
-        self.architect_optimizer = torch.optim.Adam(self.model.arch_parameters(),
-                                                    lr=args.arch_lr, betas=(0.9, 0.999),
-                                                    weight_decay=args.arch_weight_decay)
 
         # Define Evaluator
         self.evaluator = Evaluator(self.nclass)
@@ -73,54 +68,64 @@ class Trainer(object):
         if args.cuda:
             self.model = self.model.cuda()
 
-
         # 使用apex支持混合精度分布式训练
         if self.use_amp and args.cuda:
             keep_batchnorm_fp32 = True if (self.opt_level == 'O2' or self.opt_level == 'O3') else None
 
-            self.model, [self.optimizer, self.architect_optimizer] = amp.initialize(
-                self.model, [self.optimizer, self.architect_optimizer], opt_level=self.opt_level,
+            # fix for current pytorch version with opt_level 'O1'
+            if self.opt_level == 'O1' and torch.__version__ < '1.3':
+                for module in self.model.modules():
+                    if isinstance(module, torch.nn.modules.batchnorm._BatchNorm):
+                        # Hack to fix BN fprop without affine transformation
+                        if module.weight is None:
+                            module.weight = torch.nn.Parameter(
+                                torch.ones(module.running_var.shape, dtype=module.running_var.dtype,
+                                           device=module.running_var.device), requires_grad=False)
+                        if module.bias is None:
+                            module.bias = torch.nn.Parameter(
+                                torch.zeros(module.running_var.shape, dtype=module.running_var.dtype,
+                                            device=module.running_var.device), requires_grad=False)
+
+            # print(keep_batchnorm_fp32)
+            self.model, [self.optimizer] = amp.initialize(
+                self.model, [self.optimizer], opt_level=self.opt_level,
                 keep_batchnorm_fp32=keep_batchnorm_fp32, loss_scale="dynamic")
 
             print('cuda finished')
 
-
         # 加载模型
         self.best_pred = 0.0
-        args.resume = '/media/data/wy/Seg_NAS/run/GID/12layers/model_best.pth.tar'
+        args.resume = None
         if args.resume is not None:
             if not os.path.isfile(args.resume):
                 raise RuntimeError("=> no checkpoint found at '{}'" .format(args.resume))
             checkpoint = torch.load(args.resume)
             self.start_epoch = checkpoint['epoch']
-            self.model.load_state_dict(checkpoint['state_dict'])
-            copy_state_dict(self.optimizer.state_dict(), checkpoint['optimizer'])
+            self.model.load_state_dict(checkpoint['state_dict'],  strict=False)
+
+            if not args.ft:
+                # self.optimizer.load_state_dict(checkpoint['optimizer'])
+                copy_state_dict(self.optimizer.state_dict(), checkpoint['optimizer'])
             self.best_pred = checkpoint['best_pred']
             print("=> loaded checkpoint '{}' (epoch {})"
                   .format(args.resume, checkpoint['epoch']))
 
-        state_dict = self.model.state_dict()
-        self.saver.save_checkpoint({
-            'epoch': 1,
-            'state_dict': state_dict,
-            'optimizer': self.optimizer.state_dict(),
-            'best_pred': self.best_pred,
-        }, True)
-
-
 
     def training(self, epoch):
         train_loss = 0.0
-        
+        # try:
+        #     self.train_loaderA.dataset.set_stage("train")
+        # except AttributeError:
+        #     self.train_loaderA.dataset.dataset.set_stage("train")  # for subset
         self.model.train()
-        tbar = tqdm(self.train_loaderA)
+        tbar = tqdm(self.train_loader)
 
         for i, sample in enumerate(tbar):
             image = sample["image"]
             target = sample["mask"]
             # image, target = sample['image'], sample['label']
             if self.args.cuda:
-                image, target = image.cuda(), target.cuda()
+                image, target = image.cuda().float(), target.cuda().float()
             self.scheduler(self.optimizer, i, epoch, self.best_pred)
             self.optimizer.zero_grad()
             output = self.model(image)
@@ -132,43 +137,8 @@ class Trainer(object):
                 loss.backward()
             self.optimizer.step()
 
-            if epoch >= self.args.alpha_epoch:
-            # if True:
-                search = next(iter(self.train_loaderB))
-                image_search, target_search = search['image'], search['mask']
-                if self.args.cuda:
-                    image_search, target_search = image_search.cuda (), target_search.cuda ()
-
-                self.architect_optimizer.zero_grad()
-                output_search = self.model(image_search)
-                arch_loss = self.criterion(output_search, target_search)
-                if self.use_amp:
-                    with amp.scale_loss(arch_loss, self.architect_optimizer) as arch_scaled_loss:
-                        arch_scaled_loss.backward()
-                else:
-                    arch_loss.backward()
-                self.architect_optimizer.step()
-
             train_loss += loss.item()
             tbar.set_description('Train loss: %.3f' % (train_loss / (i + 1)))
-            #self.writer.add_scalar('train/total_loss_iter', loss.item(), i + num_img_tr * epoch)
-
-            # Show 10 * 3 inference results each epoch
-            # if i % (num_img_tr // 10) == 0:
-            #     global_step = i + num_img_tr * epoch
-            #     self.summary.visualize_image(self.writer, self.args.dataset, image, target, output, global_step)
-
-            #torch.cuda.empty_cache()
-        # self.writer.add_scalar('train/total_loss_epoch', train_loss, epoch)
-        alphas = self.model.alphas.cpu().detach().numpy()
-        betas = self.model.betas.cpu().detach().numpy()
-        alphas_path = '/media/data/wy/Seg_NAS/run/GID/12layers/alphas_{}'.format(epoch)
-        betas_path = '/media/data/wy/Seg_NAS/run/GID/12layers/betas_{}'.format(epoch)
-        np.save(alphas_path, alphas, allow_pickle=True)
-        np.save(betas_path, betas, allow_pickle=True)
-
-        print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
-        print('Loss: %.3f' % train_loss)
 
         if not self.args.val:
             # save checkpoint every epoch
@@ -230,3 +200,4 @@ class Trainer(object):
                 'optimizer': self.optimizer.state_dict(),
                 'best_pred': self.best_pred,
             }, is_best)
+

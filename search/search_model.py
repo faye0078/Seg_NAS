@@ -167,16 +167,16 @@ class AutoDeeplab(nn.Module):
             for layer in range(len(self.betas)):
                 if layer == 0:
                     # this number is useless
-                    normalized_betas[layer][0][1] = 1
+                    normalized_betas[layer][0][1:] = F.softmax(self.betas[layer][0][1:].to(device=img_device), dim=-1) * (2/3)
 
                 elif layer == 1:
                     normalized_betas[layer][0][1:] = F.softmax(self.betas[layer][0][1:].to(device=img_device), dim=-1) * (2/3)
-                    normalized_betas[layer][1][:2] = F.softmax(self.betas[layer][1][:2].to(device=img_device), dim=-1)
+                    normalized_betas[layer][1] = F.softmax(self.betas[layer][1].to(device=img_device), dim=-1)
 
                 elif layer == 2:
                     normalized_betas[layer][0][1:] = F.softmax(self.betas[layer][0][1:].to(device=img_device), dim=-1) * (2/3)
                     normalized_betas[layer][1] = F.softmax(self.betas[layer][1].to(device=img_device), dim=-1)
-                    normalized_betas[layer][2][:2] = F.softmax(self.betas[layer][2][:2].to(device=img_device), dim=-1)
+                    normalized_betas[layer][2] = F.softmax(self.betas[layer][2].to(device=img_device), dim=-1)
                 else:
                     normalized_betas[layer][0][1:] = F.softmax(self.betas[layer][0][1:].to(device=img_device), dim=-1) * (2/3)
                     normalized_betas[layer][1] = F.softmax(self.betas[layer][1].to(device=img_device), dim=-1)
@@ -189,16 +189,16 @@ class AutoDeeplab(nn.Module):
             for layer in range(len(self.betas)):
                 if layer == 0:
                     # this number is useless
-                    normalized_betas[layer][0][1] = 1
+                    normalized_betas[layer][0][1:] = F.softmax(self.betas[layer][0][1:], dim=-1) * (2 / 3)
 
                 elif layer == 1:
                     normalized_betas[layer][0][1:] = F.softmax(self.betas[layer][0][1:], dim=-1) * (2/3)
-                    normalized_betas[layer][1][:2] = F.softmax(self.betas[layer][1][:2], dim=-1) * (2/3)
+                    normalized_betas[layer][1] = F.softmax(self.betas[layer][1], dim=-1) * (2/3)
 
                 elif layer == 2:
                     normalized_betas[layer][0][1:] = F.softmax(self.betas[layer][0][1:], dim=-1) * (2/3)
                     normalized_betas[layer][1] = F.softmax(self.betas[layer][1], dim=-1)
-                    normalized_betas[layer][2][:2] = F.softmax(self.betas[layer][2][:2], dim=-1) * (2/3)
+                    normalized_betas[layer][2] = F.softmax(self.betas[layer][2], dim=-1) * (2/3)
                 else:
                     normalized_betas[layer][0][1:] = F.softmax(self.betas[layer][0][1:], dim=-1) * (2/3)
                     normalized_betas[layer][1] = F.softmax(self.betas[layer][1], dim=-1)
@@ -213,7 +213,8 @@ class AutoDeeplab(nn.Module):
                 count += 1
                 level8_new, = self.cells[count](None, self.level_4[-1], None, None, normalized_alphas)
                 count += 1
-
+                level4_new = normalized_betas[layer][0][1] * level4_new
+                level8_new = normalized_betas[layer][0][2] * level8_new
                 self.level_4.append(level4_new)
                 self.level_8.append(level8_new)
 
@@ -239,6 +240,7 @@ class AutoDeeplab(nn.Module):
                                                  None,
                                                  None,
                                                  normalized_alphas)
+                level16_new = normalized_betas[layer][1][2] * level16_new
                 count += 1
 
                 self.level_4.append(level4_new)
@@ -277,6 +279,7 @@ class AutoDeeplab(nn.Module):
                                                  None,
                                                  normalized_alphas)
                                                  
+                level32_new = normalized_betas[layer][2][2] * level32_new
                 count += 1
 
                 self.level_4.append(level4_new)

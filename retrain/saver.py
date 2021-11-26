@@ -41,9 +41,9 @@ class Saver(object):
                             continue
                     max_miou = max(previous_miou)
                     if best_pred > max_miou:
-                        shutil.copyfile(filename, os.path.join(self.directory, 'model_best.pth1.tar'))
+                        shutil.copyfile(filename, os.path.join(self.directory, 'model_best.pth.tar'))
                 else:
-                    shutil.copyfile(filename, os.path.join(self.directory, 'model_best.pth1.tar'))
+                    shutil.copyfile(filename, os.path.join(self.directory, 'model_best.pth.tar'))
 
     def save_experiment_config(self):
         if (self.use_dist and dist.get_rank() == 0) or not self.use_dist:
@@ -51,8 +51,6 @@ class Saver(object):
             log_file = open(logfile, 'w')
             p = OrderedDict()
             p['datset'] = self.args.dataset
-            p['backbone'] = self.args.backbone
-            p['out_stride'] = self.args.out_stride
             p['lr'] = self.args.lr
             p['lr_scheduler'] = self.args.lr_scheduler
             p['loss_type'] = self.args.loss_type
