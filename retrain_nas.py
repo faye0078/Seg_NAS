@@ -3,7 +3,7 @@ import torch
 
 from configs.retrain_args import obtain_retrain_args
 from engine.retrainer import Trainer
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 # 为每个卷积层搜索最适合它的卷积实现算法
 # torch.backends.cudnn.benchmark=True
 
@@ -28,7 +28,7 @@ def main():
 
     print('Total Epoches:', trainer.args.epochs)
 
-    trainer.start_epoch = 0 #暂时先设置为0，需要读取保存过的模型
+    # trainer.start_epoch = 0 #暂时先设置为0，需要读取保存过的模型
     for epoch in range(trainer.start_epoch, trainer.args.epochs):
         trainer.training(epoch)
         trainer.validation(epoch)

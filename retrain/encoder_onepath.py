@@ -208,21 +208,21 @@ def network_layer_to_space(net_arch):
 
 def get_default_cell():
     cell = np.zeros((10, 2))
-    cell[0] = [0, 7]
-    cell[1] = [1, 4]
-    cell[2] = [2, 4]
-    cell[3] = [3, 6]
-    cell[4] = [5, 4]
-    cell[5] = [8, 4]
-    cell[6] = [11, 5]
-    cell[7] = [13, 5]
-    cell[8] = [19, 7]
-    cell[9] = [18, 5]
+    cell[0] = [0,  5]
+    cell[1] = [1,  3]
+    cell[2] = [4,  6]
+    cell[3] = [3,  1]
+    cell[4] = [5,  6]
+    cell[5] = [6, 1]
+    cell[6] = [13,  4]
+    cell[7] = [11,  6]
+    cell[8] = [19, 6]
+    cell[9] = [17, 4]
     return cell.astype('uint8')
 
 
 def get_default_arch():
-    backbone = [1, 0, 0, 1, 2, 1, 2, 2, 3, 3, 2, 1]
+    backbone = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     cell_arch = get_default_cell()
     return network_layer_to_space(backbone), cell_arch, backbone
 

@@ -41,7 +41,7 @@ class Trainer(object):
         self.opt_level = args.opt_level
 
         # 定义dataloader
-        kwargs = {'num_workers': args.workers, 'pin_memory': True, 'drop_last':True}
+        kwargs = {'num_workers': args.num_worker, 'pin_memory': True, 'drop_last':True}
         self.train_loader, self.val_loader, self.test_loader, self.nclass = make_data_loader(args, **kwargs)
 
 
@@ -95,7 +95,6 @@ class Trainer(object):
 
         # 加载模型
         self.best_pred = 0.0
-        args.resume = None
         if args.resume is not None:
             if not os.path.isfile(args.resume):
                 raise RuntimeError("=> no checkpoint found at '{}'" .format(args.resume))
@@ -103,9 +102,8 @@ class Trainer(object):
             self.start_epoch = checkpoint['epoch']
             self.model.load_state_dict(checkpoint['state_dict'],  strict=False)
 
-            if not args.ft:
-                # self.optimizer.load_state_dict(checkpoint['optimizer'])
-                copy_state_dict(self.optimizer.state_dict(), checkpoint['optimizer'])
+
+            copy_state_dict(self.optimizer.state_dict(), checkpoint['optimizer'])
             self.best_pred = checkpoint['best_pred']
             print("=> loaded checkpoint '{}' (epoch {})"
                   .format(args.resume, checkpoint['epoch']))

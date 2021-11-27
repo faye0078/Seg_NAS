@@ -3,6 +3,8 @@ import numpy as np
 
 def obtain_retrain_args():
     parser = argparse.ArgumentParser(description="ReTrain the nas model")
+
+    parser.add_argument('--use_default', type=bool, default=False,  help='if use the default arch')
     # parser.add_argument('--train', action='store_true', default=True, help='training mode')
     # parser.add_argument('--exp', type=str, default='bnlr7e-3', help='name of experiment')
     # parser.add_argument('--gpu', type=str, default='0', help='test time gpu device id')
@@ -42,8 +44,8 @@ def obtain_retrain_args():
     # parser.add_argument('--local_rank', dest='local_rank', type=int, default=-1, )
     # parser.add_argument('--train_mode', type=str, default='iter', choices=['iter', 'epoch'])
 
-    parser.add_argument('--net_arch', type=str, default='/media/data/wy/Seg_NAS/run/GID/path.npy')
-    parser.add_argument('--cell_arch', type=str, default='/media/data/wy/Seg_NAS/run/GID/cell.npy')
+    parser.add_argument('--net_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/path.npy')
+    parser.add_argument('--cell_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/cell.npy')
 
     parser.add_argument('--opt_level', type=str, default='O0', choices=['O0', 'O1', 'O2', 'O3'], help='opt level for half percision training (default: O0)')
 
