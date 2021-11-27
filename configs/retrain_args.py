@@ -78,7 +78,7 @@ def obtain_retrain_args():
     parser.add_argument('--alpha_epoch', type=int, default=20,metavar='N', help='epoch to start training alphas')
 
     parser.add_argument('--num_worker', type=int, default=4,metavar='N', help='numer workers')
-    parser.add_argument('--batch-size', type=int, default=5, metavar='N', help='input batch size for training (default: auto)')
+    parser.add_argument('--batch-size', type=int, default=3, metavar='N', help='input batch size for training (default: auto)')
 
     # optimizer params
     parser.add_argument('--lr', type=float, default=0.025, metavar='LR', help='learning rate (default: auto)')
