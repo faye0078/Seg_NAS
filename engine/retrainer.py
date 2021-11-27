@@ -107,6 +107,8 @@ class Trainer(object):
             self.best_pred = checkpoint['best_pred']
             print("=> loaded checkpoint '{}' (epoch {})"
                   .format(args.resume, checkpoint['epoch']))
+        else:
+            self.start_epoch = 0
 
 
     def training(self, epoch):

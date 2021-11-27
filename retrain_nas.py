@@ -1,9 +1,9 @@
 import os
 import torch
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 from configs.retrain_args import obtain_retrain_args
 from engine.retrainer import Trainer
-os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+
 # 为每个卷积层搜索最适合它的卷积实现算法
 # torch.backends.cudnn.benchmark=True
 

@@ -4,7 +4,7 @@ import numpy as np
 def obtain_retrain_args():
     parser = argparse.ArgumentParser(description="ReTrain the nas model")
 
-    parser.add_argument('--use_default', type=bool, default=False,  help='if use the default arch')
+    parser.add_argument('--use_default', type=bool, default=True,  help='if use the default arch')
     # parser.add_argument('--train', action='store_true', default=True, help='training mode')
     # parser.add_argument('--exp', type=str, default='bnlr7e-3', help='name of experiment')
     # parser.add_argument('--gpu', type=str, default='0', help='test time gpu device id')
@@ -78,7 +78,7 @@ def obtain_retrain_args():
     parser.add_argument('--alpha_epoch', type=int, default=20,metavar='N', help='epoch to start training alphas')
 
     parser.add_argument('--num_worker', type=int, default=4,metavar='N', help='numer workers')
-    parser.add_argument('--batch-size', type=int, default=24, metavar='N', help='input batch size for training (default: auto)')
+    parser.add_argument('--batch-size', type=int, default=5, metavar='N', help='input batch size for training (default: auto)')
 
     # optimizer params
     parser.add_argument('--lr', type=float, default=0.025, metavar='LR', help='learning rate (default: auto)')
