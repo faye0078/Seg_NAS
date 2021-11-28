@@ -37,6 +37,30 @@ class Decoder(nn.Module):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
+class Decoder_0(nn.Module):
+    def __init__(self, num_classes, filter_multiplier, BatchNorm=NaiveBN, args=None, last_level=0):
+        super(Decoder_0, self).__init__()
+        self.last_conv = nn.Sequential(nn.Conv2d(256,256, kernel_size=3, stride=1, padding=1, bias=False),
+                                       BatchNorm(256),
+                                       nn.Dropout(0.5),
+                                       nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
+                                       BatchNorm(256),
+                                       nn.Dropout(0.1),
+                                       nn.Conv2d(256, num_classes, kernel_size=1, stride=1))
+        self._init_weight()
+
+    def forward(self, x):
+        x = self.last_conv(x)
+        return x
+
+    def _init_weight(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                torch.nn.init.kaiming_normal_(m.weight)
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+
 
 # 此函数用来对path进行编码，不属于decoder部分
 def network_layer_to_space(net_arch):

@@ -4,7 +4,7 @@ import numpy as np
 def obtain_retrain_args():
     parser = argparse.ArgumentParser(description="ReTrain the nas model")
 
-    parser.add_argument('--use_default', type=bool, default=True,  help='if use the default arch')
+    parser.add_argument('--use_default', type=bool, default=False,  help='if use the default arch')
     # parser.add_argument('--train', action='store_true', default=True, help='training mode')
     # parser.add_argument('--exp', type=str, default='bnlr7e-3', help='name of experiment')
     # parser.add_argument('--gpu', type=str, default='0', help='test time gpu device id')
@@ -94,7 +94,7 @@ def obtain_retrain_args():
     parser.add_argument('--seed', type=int, default=1, metavar='S', help='random seed (default: 1)')
     # checking point
     parser.add_argument('--resume', type=str, default=None, help='put the path to resuming file if needed')
-    parser.add_argument('--checkname', type=str, default='12layers_retrain', help='set the checkpoint name')
+    parser.add_argument('--checkname', type=str, default='12layers_onepath_retrain', help='set the checkpoint name')
     # evaluation option
     parser.add_argument('--val', action='store_true', default=True, help='skip validation during training')
 
