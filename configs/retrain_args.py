@@ -5,6 +5,7 @@ def obtain_retrain_args():
     parser = argparse.ArgumentParser(description="ReTrain the nas model")
 
     parser.add_argument('--use_default', type=bool, default=False,  help='if use the default arch')
+    parser.add_argument('--use_low', type=bool, default=True,  help='if use the low level features')
     # parser.add_argument('--train', action='store_true', default=True, help='training mode')
     # parser.add_argument('--exp', type=str, default='bnlr7e-3', help='name of experiment')
     # parser.add_argument('--gpu', type=str, default='0', help='test time gpu device id')
