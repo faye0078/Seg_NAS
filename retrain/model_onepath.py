@@ -27,10 +27,10 @@ class Retrain_Autodeeplab(nn.Module):
         self.aspp = ASPP(args.filter_multiplier * args.block_multiplier * filter_param_dict[net_path[-1]],
                             256, args.nclass, conv=nn.Conv2d, norm=BatchNorm2d)
         if args.use_low == True:
-            self.decoder = Decoder_0(args.nclass, filter_multiplier=args.filter_multiplier * args.block_multiplier,
+            self.decoder = Decoder(args.nclass, filter_multiplier=args.filter_multiplier * args.block_multiplier,
                                 args=args, last_level=net_path[-1])
         elif args.use_low == False:
-            self.decoder = Decoder(args.nclass, filter_multiplier=args.filter_multiplier * args.block_multiplier,
+            self.decoder = Decoder_0(args.nclass, filter_multiplier=args.filter_multiplier * args.block_multiplier,
                                 args=args, last_level=net_path[-1])
 
         else:
