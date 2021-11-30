@@ -2,7 +2,11 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
+<<<<<<< HEAD
     <orderEntry type="jdk" jdkName="Remote Python 3.8.12 (sftp://dell@e80e6df1b5a94137.natapp.cc:30055/media/dell/DATA/miniconda3/envs/wy/bin/python)" jdkType="Python SDK" />
+=======
+    <orderEntry type="jdk" jdkName="Python 3.8 (wy)" jdkType="Python SDK" />
+>>>>>>> 886e97f8171dc6e284e089013da92bb5eae13b99
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">
