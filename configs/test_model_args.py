@@ -4,11 +4,11 @@ import numpy as np
 def obtain_test_args():
     parser = argparse.ArgumentParser(description="ReTrain the nas model")
 
-    parser.add_argument('--resume', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_default_retrain/model_best.pth.tar', help='put the path to resuming file if needed')
-    parser.add_argument('--use_default', type=bool, default=True, help='if use the default arch')
+    parser.add_argument('--resume', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_onepath_retrain/model_best.pth.tar', help='put the path to resuming file if needed')
+    parser.add_argument('--use_default', type=bool, default=False, help='if use the default arch')
     parser.add_argument('--use_low', type=bool, default=False, help='if use the low level features')
     parser.add_argument('--model_name', type=str, default='onepath', help='the model name')
-    parser.add_argument('--checkname', type=str, default='12layers_default_retrain', help='set the checkpoint name')
+    parser.add_argument('--checkname', type=str, default='12layers_onepath_retrain', help='set the checkpoint name')
 
 
     parser.add_argument('--affine', default=False, type=bool, help='whether use affine in BN')

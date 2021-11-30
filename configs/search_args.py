@@ -3,10 +3,12 @@ import numpy as np
 
 def obtain_search_args():
     parser = argparse.ArgumentParser(description="PyTorch DeeplabV3Plus Training")
+
+    parser.add_argument('--batch-size', type=int, default=2, metavar='N', help='input batch size for training (default: auto)')
     parser.add_argument('--backbone', type=str, default='resnet', choices=['resnet', 'xception', 'drn', 'mobilenet'], help='backbone name (default: resnet)')
     parser.add_argument('--opt_level', type=str, default='O0', choices=['O0', 'O1', 'O2', 'O3'], help='opt level for half percision training (default: O0)')
     parser.add_argument('--out-stride', type=int, default=16, help='network output stride (default: 16)')
-    parser.add_argument('--dataset', type=str, default='GID', choices=['pascal', 'coco', 'cityscapes', 'kd', 'GID'], help='dataset name (default: pascal)')
+    parser.add_argument('--dataset', type=str, default='cityscapes', choices=['pascal', 'coco', 'cityscapes', 'kd', 'GID'], help='dataset name (default: pascal)')
     parser.add_argument('--nas', type=str, default='search', choices=['search', 'train'])
     parser.add_argument('--use-sbd', action='store_true', default=False, help='whether to use SBD dataset (default: False)')
     parser.add_argument('--load-parallel', type=int, default=0)
@@ -37,7 +39,7 @@ def obtain_search_args():
     parser.add_argument('--alpha_epoch', type=int, default=20, metavar='N', help='epoch to start training alphas')
 
     parser.add_argument('--num_worker', type=int, default=0, metavar='N', help='numer workers')
-    parser.add_argument('--batch-size', type=int, default=3, metavar='N', help='input batch size for training (default: auto)')
+
     parser.add_argument('--train_batch_size', type=int, default=2, metavar='N', help='input batch size for training (default: auto)')
     parser.add_argument('--val-batch-size', type=int, default=5, metavar='N', help='input batch size for testing (default: auto)')
     parser.add_argument('--test-batch-size', type=int, default=5, metavar='N', help='input batch size for testing (default: auto)')

@@ -8,4 +8,7 @@ def get_data_path(dataset):
         Path['test_list'] = "./data/lists/rs_test.lst"
         Path['mini_train_list'] = "./data/lists/mini_rs_train.lst"
         Path['mini_val_list'] = "./data/lists/mini_rs_val.lst"
-        return Path
+    elif dataset == 'cityscapes':
+        Path = '/media/dell/DATA/wy/data/cityscapes'
+
+    return Path

@@ -49,8 +49,8 @@ class Trainer(object):
 
         torch.cuda.empty_cache()
         # 定义网络
-        model = AutoDeeplab (self.nclass, 12, self.criterion, self.args.filter_multiplier,
-                             self.args.block_multiplier, self.args.step)
+        model = AutoDeeplab(self.nclass, 12, self.criterion, self.args.filter_multiplier,
+                             self.args.block_multiplier, self.args.step, self.args.dataset)
         optimizer = torch.optim.SGD(
                 model.weight_parameters(),
                 args.lr,
@@ -87,7 +87,6 @@ class Trainer(object):
 
         # 加载模型
         self.best_pred = 0.0
-        args.resume = '/media/data/wy/Seg_NAS/run/GID/12layers/model_best.pth.tar'
         if args.resume is not None:
             if not os.path.isfile(args.resume):
                 raise RuntimeError("=> no checkpoint found at '{}'" .format(args.resume))
@@ -98,16 +97,8 @@ class Trainer(object):
             self.best_pred = checkpoint['best_pred']
             print("=> loaded checkpoint '{}' (epoch {})"
                   .format(args.resume, checkpoint['epoch']))
-
-        state_dict = self.model.state_dict()
-        self.saver.save_checkpoint({
-            'epoch': 1,
-            'state_dict': state_dict,
-            'optimizer': self.optimizer.state_dict(),
-            'best_pred': self.best_pred,
-        }, True)
-
-
+        else:
+            self.start_epoch = 0
 
     def training(self, epoch):
         train_loss = 0.0

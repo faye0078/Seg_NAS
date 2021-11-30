@@ -7,7 +7,7 @@ from search.operations import *
 
 
 class AutoDeeplab(nn.Module):
-    def __init__(self, num_classes, num_layers, criterion=None, filter_multiplier=8, block_multiplier=5, step=5, cell=cell_level_search.Cell):
+    def __init__(self, num_classes, num_layers, criterion=None, filter_multiplier=8, block_multiplier=5, step=5, dataset = 'GID', cell=cell_level_search.Cell):
         super(AutoDeeplab, self).__init__()
 
         self.cells = nn.ModuleList()
@@ -21,11 +21,18 @@ class AutoDeeplab(nn.Module):
         f_initial = int(self._filter_multiplier)
         half_f_initial = int(f_initial / 2)
 
-        self.stem0 = nn.Sequential(
-            nn.Conv2d(4, half_f_initial * self._block_multiplier, 3, stride=2, padding=1),
-            nn.BatchNorm2d(half_f_initial * self._block_multiplier),
-            nn.ReLU()
-        )
+        if dataset == 'GID':
+            self.stem0 = nn.Sequential(
+                nn.Conv2d(4, half_f_initial * self._block_multiplier, 3, stride=2, padding=1),
+                nn.BatchNorm2d(half_f_initial * self._block_multiplier),
+                nn.ReLU()
+            )
+        else:
+            self.stem0 = nn.Sequential(
+                nn.Conv2d(3, half_f_initial * self._block_multiplier, 3, stride=2, padding=1),
+                nn.BatchNorm2d(half_f_initial * self._block_multiplier),
+                nn.ReLU()
+            )
         self.stem1 = nn.Sequential(
             nn.Conv2d(half_f_initial * self._block_multiplier, half_f_initial * self._block_multiplier, 3, stride=1, padding=1),
             nn.BatchNorm2d(half_f_initial * self._block_multiplier),

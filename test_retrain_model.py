@@ -1,6 +1,7 @@
 import os
 import torch
-
+from ptflops import get_model_complexity_info
+from thop import profile
 os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 from configs.test_model_args import obtain_test_args
 from engine.retrainer import Trainer
@@ -28,9 +29,13 @@ def main():
     torch.manual_seed(args.seed)
     trainer = Trainer(args)
 
-    print('Total Epoches:', trainer.args.epochs)
+    macs, params = get_model_complexity_info(trainer.model, (4, 512, 512), as_strings=True,
+                                             print_per_layer_stat=True, verbose=True)
 
-    trainer.validation(0)
+    print("this model macs: " + macs)
+    print("this model params: " + params)
+
+    # trainer.validation(0)
 
 
 
