@@ -4,6 +4,11 @@ import numpy as np
 def obtain_search_args():
     parser = argparse.ArgumentParser(description="PyTorch DeeplabV3Plus Training")
 
+    parser.add_argument('--forward', type=bool, default=True, help='if use the low level features')
+    # checking point
+    parser.add_argument('--resume', type=str, default=None, help='put the path to resuming file if needed')
+    parser.add_argument('--checkname', type=str, default='12layers', help='set the checkpoint name')
+
     parser.add_argument('--batch-size', type=int, default=2, metavar='N', help='input batch size for training (default: auto)')
     parser.add_argument('--backbone', type=str, default='resnet', choices=['resnet', 'xception', 'drn', 'mobilenet'], help='backbone name (default: resnet)')
     parser.add_argument('--opt_level', type=str, default='O0', choices=['O0', 'O1', 'O2', 'O3'], help='opt level for half percision training (default: O0)')
@@ -60,9 +65,8 @@ def obtain_search_args():
     parser.add_argument('--use_amp', action='store_true', default=True)
     parser.add_argument('--gpu-ids', type=str, default='0',help='use which gpu to train, must be a comma-separated list of integers only (default=0)')
     parser.add_argument('--seed', type=int, default=1, metavar='S', help='random seed (default: 1)')
-    # checking point
-    parser.add_argument('--resume', type=str, default=None, help='put the path to resuming file if needed')
-    parser.add_argument('--checkname', type=str, default='12layers', help='set the checkpoint name')
+
+
     # finetuning pre-trained models
     parser.add_argument('--ft', action='store_true', default=False, help='finetuning on a different dataset')
     # evaluation option

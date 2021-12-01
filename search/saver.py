@@ -41,9 +41,9 @@ class Saver(object):
                             continue
                     max_miou = max(previous_miou)
                     if best_pred > max_miou:
-                        shutil.copyfile(filename, os.path.join(self.directory, 'model_best.pth1.tar'))
+                        shutil.copyfile(filename, os.path.join(self.directory, 'model_best.pth.tar'))
                 else:
-                    shutil.copyfile(filename, os.path.join(self.directory, 'model_best.pth1.tar'))
+                    shutil.copyfile(filename, os.path.join(self.directory, 'model_best.pth.tar'))
 
     def save_experiment_config(self):
         if (self.use_dist and dist.get_rank() == 0) or not self.use_dist:

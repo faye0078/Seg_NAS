@@ -24,6 +24,7 @@ from search.saver import Saver
 # from utils.summaries import TensorboardSummary
 from search.evaluator import Evaluator
 from search.search_model import AutoDeeplab
+from search.search_model_forward import AutoDeeplab_forward
 from search.copy_state_dict import copy_state_dict
 
 class Trainer(object):
@@ -49,7 +50,11 @@ class Trainer(object):
 
         torch.cuda.empty_cache()
         # 定义网络
-        model = AutoDeeplab(self.nclass, 12, self.criterion, self.args.filter_multiplier,
+        if self.args.forward:
+            model = AutoDeeplab_forward(self.nclass, 12, self.criterion, self.args.filter_multiplier,
+                             self.args.block_multiplier, self.args.step, self.args.dataset)
+        else:
+            model = AutoDeeplab(self.nclass, 12, self.criterion, self.args.filter_multiplier,
                              self.args.block_multiplier, self.args.step, self.args.dataset)
         optimizer = torch.optim.SGD(
                 model.weight_parameters(),
@@ -153,8 +158,8 @@ class Trainer(object):
         # self.writer.add_scalar('train/total_loss_epoch', train_loss, epoch)
         alphas = self.model.alphas.cpu().detach().numpy()
         betas = self.model.betas.cpu().detach().numpy()
-        alphas_path = '/media/data/wy/Seg_NAS/run/GID/12layers/alphas_{}'.format(epoch)
-        betas_path = '/media/data/wy/Seg_NAS/run/GID/12layers/betas_{}'.format(epoch)
+        alphas_path = '/media/dell/DATA/wy/Seg_NAS/run/{}/{}/alphas_{}'.format(self.args.dataset, self.args.checkname, epoch)
+        betas_path = '/media/dell/DATA/wy/Seg_NAS/run/{}/{}/betas_{}'.format(self.args.dataset, self.args.checkname, epoch)
         np.save(alphas_path, alphas, allow_pickle=True)
         np.save(betas_path, betas, allow_pickle=True)
 
