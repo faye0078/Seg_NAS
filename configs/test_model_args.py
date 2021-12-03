@@ -4,10 +4,11 @@ import numpy as np
 def obtain_test_args():
     parser = argparse.ArgumentParser(description="ReTrain the nas model")
 
-    parser.add_argument('--resume', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_onepath_retrain/model_best.pth.tar', help='put the path to resuming file if needed')
+    # '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_onepath_retrain/model_best.pth.tar'
+    parser.add_argument('--resume', type=str, default=None, help='put the path to resuming file if needed')
     parser.add_argument('--use_default', type=bool, default=False, help='if use the default arch')
     parser.add_argument('--use_low', type=bool, default=False, help='if use the low level features')
-    parser.add_argument('--model_name', type=str, default='onepath', help='the model name')
+    parser.add_argument('--model_name', type=str, default='multi', help='the model name')
     parser.add_argument('--checkname', type=str, default='12layers_onepath_retrain', help='set the checkpoint name')
 
 
@@ -15,8 +16,8 @@ def obtain_test_args():
     parser.add_argument('--initial-fm', default=None, type=int)
 
 
-    parser.add_argument('--net_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/path.npy')
-    parser.add_argument('--cell_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/cell.npy')
+    parser.add_argument('--net_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_forward/path.npy')
+    parser.add_argument('--cell_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_forward/cell.npy')
 
     parser.add_argument('--opt_level', type=str, default='O0', choices=['O0', 'O1', 'O2', 'O3'], help='opt level for half percision training (default: O0)')
 

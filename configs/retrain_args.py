@@ -7,22 +7,22 @@ def obtain_retrain_args():
     parser.add_argument('--use_default', type=bool, default=False,  help='if use the default arch')
     parser.add_argument('--use_low', type=bool, default=False,  help='if use the low level features')
 
-    parser.add_argument('--model_name', type=str, default='onepath', help='the model name')
+    parser.add_argument('--model_name', type=str, default='multi', choices=['one_path', 'multi'], help='the model name')
     parser.add_argument('--resume', type=str, default=None, help='put the path to resuming file if needed')
-    parser.add_argument('--checkname', type=str, default='12layers_onepath_retrain', help='set the checkpoint name')
+    parser.add_argument('--checkname', type=str, default='12layers_forward_retrain/multi', help='set the checkpoint name')
 
     parser.add_argument('--crop_size', type=int, default=512, help='crop image size')
     parser.add_argument('--resize', type=int, default=512, help='resize image size')
     parser.add_argument('--epochs', type=int, default=100, metavar='N', help='number of epochs to train (default: auto)')
     parser.add_argument('--num_worker', type=int, default=4,metavar='N', help='numer workers')
-    parser.add_argument('--batch-size', type=int, default=8, metavar='N', help='input batch size for training (default: auto)')
+    parser.add_argument('--batch-size', type=int, default=2, metavar='N', help='input batch size for training (default: auto)')
     parser.add_argument('--dataset', type=str, default='GID', choices=['pascal', 'coco', 'cityscapes', 'kd', 'GID'], help='dataset name (default: pascal)')
 
     parser.add_argument('--affine', default=False, type=bool, help='whether use affine in BN')
     parser.add_argument('--initial-fm', default=None, type=int)
 
-    parser.add_argument('--net_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/path.npy')
-    parser.add_argument('--cell_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/cell.npy')
+    parser.add_argument('--net_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_forward/path.npy')
+    parser.add_argument('--cell_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_forward/cell.npy')
 
     parser.add_argument('--opt_level', type=str, default='O0', choices=['O0', 'O1', 'O2', 'O3'], help='opt level for half percision training (default: O0)')
 

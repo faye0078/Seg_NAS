@@ -24,6 +24,7 @@ from retrain.saver import Saver
 # from utils.summaries import TensorboardSummary
 from search.evaluator import Evaluator
 from retrain.model_onepath import Retrain_Autodeeplab as Onepath_Autodeeplab
+from retrain.model_multi import Retrain_Autodeeplab as Multi_Autodeeplab
 from search.copy_state_dict import copy_state_dict
 
 class Trainer(object):
@@ -49,7 +50,10 @@ class Trainer(object):
 
         torch.cuda.empty_cache()
         # 定义网络
-        model = Onepath_Autodeeplab(args)
+        if args.model_name == 'one_path':
+            model = Onepath_Autodeeplab(args)
+        elif args.model_name =='multi':
+            model = Multi_Autodeeplab(args)
         optimizer = torch.optim.SGD(
                 model.parameters(),
                 args.lr,

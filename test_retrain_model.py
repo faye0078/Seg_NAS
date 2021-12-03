@@ -2,7 +2,7 @@ import os
 import torch
 from ptflops import get_model_complexity_info
 from thop import profile
-os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 from configs.test_model_args import obtain_test_args
 from engine.retrainer import Trainer
 
