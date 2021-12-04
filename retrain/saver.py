@@ -68,7 +68,7 @@ class Saver(object):
             train_info = train_info + ' new best'
 
         info_file = os.path.join(self.experiment_dir, 'train_info.txt')
-        file = open(info_file, 'w')
+        file = open(info_file, 'a')
 
         file.write(train_info + '\n')
         file.close()

@@ -45,15 +45,15 @@ class Retrain_Autodeeplab(nn.Module):
         aspp_result_1 = self.aspp1(features[1])
         aspp_result_2 = self.aspp2(features[2])
         aspp_result_3 = self.aspp3(features[3])
-        upsample = nn.Upsample(size=x.size()[2:], mode='bilinear', align_corners=True)
+        upsample = nn.Upsample(size=[64, 64], mode='bilinear', align_corners=True)
         aspp_result_0 = upsample(aspp_result_0)
         aspp_result_1 = upsample(aspp_result_1)
         aspp_result_2 = upsample(aspp_result_2)
         aspp_result_3 = upsample(aspp_result_3)
         aspp_result = torch.cat([aspp_result_0, aspp_result_1, aspp_result_2, aspp_result_3], dim=1)
-
         decoder_output = self.decoder(aspp_result)
-        return decoder_output
+        upsample = nn.Upsample(size=[512, 512], mode='bilinear', align_corners=True)(decoder_output)
+        return upsample
 
     def get_params(self):
         back_bn_params, back_no_bn_params = self.encoder.get_params()

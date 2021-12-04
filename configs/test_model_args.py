@@ -9,7 +9,7 @@ def obtain_test_args():
     parser.add_argument('--use_default', type=bool, default=False, help='if use the default arch')
     parser.add_argument('--use_low', type=bool, default=False, help='if use the low level features')
     parser.add_argument('--model_name', type=str, default='multi', help='the model name')
-    parser.add_argument('--checkname', type=str, default='12layers_onepath_retrain', help='set the checkpoint name')
+    parser.add_argument('--checkname', type=str, default='12layers_forward_retrain/multi', help='set the checkpoint name')
 
 
     parser.add_argument('--affine', default=False, type=bool, help='whether use affine in BN')

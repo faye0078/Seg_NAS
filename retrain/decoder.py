@@ -7,7 +7,7 @@ import numpy as np
 class Decoder(nn.Module):
     def __init__(self, num_classes, filter_multiplier, BatchNorm=NaiveBN, args=None, last_level=0):
         super(Decoder, self).__init__()
-        low_level_inplanes = 640
+        low_level_inplanes = 320
         C_low = 48
         self.conv1 = nn.Conv2d(low_level_inplanes, C_low, 1, bias=False)
         self.bn1 = BatchNorm(48)
