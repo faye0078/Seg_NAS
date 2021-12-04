@@ -86,10 +86,38 @@ class Decoder(object):
 
         return gene_cell
 
+
+def trans_betas(betas):
+    after_trans = np.zeros([12, 4, 3])
+    shape = betas.shape
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            if j == 0:
+                after_trans[i][0][1] = betas[i][j][1]
+                after_trans[i][1][0] = betas[i][j][2]
+            if j == 1:
+                after_trans[i][0][2] = betas[i][j][0]
+                after_trans[i][1][1] = betas[i][j][1]
+                after_trans[i][2][0] = betas[i][j][2]
+            if j == 2:
+                after_trans[i][1][2] = betas[i][j][0]
+                after_trans[i][2][1] = betas[i][j][1]
+                after_trans[i][3][0] = betas[i][j][2]
+            if j == 3:
+                after_trans[i][2][2] = betas[i][j][0]
+                after_trans[i][3][1] = betas[i][j][1]
+
+    return after_trans
+
+
 if __name__ == '__main__':
-    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_forward/'
+    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers/'
     alphas_list = OrderedDict()
     betas_list = OrderedDict()
+    trans = False
+
+    if path.find('forward') != -1:
+        trans = True
 
     cell_list = OrderedDict()
     path_list = OrderedDict()
@@ -102,7 +130,11 @@ if __name__ == '__main__':
         for filename in filenames:
             if filename.split('.')[0].split('_')[0] == 'betas':
                 betas_list[filename] = np.load(dirpath + filename)
+
+                if trans:
+                    betas_list[filename] = trans_betas(betas_list[filename])
                 alphas_name = filename.replace('betas', 'alphas')
+
                 decoder = Decoder(alphas_list[alphas_name], betas_list[filename], 5)
                 cell_list[alphas_name] = decoder.genotype_decode()
                 path_list[filename] = decoder.viterbi_decode()
@@ -110,8 +142,9 @@ if __name__ == '__main__':
     print(cell_list)
     print(path_list)
 
-    a = np.array(cell_list['alphas_39.npy'])
-    b = np.array(path_list['betas_39.npy'])
-    np.save(path + 'cell.npy', a)
-    np.save(path + 'path.npy', b)
+    a = np.array(cell_list['alphas_38.npy'])
+    b = np.array(path_list['betas_38.npy'])
+
+    print(a, b)
+
 

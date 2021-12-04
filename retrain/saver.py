@@ -61,3 +61,17 @@ class Saver(object):
             for key, val in p.items():
                 log_file.write(key + ':' + str(val) + '\n')
             log_file.close()
+
+    def save_train_info(self, epoch, acc, miou, fwiou, is_best):
+        train_info = 'epoch:{}, acc:{}, miou:{}, fwiou:{}'.format(str(epoch), str(acc), str(miou), str(fwiou))
+        if is_best:
+            train_info = train_info + ' new best'
+
+        info_file = os.path.join(self.experiment_dir, 'train_info.txt')
+        file = open(info_file, 'w')
+
+        file.write(info_file + '\n')
+        file.close()
+
+
+

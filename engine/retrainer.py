@@ -191,6 +191,8 @@ class Trainer(object):
         print("Acc:{}, Acc_class:{}, mIoU:{}, fwIoU: {}".format(Acc, Acc_class, mIoU, FWIoU))
         print('Loss: %.3f' % test_loss)
         new_pred = mIoU
+        is_best = False
+
         if new_pred > self.best_pred:
             is_best = True
             self.best_pred = new_pred
@@ -204,4 +206,5 @@ class Trainer(object):
                 'optimizer': self.optimizer.state_dict(),
                 'best_pred': self.best_pred,
             }, is_best)
+        self.saver.save_train_info(epoch, Acc, mIoU, FWIoU, is_best)
 
