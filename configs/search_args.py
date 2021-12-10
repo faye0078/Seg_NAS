@@ -36,7 +36,7 @@ def obtain_search_args():
 
     parser.add_argument("--dist", type=bool, default=False)
     # training hyper params
-    parser.add_argument('--epochs', type=int, default=40, metavar='N', help='number of epochs to train (default: auto)')
+    parser.add_argument('--epochs', type=int, default=60, metavar='N', help='number of epochs to train (default: auto)')
     parser.add_argument('--start_epoch', type=int, default=0, metavar='N', help='start epochs (default:0)')
     parser.add_argument('--filter_multiplier', type=int, default=8)
     parser.add_argument('--block_multiplier', type=int, default=5)

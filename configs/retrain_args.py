@@ -16,17 +16,17 @@ def obtain_retrain_args():
     parser.add_argument('--epochs', type=int, default=100, metavar='N', help='number of epochs to train (default: auto)')
     parser.add_argument('--num_worker', type=int, default=4,metavar='N', help='numer workers')
     parser.add_argument('--batch-size', type=int, default=2, metavar='N', help='input batch size for training (default: auto)')
-    parser.add_argument('--dataset', type=str, default='GID', choices=['pascal', 'coco', 'cityscapes', 'kd', 'GID'], help='dataset name (default: pascal)')
+    parser.add_argument('--dataset', type=str, default='cityscapes', choices=['pascal', 'coco', 'cityscapes', 'kd', 'GID'], help='dataset name (default: pascal)')
 
     parser.add_argument('--affine', default=False, type=bool, help='whether use affine in BN')
     parser.add_argument('--initial-fm', default=None, type=int)
 
-    parser.add_argument('--net_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_forward/path.npy')
-    parser.add_argument('--cell_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_forward/cell.npy')
+    parser.add_argument('--net_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/cityscapes/12layers_forward/path.npy')
+    parser.add_argument('--cell_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/cityscapes/12layers_forward/cell.npy')
 
     parser.add_argument('--opt_level', type=str, default='O0', choices=['O0', 'O1', 'O2', 'O3'], help='opt level for half percision training (default: O0)')
 
-    parser.add_argument('--nas', type=str, default='retrain', choices=['search', 'retrain'])
+    parser.add_argument('--nas', type=str, default='train', choices=['search', 'train'])
 
     parser.add_argument('--workers', type=int, default=0, metavar='N', help='dataloader threads')
     parser.add_argument('--base_size', type=int, default=320, help='base image size')

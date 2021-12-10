@@ -65,7 +65,7 @@ class Decoder(object):
         return gene_cell
 
 if __name__ == '__main__':
-    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_forward/'
+    path = '/media/dell/DATA/wy/Seg_NAS/run/cityscapes/12layers_forward/'
     alphas_list = OrderedDict()
     betas_list = OrderedDict()
 
@@ -88,8 +88,9 @@ if __name__ == '__main__':
     print(cell_list)
     print(path_list)
 
-    a = np.array(cell_list['alphas_39.npy'])
-    b = np.array(path_list['betas_39.npy'])
-    np.save(path + 'cell.npy', a)
-    np.save(path + 'path.npy', b)
+    a = np.array(cell_list['alphas_56.npy'])
+    b = np.array(path_list['betas_56.npy'])
+
+    print(a)
+    print(b)
 

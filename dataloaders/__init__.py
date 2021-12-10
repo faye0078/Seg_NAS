@@ -49,7 +49,7 @@ def make_data_loader(args, **kwargs):
                                         data_dir=data_path['dir'],
                                         transform_trn=composed_trn,
                                         transform_val=composed_val,)
-        elif args.nas == 'retrain':
+        elif args.nas == 'train':
             train_set = GID.GIDDataset(data_file=data_path['train_list'],
                                         data_dir=data_path['dir'],
                                         transform_trn=composed_trn,
@@ -73,12 +73,12 @@ def make_data_loader(args, **kwargs):
         train_loader1 = DataLoader(train_set1, batch_size=args.batch_size, shuffle=True, **kwargs)
         train_loader2 = DataLoader(train_set2, batch_size=args.batch_size, shuffle=True, **kwargs)
         val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False, **kwargs)
-        if args.nas == 'retrain':
+        if args.nas == 'train':
             # a = 1
             test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False, **kwargs)
         if args.nas == 'search':
             return train_loader1, train_loader2, val_loader, num_class
-        elif args.nas == 'retrain':
+        elif args.nas == 'train':
             return train_loader, val_loader, test_loader, num_class
             # return train_loader, val_loader, num_class
 
@@ -90,7 +90,7 @@ def make_data_loader(args, **kwargs):
             train_loader1 = DataLoader(train_set1, batch_size=args.batch_size, shuffle=True, **kwargs)
             train_loader2 = DataLoader(train_set2, batch_size=args.batch_size, shuffle=True, **kwargs)
         elif args.nas == 'train':
-            train_set = cityscapes.CityscapesSegmentation(args, split='retrain')
+            train_set = cityscapes.CityscapesSegmentation(args, split='train')
             num_class = train_set.NUM_CLASSES
             train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, **kwargs)
         else:

@@ -1,3 +1,5 @@
+# this model is derived from GID(40 epoches) autodeeplab supernet using multi decode
+
 import torch
 import torch.nn as nn
 PRIMITIVES = [
@@ -264,7 +266,6 @@ class newModel(nn.Module):
         stem = self.stem0(x)
         stem0 = self.stem1(stem)
         stem1 = self.stem2(stem0)
-        two_last_inputs = (stem0, stem1)
         x_0_0 = self.cell_0_0_1(stem0, stem1)
         x_0_1 = self.cell_0_1_0(stem, stem1)
 
