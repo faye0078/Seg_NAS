@@ -25,6 +25,8 @@ from retrain.saver import Saver
 from search.evaluator import Evaluator
 from retrain.model_onepath import Retrain_Autodeeplab as Onepath_Autodeeplab
 from retrain.model_multi import Retrain_Autodeeplab as Multi_Autodeeplab
+from model.seg_hrnet import get_seg_model
+
 from search.copy_state_dict import copy_state_dict
 
 class Trainer(object):
@@ -54,6 +56,8 @@ class Trainer(object):
             model = Onepath_Autodeeplab(args)
         elif args.model_name =='multi':
             model = Multi_Autodeeplab(args)
+        elif args.model_name == 'hrnet':
+            model = get_seg_model(args)
         optimizer = torch.optim.SGD(
                 model.parameters(),
                 args.lr,

@@ -247,9 +247,9 @@ class GIDDataset(Dataset):
             datalist = f.readlines()
         try:
             self.datalist = [
-                (k[0], k[1])
+                (k, k.replace('image/', 'label/').replace('img.tif', 'label.png'))
                 for k in map(
-                    lambda x: x.decode("utf-8").strip("\n").strip("\r").split("\t"), datalist
+                    lambda x: x.decode("utf-8").strip("\n").strip("\r"), datalist
                 )
             ]
         except ValueError:  # Adhoc for test.

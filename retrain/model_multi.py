@@ -7,7 +7,7 @@ sys.path.append("..")
 from retrain.operations import NaiveBN
 from retrain.aspp import ASPP
 import torch
-from model.multi_model_1 import newModel
+from model.multi_model_0 import newModel
 from retrain.decoder import network_layer_to_space
 
 class Retrain_Autodeeplab(nn.Module):

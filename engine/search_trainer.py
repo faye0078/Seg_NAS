@@ -25,7 +25,9 @@ from search.saver import Saver
 from search.evaluator import Evaluator
 from search.search_model import AutoDeeplab
 from search.search_model_forward import AutoDeeplab_forward
+from model.FlexibleNet import FlexiNet
 from search.copy_state_dict import copy_state_dict
+from model.cell import ReLUConvBN
 
 class Trainer(object):
     def __init__(self, args):
@@ -50,12 +52,17 @@ class Trainer(object):
 
         torch.cuda.empty_cache()
         # 定义网络
-        if self.args.forward:
-            model = AutoDeeplab_forward(self.nclass, 12, self.criterion, self.args.filter_multiplier,
-                             self.args.block_multiplier, self.args.step, self.args.dataset)
-        else:
-            model = AutoDeeplab(self.nclass, 12, self.criterion, self.args.filter_multiplier,
-                             self.args.block_multiplier, self.args.step, self.args.dataset)
+        if self.args.model_name == 'AutoDeeplab':
+            if self.args.forward:
+                model = AutoDeeplab_forward(self.nclass, 12, self.criterion, self.args.filter_multiplier,
+                                 self.args.block_multiplier, self.args.step, self.args.dataset)
+            else:
+                model = AutoDeeplab(self.nclass, 12, self.criterion, self.args.filter_multiplier,
+                                 self.args.block_multiplier, self.args.step, self.args.dataset)
+        elif self.args.model_name == 'FlexiNet':
+            layers = np.ones([12, 4])
+            connections = np.load(self.args.model_encode_path)
+            model = FlexiNet(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass)
         optimizer = torch.optim.SGD(
                 model.weight_parameters(),
                 args.lr,
@@ -133,7 +140,7 @@ class Trainer(object):
                 search = next(iter(self.train_loaderB))
                 image_search, target_search = search['image'], search['mask']
                 if self.args.cuda:
-                    image_search, target_search = image_search.cuda (), target_search.cuda ()
+                    image_search, target_search = image_search.cuda(), target_search.cuda()
 
                 self.architect_optimizer.zero_grad()
                 output_search = self.model(image_search)
@@ -156,11 +163,8 @@ class Trainer(object):
 
             #torch.cuda.empty_cache()
         # self.writer.add_scalar('train/total_loss_epoch', train_loss, epoch)
-        alphas = self.model.alphas.cpu().detach().numpy()
         betas = self.model.betas.cpu().detach().numpy()
-        alphas_path = '/media/dell/DATA/wy/Seg_NAS/run/{}/{}/alphas_{}'.format(self.args.dataset, self.args.checkname, epoch)
         betas_path = '/media/dell/DATA/wy/Seg_NAS/run/{}/{}/betas_{}'.format(self.args.dataset, self.args.checkname, epoch)
-        np.save(alphas_path, alphas, allow_pickle=True)
         np.save(betas_path, betas, allow_pickle=True)
 
         print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
@@ -205,12 +209,12 @@ class Trainer(object):
         # Fast test during the training
         Acc = self.evaluator.Pixel_Accuracy()
         Acc_class = self.evaluator.Pixel_Accuracy_Class()
-        mIoU = self.evaluator.Mean_Intersection_over_Union()
+        mIoU, IoU = self.evaluator.Mean_Intersection_over_Union()
         FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
 
         print('Validation:')
         print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
-        print("Acc:{}, Acc_class:{}, mIoU:{}, fwIoU: {}".format(Acc, Acc_class, mIoU, FWIoU))
+        print("Acc:{}, Acc_class:{}, mIoU:{}, fwIoU: {}, IoU:{}".format(Acc, Acc_class, mIoU, FWIoU, IoU))
         print('Loss: %.3f' % test_loss)
         new_pred = mIoU
         is_best = False
@@ -229,4 +233,4 @@ class Trainer(object):
                 'best_pred': self.best_pred,
             }, is_best)
 
-        self.saver.save_train_info(epoch, Acc, mIoU, FWIoU, is_best)
+        self.saver.save_train_info(epoch, Acc, mIoU, FWIoU, IoU, is_best)

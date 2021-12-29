@@ -88,7 +88,7 @@ class Cell(nn.Module):
 
 
 class newModel(nn.Module):
-    def __init__(self, network_arch, cell_arch, num_classes, num_layers, filter_multiplier=20, lock_multiplier=5, step=5, cell=Cell,
+    def __init__(self, network_arch, cell_arch, num_classes, num_layers, filter_multiplier=32, block_multiplier=5, step=5, cell=Cell,
                  BatchNorm=NaiveBN, args=None):
         super(newModel, self).__init__()
         self.args = args

@@ -101,7 +101,7 @@ class newModel(nn.Module):
         self.use_ABN = args.use_ABN
         initial_fm = 128 if args.initial_fm is None else args.initial_fm
         half_initial_fm = initial_fm // 2
-        if self.args.dataset == 'GID':
+        if self.args.dataset == 'GID' or self.args.dataset == 'hps-GID':
             self.stem0 = nn.Sequential(
                 nn.Conv2d(4, half_initial_fm, 3, stride=2, padding=1),
                 BatchNorm(half_initial_fm)

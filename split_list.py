@@ -19,15 +19,15 @@ def data_split(full_list, ratio, shuffle=True):
     return sublist_1, sublist_2
 
 def splitFile():
-    file = open("D:/DPCode/Seg_NAS/data/lists/rs_val.lst", "r", encoding='UTF-8')
+    file = open("/media/dell/DATA/wy/Seg_NAS/data/lists/hps_train.lst", "r", encoding='UTF-8')
     file_list = file.readlines()
-    mini_data, _ = data_split(file_list, 0.1)
+    mini_data, _ = data_split(file_list, 0.15)
     file_name = []
     for i in range(mini_data.__len__()):
         a = str(file_list[i]).replace('\n', '')
         file_name.append(a)
     df = pd.DataFrame(file_name, columns=['one'])
-    df.to_csv('D:/DPCode/Seg_NAS/data/lists/mini_rs_val.lst', columns=['one'], index=False, header=False)
+    df.to_csv('/media/dell/DATA/wy/Seg_NAS/data/lists/mini_hps_train.lst', columns=['one'], index=False, header=False)
 
     file.close()
 splitFile()

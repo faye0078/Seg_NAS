@@ -26,7 +26,7 @@ class AutoDeeplab_forward(nn.Module):
         f_initial = int(self._filter_multiplier)
         half_f_initial = int(f_initial / 2)
 
-        if dataset == 'GID':
+        if dataset == 'GID' or dataset == 'hps-GID':
             self.stem0 = nn.Sequential(
                 nn.Conv2d(4, half_f_initial * self._block_multiplier, 3, stride=2, padding=1),
                 nn.BatchNorm2d(half_f_initial * self._block_multiplier),
