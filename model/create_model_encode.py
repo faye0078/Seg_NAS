@@ -38,17 +38,67 @@ def normal_connect_4(layer):
             connections.append([[i, 3], [i + 1, 2]])
             connections.append([[i, 3], [i + 1, 3]])
 
-    connections = np.array(connections)
-    np.save('./normal_connect_4.npy', connections)  # 保存为.npy格式
+    return np.array(connections)
+
 
 def core_path_connect(layer, depth, path):
     connections = []
-    connections.append([[-1, 0], [0, 0]])
     for i in range(layer):
-        connections.append([[i, path[i]], [i + 1, path[i + 1]]])
+        # connections.append([[i, path[i]], [i + 1, path[i + 1]]])
+        for j in range(path[i]+1):
+            if j == path[i]:
+                connections.append([[-1, 0], [i, j]])
+                for k in range(i):
+                    for l in range(path[k]+1):
+                        connections.append([[k, l], [i, j]])
+                continue
+            if j == 0:
+                if path[i-1] == 0:
+                    connections.append([[i - 1, 0], [i, 0]])
+                else:
+                    connections.append([[i - 1, 0], [i, 0]])
+                    connections.append([[i - 1, 1], [i, 0]])
+
+            if j == 1:
+                if path[i-1] == 0:
+                    connections.append([[i - 1, 0], [i, 1]])
+                elif path[i-1] == 1:
+                    connections.append([[i - 1, 0], [i, 1]])
+                    connections.append([[i - 1, 1], [i, 1]])
+                elif path[i-1] == 2:
+                    connections.append([[i - 1, 0], [i, 1]])
+                    connections.append([[i - 1, 1], [i, 1]])
+                    connections.append([[i - 1, 2], [i, 1]])
+
+            if j == 2:
+                if path[i-1] == 1:
+                    connections.append([[i - 1, 1], [i, 2]])
+                elif path[i-1] == 2:
+                    connections.append([[i - 1, 1], [i, 2]])
+                    connections.append([[i - 1, 2], [i, 2]])
+                elif path[i-1] == 3:
+                    connections.append([[i - 1, 1], [i, 2]])
+                    connections.append([[i - 1, 2], [i, 2]])
+                    connections.append([[i - 1, 3], [i, 2]])
+
+
+    return connections
+
+
+def test_connections(connections):
+    for connection in connections:
+        if connections.count(connection) != 1:
+            return False
+
+    return True
+
 
 
 if __name__ == "__main__":
-    path = np.load('/media/dell/DATA/wy/Seg_NAS/run/hps-GID/12layers_flexinet/path.npy')
-    core_path_connect(11, 4, path)
-    # normal_connect_4(11)
+    # connections = normal_connect_4(11)
+    # path = np.load('/media/dell/DATA/wy/Seg_NAS/run/hps-GID/12layers_flexinet/path.npy')
+    path = [0, 0, 0, 1, 0, 0, 1, 1, 2, 2, 2, 2]
+    connections = core_path_connect(12, 4, path)
+    if test_connections(connections):
+        np.save('./model_encode/complex_connect_4.npy', connections)  # 保存为.npy格式
+

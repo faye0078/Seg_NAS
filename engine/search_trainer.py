@@ -60,22 +60,29 @@ class Trainer(object):
                 model = AutoDeeplab(self.nclass, 12, self.criterion, self.args.filter_multiplier,
                                  self.args.block_multiplier, self.args.step, self.args.dataset)
         elif self.args.model_name == 'FlexiNet':
-            layers = np.ones([12, 4])
-            connections = np.load(self.args.model_encode_path)
-            model = FlexiNet(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass)
+            if self.args.search_stage == "first":
+                layers = np.ones([12, 4])
+                connections = np.load(self.args.model_encode_path)
+                model = FlexiNet(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass)
+
+            elif self.args.search_stage == "second":
+                layers = np.ones([12, 4])
+                connections = np.load(self.args.model_encode_path)
+                # core_path = np.load("oath.npy")
+                core_path = [0, 0, 0, 1, 0, 0, 1, 1, 2, 2, 2, 2]
+                model = FlexiNet(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass, core_path=core_path)
+
+
         optimizer = torch.optim.SGD(
-                model.weight_parameters(),
-                args.lr,
-                momentum=args.momentum,
-                weight_decay=args.weight_decay
-            )
-
+            model.weight_parameters(),
+            args.lr,
+            momentum=args.momentum,
+            weight_decay=args.weight_decay
+        )
         self.model, self.optimizer = model, optimizer
-
         self.architect_optimizer = torch.optim.Adam(self.model.arch_parameters(),
                                                     lr=args.arch_lr, betas=(0.9, 0.999),
                                                     weight_decay=args.arch_weight_decay)
-
         # Define Evaluator
         self.evaluator = Evaluator(self.nclass)
         # Define lr scheduler

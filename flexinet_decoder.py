@@ -90,7 +90,7 @@ def trans_betas(betas):
 
 
 if __name__ == '__main__':
-    path = '/media/dell/DATA/wy/Seg_NAS/run/hps-GID/12layers_flexinet/'
+    path = '/media/dell/DATA/wy/Seg_NAS/run/hps-GID/12layers_flexinet_alldata/'
     betas_list = OrderedDict()
     trans = True
 

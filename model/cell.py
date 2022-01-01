@@ -15,11 +15,8 @@ class ReLUConvBN(nn.Module):
             nn.Conv2d(C_in, C_out, kernel_size, padding=padding, bias=False),
             nn.BatchNorm2d(C_out)
         )
-        if C_in < C_out:
-            self.scale = 0.5
-        elif C_in > C_out:
-            self.scale = 2
 
+        self.scale = C_in/C_out
         self._initialize_weights()
 
 
@@ -28,7 +25,7 @@ class ReLUConvBN(nn.Module):
         if self.scale != 0:
             feature_size_h = self.scale_dimension(x.shape[2], self.scale)
             feature_size_w = self.scale_dimension(x.shape[3], self.scale)
-            s1 = F.interpolate(x, [feature_size_h, feature_size_w], mode='bilinear', align_corners=True)
+            x = F.interpolate(x, [feature_size_h, feature_size_w], mode='bilinear', align_corners=True)
         return self.op(x)
 
     def _initialize_weights(self):
