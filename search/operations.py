@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import platform
 
-# TODO: NOW I DONT KNOW HOW TO USE ABN ON WINDOWS SYSTEM
 
 # if platform.system() == 'Windows':
 if True:
@@ -250,7 +249,7 @@ class Zero(nn.Module):
 
 
 class FactorizedReduce(nn.Module):
-    # TODO: why conv1 and conv2 in two parts ?
+
     def __init__(self, C_in, C_out, affine=True):
         super(FactorizedReduce, self).__init__()
         assert C_out % 2 == 0
@@ -287,7 +286,6 @@ class FactorizedReduce(nn.Module):
 
 
 class DoubleFactorizedReduce(nn.Module):
-    # TODO: why conv1 and conv2 in two parts ?
     def __init__(self, C_in, C_out, affine=True):
         super(DoubleFactorizedReduce, self).__init__()
         assert C_out % 2 == 0

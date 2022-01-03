@@ -8,8 +8,8 @@ def obtain_test_args():
     parser.add_argument('--resume', type=str, default=None, help='put the path to resuming file if needed')
     parser.add_argument('--use_default', type=bool, default=False, help='if use the default arch')
     parser.add_argument('--use_low', type=bool, default=False, help='if use the low level features')
-    parser.add_argument('--model_name', type=str, default='multi', choices=['one_path', 'multi', 'hrnet'],  help='the model name')
-    parser.add_argument('--checkname', type=str, default='12layers_forward_retrain/test', help='set the checkpoint name')
+    parser.add_argument('--model_name', type=str, default='flexinet', choices=['one_path', 'multi', 'hrnet', 'flexinet'],  help='the model name')
+    parser.add_argument('--checkname', type=str, default='test', help='set the checkpoint name')
     parser.add_argument('--nclass', type=int, default=19, help='number of class')
 
     parser.add_argument('--affine', default=False, type=bool, help='whether use affine in BN')
@@ -21,7 +21,7 @@ def obtain_test_args():
 
     parser.add_argument('--opt_level', type=str, default='O0', choices=['O0', 'O1', 'O2', 'O3'], help='opt level for half percision training (default: O0)')
 
-    parser.add_argument('--dataset', type=str, default='cityscapes', choices=['pascal', 'coco', 'cityscapes', 'kd', 'GID'], help='dataset name (default: pascal)')
+    parser.add_argument('--dataset', type=str, default='hps-GID', choices=['cityscapes', 'GID', 'hps-GID'], help='dataset name (default: pascal)')
     parser.add_argument('--nas', type=str, default='train', choices=['search', 'train'])
 
     parser.add_argument('--workers', type=int, default=0, metavar='N', help='dataloader threads')

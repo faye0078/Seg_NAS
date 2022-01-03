@@ -63,14 +63,14 @@ class Trainer(object):
             if self.args.search_stage == "first":
                 layers = np.ones([12, 4])
                 connections = np.load(self.args.model_encode_path)
-                model = FlexiNet(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass)
+                model = FlexiNet(args.nas, layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass)
 
             elif self.args.search_stage == "second":
                 layers = np.ones([12, 4])
                 connections = np.load(self.args.model_encode_path)
                 # core_path = np.load("oath.npy")
                 core_path = [0, 0, 0, 1, 0, 0, 1, 1, 2, 2, 2, 2]
-                model = FlexiNet(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass, core_path=core_path)
+                model = FlexiNet(args.nas, layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass, core_path=core_path)
 
 
         optimizer = torch.optim.SGD(

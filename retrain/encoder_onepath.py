@@ -116,7 +116,6 @@ class newModel(nn.Module):
             nn.Conv2d(half_initial_fm, half_initial_fm, 3, padding=1),
             BatchNorm(half_initial_fm)
         )
-        # TODO: first two channels should be set automatically
         ini_initial_fm = half_initial_fm
         self.stem2 = nn.Sequential(
             nn.Conv2d(half_initial_fm, initial_fm, 3, stride=2, padding=1),

@@ -93,6 +93,9 @@ def test_connections(connections):
     return True
 
 
+# TODO: def 更严格的test函数（判断是否有通路）
+# TODO: def 通过第二阶段的搜索结果建立相应的connections连接
+
 
 if __name__ == "__main__":
     # connections = normal_connect_4(11)

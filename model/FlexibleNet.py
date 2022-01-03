@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 class FlexiNet(nn.Module):
 
-    def __init__(self, layers, depth, connections, cell, dataset, num_classes, base_multiplier=40, core_path=None):
+    def __init__(self, nas, layers, depth, connections, cell, dataset, num_classes, base_multiplier=40, core_path=None):
         '''
         Args:
             layers: layer × depth： one or zero, one means ture
@@ -19,6 +19,7 @@ class FlexiNet(nn.Module):
             base_multiplier: base scale multiplier
         '''
         super(FlexiNet, self).__init__()
+        self.nas = nas
         self.block_multiplier = 1
         self.base_multiplier = base_multiplier
         self.depth = depth
@@ -66,7 +67,9 @@ class FlexiNet(nn.Module):
                 self.cells[i].append(nn.ModuleDict())
                 num_connect = 0
                 for connection in self.connections:
-                    if ([i, j] == connection[1]).all():
+                    # TODO: list和numpy的不同判断方式
+                    # if ([i, j] == connection[1]).all():
+                    if [i, j] == connection[1]:
                         num_connect += 1
                         if connection[0][0] == -1:
                             self.cells[i][j][str(connection[0])] = cell(self.base_multiplier * multi_dict[0],
@@ -96,7 +99,8 @@ class FlexiNet(nn.Module):
         for connection in self.connections:
             if self.core_connections:
                 for core_connection in self.core_connections:
-                    if (connection == core_connection).all():
+                    # if (connection == core_connection).all():
+                    if connection == core_connection:
                         self.core_path_num[connection[1][0]] = self.node_add_num[connection[1][0]][connection[1][1]]
 
             self.node_add_num[connection[1][0]][connection[1][1]] += 1
@@ -125,41 +129,55 @@ class FlexiNet(nn.Module):
                     normalized_betas[i][j][:num] = F.softmax(self.betas[i][j][:num], dim=-1) * (1 / self.max_num_connect)
 
                 # if the second search progress, the denominato should be 'num'
-
-        if self.core_connections:
-            for i in range(len(self.layers)):
-                features.append([])
-                for j in range(self.depth):
-                    features[i].append(0)
-                    k = 0
-                    for connection in self.connections:
-                        if ([i, j] == connection[1]).all():
-                            if connection[0][0] == -1:
-                                if (connection == self.core_connections[i]).all():
-                                    features[i][j] += self.core_path_betas[i] * self.cells[i][j][str(connection[0])](pre_feature)
+        if self.nas == 'search':
+            if self.core_connections:
+                for i in range(len(self.layers)):
+                    features.append([])
+                    for j in range(self.depth):
+                        features[i].append(0)
+                        k = 0
+                        for connection in self.connections:
+                            if [i, j] == connection[1]:
+                                if connection[0][0] == -1:
+                                    if connection == self.core_connections[i]:
+                                        features[i][j] += self.core_path_betas[i] * self.cells[i][j][str(connection[0])](pre_feature)
+                                    else:
+                                        features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](pre_feature)
                                 else:
+                                    if connection == self.core_connections[i]:
+                                        features[i][j] += self.core_path_betas[i] * self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
+                                    else:
+                                        features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
+                                        if k == self.core_path_num[i]:
+                                            print("drong!!!!!!")
+                                k += 1
+            else:
+                for i in range(len(self.layers)):
+                    features.append([])
+                    for j in range(self.depth):
+                        features[i].append(0)
+                        k = 0
+                        for connection in self.connections:
+                            if [i, j] == connection[1]:
+                                if connection[0][0] == -1:
                                     features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](pre_feature)
-                            else:
-                                if (connection == self.core_connections[i]).all():
-                                    features[i][j] += self.core_path_betas[i] * self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
                                 else:
                                     features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
-                                    if k == self.core_path_num[i]:
-                                        print("drong!!!!!!")
-                            k += 1
-        else:
+                                k += 1
+
+        elif self.nas == 'train':
             for i in range(len(self.layers)):
                 features.append([])
                 for j in range(self.depth):
                     features[i].append(0)
-                    k = 0
                     for connection in self.connections:
-                        if ([i, j] == connection[1]).all():
+                        if [i, j] == connection[1]:
                             if connection[0][0] == -1:
-                                features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](pre_feature)
+                                features[i][j] += self.cells[i][j][str(connection[0])](
+                                    pre_feature)
                             else:
-                                features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
-                            k += 1
+                                features[i][j] += self.cells[i][j][str(connection[0])](
+                                    features[connection[0][0]][connection[0][1]])
 
         last_features = [feature for feature in features[len(self.layers)-1] if torch.is_tensor(feature)]
         last_features = [nn.Upsample(size=last_features[0].size()[2:], mode='bilinear', align_corners=True)(feature) for feature in last_features]

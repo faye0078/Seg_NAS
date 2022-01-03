@@ -29,7 +29,7 @@ def main():
     torch.manual_seed(args.seed)
     trainer = Trainer(args)
 
-    macs, params = get_model_complexity_info(trainer.model, (3, 512, 512), as_strings=True,
+    macs, params = get_model_complexity_info(trainer.model, (4, 512, 512), as_strings=True,
                                              print_per_layer_stat=True, verbose=True)
 
     print("this model macs: " + macs)
