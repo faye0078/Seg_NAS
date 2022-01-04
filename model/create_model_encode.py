@@ -98,10 +98,10 @@ def test_connections(connections):
 
 
 if __name__ == "__main__":
-    # connections = normal_connect_4(11)
-    # path = np.load('/media/dell/DATA/wy/Seg_NAS/run/hps-GID/12layers_flexinet/path.npy')
-    path = [0, 0, 0, 1, 0, 0, 1, 1, 2, 2, 2, 2]
-    connections = core_path_connect(12, 4, path)
-    if test_connections(connections):
-        np.save('./model_encode/complex_connect_4.npy', connections)  # 保存为.npy格式
+    connections = normal_connect_4(11)
+    path = np.load('/media/dell/DATA/wy/Seg_NAS/run/hps-GID/12layers_flexinet/path.npy')
+    # path = [0, 0, 0, 1, 0, 0, 1, 1, 2, 2, 2, 2]
+    # connections = core_path_connect(12, 4, path)
+    # if test_connections(connections):
+    np.save('./model_encode/normal_connect_4.npy', connections)  # 保存为.npy格式
 

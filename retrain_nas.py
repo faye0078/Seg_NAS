@@ -30,7 +30,7 @@ def main():
         else:
             args.sync_bn = False
 
-    print(args)
+    # print(args)
     setup_seed(args.seed)
     trainer = Trainer(args)
 

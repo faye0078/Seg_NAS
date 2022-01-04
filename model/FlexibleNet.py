@@ -69,7 +69,7 @@ class FlexiNet(nn.Module):
                 for connection in self.connections:
                     # TODO: list和numpy的不同判断方式
                     # if ([i, j] == connection[1]).all():
-                    if [i, j] == connection[1]:
+                    if ([i, j] == connection[1]).all():
                         num_connect += 1
                         if connection[0][0] == -1:
                             self.cells[i][j][str(connection[0])] = cell(self.base_multiplier * multi_dict[0],
@@ -100,13 +100,14 @@ class FlexiNet(nn.Module):
             if self.core_connections:
                 for core_connection in self.core_connections:
                     # if (connection == core_connection).all():
-                    if connection == core_connection:
+                    if (connection == core_connection).all():
                         self.core_path_num[connection[1][0]] = self.node_add_num[connection[1][0]][connection[1][1]]
 
             self.node_add_num[connection[1][0]][connection[1][1]] += 1
 
         self.initialize_betas()
-        print(self.core_path_num)
+        if core_path:
+            print(self.core_path_num)
 
     def forward(self, x):
         features = []
@@ -137,14 +138,14 @@ class FlexiNet(nn.Module):
                         features[i].append(0)
                         k = 0
                         for connection in self.connections:
-                            if [i, j] == connection[1]:
+                            if ([i, j] == connection[1]).all():
                                 if connection[0][0] == -1:
-                                    if connection == self.core_connections[i]:
+                                    if (connection == self.core_connections[i]).all():
                                         features[i][j] += self.core_path_betas[i] * self.cells[i][j][str(connection[0])](pre_feature)
                                     else:
                                         features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](pre_feature)
                                 else:
-                                    if connection == self.core_connections[i]:
+                                    if (connection == self.core_connections[i]).all():
                                         features[i][j] += self.core_path_betas[i] * self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
                                     else:
                                         features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
@@ -158,7 +159,7 @@ class FlexiNet(nn.Module):
                         features[i].append(0)
                         k = 0
                         for connection in self.connections:
-                            if [i, j] == connection[1]:
+                            if ([i, j] == connection[1]).all():
                                 if connection[0][0] == -1:
                                     features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](pre_feature)
                                 else:

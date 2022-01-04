@@ -195,12 +195,12 @@ class Trainer(object):
         # Fast test during the training
         Acc = self.evaluator.Pixel_Accuracy()
         Acc_class = self.evaluator.Pixel_Accuracy_Class()
-        mIoU = self.evaluator.Mean_Intersection_over_Union()
+        mIoU, IoU = self.evaluator.Mean_Intersection_over_Union()
         FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
 
         print('Validation:')
         print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
-        print("Acc:{}, Acc_class:{}, mIoU:{}, fwIoU: {}".format(Acc, Acc_class, mIoU, FWIoU))
+        print("Acc:{}, Acc_class:{}, mIoU:{}, fwIoU: {}, IoU:{}".format(Acc, Acc_class, mIoU, FWIoU, IoU))
         print('Loss: %.3f' % test_loss)
         new_pred = mIoU
         is_best = False
@@ -217,8 +217,8 @@ class Trainer(object):
                 'state_dict': state_dict,
                 'optimizer': self.optimizer.state_dict(),
                 'best_pred': self.best_pred,
-            }, is_best)
-        self.saver.save_train_info(epoch, Acc, mIoU, FWIoU, is_best)
+            }, is_best, 'epoch{}_checkpoint.pth.tar'.format(str(epoch + 1)))
+        self.saver.save_train_info(epoch, Acc, mIoU, FWIoU, IoU, is_best)
 
 
 def get_connections():
@@ -288,4 +288,4 @@ def get_connections():
     [[10, 0], [11, 2]],
     [[10, 1], [11, 2]],
    ]
-    return a
+    return np.array(a)

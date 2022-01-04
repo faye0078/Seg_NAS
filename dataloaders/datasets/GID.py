@@ -246,10 +246,16 @@ class GIDDataset(Dataset):
         with open(data_file, "rb") as f:
             datalist = f.readlines()
         try:
+            # self.datalist = [
+            #     (k, k.replace('image/', 'label/').replace('img.tif', 'label.png'))
+            #     for k in map(
+            #         lambda x: x.decode("utf-8").strip("\n").strip("\r"), datalist
+            #     )
+            # ]
             self.datalist = [
-                (k, k.replace('image/', 'label/').replace('img.tif', 'label.png'))
+                (k[0], k[1])
                 for k in map(
-                    lambda x: x.decode("utf-8").strip("\n").strip("\r"), datalist
+                    lambda x: x.decode("utf-8").strip("\n").strip("\r").split("\t"), datalist
                 )
             ]
         except ValueError:  # Adhoc for test.
