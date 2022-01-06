@@ -218,8 +218,43 @@ class Trainer(object):
                 'optimizer': self.optimizer.state_dict(),
                 'best_pred': self.best_pred,
             }, is_best, 'epoch{}_checkpoint.pth.tar'.format(str(epoch + 1)))
+
+            self.test_model(epoch)
         self.saver.save_train_info(epoch, Acc, mIoU, FWIoU, IoU, is_best)
 
+    def test_model(self, epoch):
+        self.model.eval()
+        self.evaluator.reset()
+        tbar = tqdm(self.test_loader, desc='\r')
+        test_loss = 0.0
+
+        for i, sample in enumerate(tbar):
+            image, target = sample['image'], sample['mask']
+            if self.args.cuda:
+                image, target = image.cuda(), target.cuda()
+            with torch.no_grad():
+                output = self.model(image)
+            loss = self.criterion(output, target)
+            test_loss += loss.item()
+            tbar.set_description('Test loss: %.3f' % (test_loss / (i + 1)))
+            pred = output.data.cpu().numpy()
+            target = target.cpu().numpy()
+            pred = np.argmax(pred, axis=1)
+            # Add batch sample into evaluator
+            self.evaluator.add_batch(target, pred)
+
+        # Fast test during the training
+        Acc = self.evaluator.Pixel_Accuracy()
+        Acc_class = self.evaluator.Pixel_Accuracy_Class()
+        mIoU, IoU = self.evaluator.Mean_Intersection_over_Union()
+        FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
+
+        print('Test:')
+        print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
+        print("Acc:{}, Acc_class:{}, mIoU:{}, fwIoU: {}, IoU:{}".format(Acc, Acc_class, mIoU, FWIoU, IoU))
+        print('Loss: %.3f' % test_loss)
+
+        self.saver.save_test_info(epoch, Acc, mIoU, FWIoU, IoU)
 
 def get_connections():
     a= [

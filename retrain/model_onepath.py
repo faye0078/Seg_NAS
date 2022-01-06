@@ -19,10 +19,10 @@ class Retrain_Autodeeplab(nn.Module):
 
         if args.net_arch is not None and args.cell_arch is not None and  not args.use_default:
             net_path, cell_arch = np.load(args.net_arch), np.load(args.cell_arch)
+            print(net_path)
             network_arch = network_layer_to_space(net_path)
         else:
             network_arch, cell_arch, net_path = get_default_arch()
-
         self.encoder = newModel(network_arch, cell_arch, args.nclass, 12, args.filter_multiplier, BatchNorm=BatchNorm2d, args=args)
         self.aspp = ASPP(args.filter_multiplier * args.block_multiplier * filter_param_dict[net_path[-1]],
                             256, args.nclass, conv=nn.Conv2d, norm=BatchNorm2d)

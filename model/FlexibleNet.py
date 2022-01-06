@@ -124,10 +124,10 @@ class FlexiNet(nn.Module):
                 if num == 0:
                     continue
                 if self.core_connections:
-                    normalized_betas[i][j][:num] = F.softmax(self.betas[i][j][:num], dim=-1) * (1 / num)
+                    normalized_betas[i][j][:num] = F.softmax(self.betas[i][j][:num], dim=-1)
 
                 else:
-                    normalized_betas[i][j][:num] = F.softmax(self.betas[i][j][:num], dim=-1) * (1 / self.max_num_connect)
+                    normalized_betas[i][j][:num] = F.softmax(self.betas[i][j][:num], dim=-1) * (num / self.max_num_connect)
 
                 # if the second search progress, the denominato should be 'num'
         if self.nas == 'search':

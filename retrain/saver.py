@@ -74,5 +74,12 @@ class Saver(object):
         file.write(train_info + '\n')
         file.close()
 
+    def save_test_info(self, epoch, acc, miou, fwiou, iou):
+        train_info = 'epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(epoch), str(acc), str(miou), str(fwiou),
+                                                                          str(iou))
+        info_file = os.path.join(self.experiment_dir, 'test_info.txt')
+        file = open(info_file, 'a')
+        file.write(train_info + '\n')
+        file.close()
 
 

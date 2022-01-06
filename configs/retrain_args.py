@@ -5,18 +5,18 @@ def obtain_retrain_args():
     parser = argparse.ArgumentParser(description="ReTrain the nas model")
 
     parser.add_argument('--use_default', type=bool, default=False,  help='if use the default arch')
-    parser.add_argument('--use_low', type=bool, default=False,  help='if use the low level features')
+    parser.add_argument('--use_low', type=bool, default=True,  help='if use the low level features')
 
-    parser.add_argument('--model_name', type=str, default='flexinet', choices=['one_path', 'multi', 'hrnet', 'flexinet'], help='the model name')
+    parser.add_argument('--model_name', type=str, default='one_path', choices=['one_path', 'multi', 'hrnet', 'flexinet'], help='the model name')
     parser.add_argument('--resume', type=str, default=None, help='put the path to resuming file if needed')
-    parser.add_argument('--checkname', type=str, default='12layers_flexinet_retrain/56_nmp', help='set the checkpoint name')
+    parser.add_argument('--checkname', type=str, default='12layers_forward_retrain/autodeeplab', help='set the checkpoint name')
 
     parser.add_argument('--crop_size', type=int, default=512, help='crop image size')
     parser.add_argument('--resize', type=int, default=512, help='resize image size')
     parser.add_argument('--epochs', type=int, default=100, metavar='N', help='number of epochs to train (default: auto)')
     parser.add_argument('--num_worker', type=int, default=4,metavar='N', help='numer workers')
     parser.add_argument('--batch-size', type=int, default=2, metavar='N', help='input batch size for training (default: auto)')
-    parser.add_argument('--dataset', type=str, default='hps-GID', choices=['pascal', 'coco', 'cityscapes', 'kd', 'GID', 'hps-GID'], help='dataset name (default: pascal)')
+    parser.add_argument('--dataset', type=str, default='GID', choices=['pascal', 'coco', 'cityscapes', 'kd', 'GID', 'hps-GID'], help='dataset name (default: pascal)')
 
     parser.add_argument('--affine', default=False, type=bool, help='whether use affine in BN')
     parser.add_argument('--initial-fm', default=None, type=int)

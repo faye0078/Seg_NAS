@@ -90,7 +90,7 @@ def trans_betas(betas):
 
 
 if __name__ == '__main__':
-    path = '/media/dell/DATA/wy/Seg_NAS/run/hps-GID/12layers_flexinet_alldata_first/'
+    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_flexinet_alldata_first_batch24/experiment_1/betas/'
     betas_list = OrderedDict()
     trans = False
 
@@ -105,9 +105,11 @@ if __name__ == '__main__':
                 decoder = Decoder(betas_list[filename], 5)
                 path_list[filename] = decoder.viterbi_decode()
     print(path_list)
-    b = np.array(path_list['betas_52.npy'])
+    order_path_list = []
+    for i in range(len(path_list)):
+        idx = 'betas_{}.npy'.format(str(i))
+        order_path_list.append(path_list[idx])
 
-    np.save(path + 'path.npy', b)
-    print(b)
+    print(order_path_list)
 
 

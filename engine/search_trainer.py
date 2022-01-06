@@ -68,8 +68,7 @@ class Trainer(object):
             elif self.args.search_stage == "second":
                 layers = np.ones([12, 4])
                 connections = np.load(self.args.model_encode_path)
-                # core_path = np.load("oath.npy")
-                core_path = [0, 0, 0, 1, 0, 0, 1, 1, 2, 2, 2, 2]
+                core_path = [0, 1, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2]
                 model = FlexiNet(args.nas, layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass, core_path=core_path)
 
 
@@ -161,17 +160,12 @@ class Trainer(object):
 
             train_loss += loss.item()
             tbar.set_description('Train loss: %.3f' % (train_loss / (i + 1)))
-            #self.writer.add_scalar('train/total_loss_iter', loss.item(), i + num_img_tr * epoch)
 
-            # Show 10 * 3 inference results each epoch
-            # if i % (num_img_tr // 10) == 0:
-            #     global_step = i + num_img_tr * epoch
-            #     self.summary.visualize_image(self.writer, self.args.dataset, image, target, output, global_step)
-
-            #torch.cuda.empty_cache()
-        # self.writer.add_scalar('train/total_loss_epoch', train_loss, epoch)
         betas = self.model.betas.cpu().detach().numpy()
-        betas_path = '/media/dell/DATA/wy/Seg_NAS/run/{}/{}/betas_{}'.format(self.args.dataset, self.args.checkname, epoch)
+        betas_dir = '/media/dell/DATA/wy/Seg_NAS/' + self.saver.experiment_dir + '/betas'
+        if not os.path.exists(betas_dir):
+            os.makedirs(betas_dir)
+        betas_path = betas_dir + '/betas_{}.npy'.format(epoch)
         np.save(betas_path, betas, allow_pickle=True)
 
         print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
@@ -189,7 +183,7 @@ class Trainer(object):
                 'state_dict': state_dict,
                 'optimizer': self.optimizer.state_dict(),
                 'best_pred': self.best_pred,
-            }, is_best)
+            }, is_best, 'epoch{}_checkpoint.pth.tar'.format(str(epoch + 1)))
 
 
     def validation(self, epoch):
@@ -238,6 +232,6 @@ class Trainer(object):
                 'state_dict': state_dict,
                 'optimizer': self.optimizer.state_dict(),
                 'best_pred': self.best_pred,
-            }, is_best)
+            }, is_best, 'epoch{}_checkpoint.pth.tar'.format(str(epoch + 1)))
 
         self.saver.save_train_info(epoch, Acc, mIoU, FWIoU, IoU, is_best)
