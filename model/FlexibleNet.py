@@ -67,7 +67,6 @@ class FlexiNet(nn.Module):
                 self.cells[i].append(nn.ModuleDict())
                 num_connect = 0
                 for connection in self.connections:
-                    # TODO: list和numpy的不同判断方式
                     # if ([i, j] == connection[1]).all():
                     if ([i, j] == connection[1]).all():
                         num_connect += 1

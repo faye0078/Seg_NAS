@@ -9,6 +9,7 @@ class Decoder(object):
         self._num_layers = self._betas.shape[0]
         self._steps = steps
         self.network_space = torch.zeros(self._num_layers, 4, 3)
+        self.path = ['', '', '', '']
 
         for layer in range(self._num_layers):
             if layer == 0:
@@ -64,6 +65,8 @@ class Decoder(object):
             actual_path[-i - 1] = actual_path[-i] + path_space[self._num_layers - i, actual_path[-i]]
 
         return actual_path
+    # TODO: def max_path(self):
+
 
 
 def trans_betas(betas):

@@ -40,36 +40,41 @@ def make_data_loader(args, **kwargs):
                 ToTensor(),
             ])
         if args.model_name == 'FlexiNet':
-            train_set = GID.GIDDataset(data_file=data_path['train_list'],
+            train_set = GID.GIDDataset(stage="train",
+                                       data_file=data_path['train_list'],
                                        data_dir=data_path['dir'],
-                                       transform_trn=composed_trn,
-                                       transform_val=composed_val, )
-            val_set = GID.GIDDataset(data_file=data_path['val_list'],
+                                       transform_trn=composed_trn, )
+            val_set = GID.GIDDataset(stage="val",
+                                    data_file=data_path['val_list'],
                                      data_dir=data_path['dir'],
-                                     transform_trn=composed_trn,
                                      transform_val=composed_val, )
+            test_set = GID.GIDDataset(stage="test",
+                                      data_file=data_path['test_list'],
+                                      data_dir=data_path['dir'],
+                                      transform_test=composed_test, )
         else:
             if args.nas == 'search':
-                train_set = GID.GIDDataset(data_file=data_path['mini_train_list'],
+                train_set = GID.GIDDataset(stage="train",
+                                           data_file=data_path['mini_train_list'],
                                             data_dir=data_path['dir'],
-                                            transform_trn=composed_trn,
-                                            transform_val=composed_val,)
-                val_set = GID.GIDDataset(data_file=data_path['mini_val_list'],
+                                            transform_trn=composed_trn,)
+                val_set = GID.GIDDataset(stage="val",
+                                            data_file=data_path['mini_val_list'],
                                             data_dir=data_path['dir'],
-                                            transform_trn=composed_trn,
                                             transform_val=composed_val,)
             elif args.nas == 'train':
-                train_set = GID.GIDDataset(data_file=data_path['train_list'],
+                train_set = GID.GIDDataset(stage="train",
+                                            data_file=data_path['train_list'],
                                             data_dir=data_path['dir'],
-                                            transform_trn=composed_trn,
+                                            transform_trn=composed_trn,)
+                val_set = GID.GIDDataset(stage="val",
+                                            data_file=data_path['val_list'],
+                                            data_dir=data_path['dir'],
                                             transform_val=composed_val,)
-                val_set = GID.GIDDataset(data_file=data_path['val_list'],
+                test_set = GID.GIDDataset(stage="test",
+                                            data_file=data_path['test_list'],
                                             data_dir=data_path['dir'],
-                                            transform_trn=composed_trn,
-                                            transform_val=composed_val,)
-                test_set = GID.GIDDataset(data_file=data_path['test_list'],
-                                            data_dir=data_path['dir'],
-                                            transform_val=composed_test,)
+                                            transform_test=composed_test,)
             else:
                 raise Exception('nas param not set properly')
 

@@ -235,7 +235,7 @@ class ToTensor(object):
 class GIDDataset(Dataset):
     """Custom Pascal VOC"""
 
-    def __init__(self, data_file, data_dir, transform_trn=None, transform_val=None):
+    def __init__(self, stage, data_file, data_dir, transform_trn=None, transform_val=None, transform_test=None):
         """
         Args:
             data_file (string): Path to the data file with annotations.
@@ -265,10 +265,10 @@ class GIDDataset(Dataset):
         self.root_dir = data_dir
         self.transform_trn = transform_trn
         self.transform_val = transform_val
-        self.stage = "train"
-
-    def set_stage(self, stage):
+        self.transform_test = transform_test
         self.stage = stage
+
+
 
     def set_config(self, crop_size, resize_side):
         self.transform_trn.transforms[0].resize_side = resize_side
@@ -298,4 +298,7 @@ class GIDDataset(Dataset):
         elif self.stage == "val":
             if self.transform_val:
                 sample = self.transform_val(sample)
+        elif self.stage == 'test':
+            if self.transform_test:
+                sample = self.transform_test(sample)
         return sample
