@@ -65,7 +65,7 @@ class Saver(object):
             log_file.close()
 
     def save_train_info(self, epoch, acc, miou, fwiou, iou, is_best):
-        train_info = 'epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(epoch), str(acc), str(miou), str(fwiou), str(iou))
+        train_info = 'epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(epoch+1), str(acc), str(miou), str(fwiou), str(iou))
         if is_best:
             train_info = train_info + 'new best'
 

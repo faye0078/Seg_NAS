@@ -15,22 +15,25 @@ class Decoder(object):
             if layer == 0:
                 self.network_space[layer][0][1] = F.softmax(self._betas[layer][0][1], dim=-1)  * (1/3)
             elif layer == 1:
-                self.network_space[layer][0][1:] = F.softmax(self._betas[layer][0][1:], dim=-1)  * (2/3)
+                self.network_space[layer][0][1] = F.softmax(self._betas[layer][0][1], dim=-1)  * (1/3)
+                self.network_space[layer][1][0] = F.softmax(self._betas[layer][1][0], dim=-1) * (1 / 3)
             elif layer == 2:
                 self.network_space[layer][0][1:] = F.softmax(self._betas[layer][0][1:], dim=-1) * (2/3)
-                self.network_space[layer][1] = F.softmax(self._betas[layer][1], dim=-1)
-
+                self.network_space[layer][1][:2] = F.softmax(self._betas[layer][1][:2], dim=-1) * (2/3)
+                self.network_space[layer][2][0] = F.softmax(self._betas[layer][2][0], dim=-1) * (1/3)
             elif layer == 3:
                 self.network_space[layer][0][1:] = F.softmax(self._betas[layer][0][1:], dim=-1) * (2/3)
                 self.network_space[layer][1] = F.softmax(self._betas[layer][1], dim=-1)
-                self.network_space[layer][2] = F.softmax(self._betas[layer][2], dim=-1)
-
+                self.network_space[layer][2][:2] = F.softmax(self._betas[layer][2][:2], dim=-1) * (2 / 3)
+                self.network_space[layer][3][0] = F.softmax(self._betas[layer][3][0], dim=-1) * (1 / 3)
 
             else:
                 self.network_space[layer][0][1:] = F.softmax(self._betas[layer][0][1:], dim=-1) * (2/3)
                 self.network_space[layer][1] = F.softmax(self._betas[layer][1], dim=-1)
                 self.network_space[layer][2] = F.softmax(self._betas[layer][2], dim=-1)
                 self.network_space[layer][3][:2] = F.softmax(self._betas[layer][3][:2], dim=-1) * (2/3)
+
+        self.trans_betas()
 
     def viterbi_decode(self):
         prob_space = np.zeros((self.network_space.shape[:2]))
@@ -69,33 +72,35 @@ class Decoder(object):
 
 
 
-def trans_betas(betas):
-    after_trans = np.zeros([12, 4, 3])
-    shape = betas.shape
-    for i in range(shape[0]):
-        for j in range(shape[1]):
-            if j == 0:
-                after_trans[i][0][1] = betas[i][j][1]
-                after_trans[i][1][0] = betas[i][j][2]
-            if j == 1:
-                after_trans[i][0][2] = betas[i][j][0]
-                after_trans[i][1][1] = betas[i][j][1]
-                after_trans[i][2][0] = betas[i][j][2]
-            if j == 2:
-                after_trans[i][1][2] = betas[i][j][0]
-                after_trans[i][2][1] = betas[i][j][1]
-                after_trans[i][3][0] = betas[i][j][2]
-            if j == 3:
-                after_trans[i][2][2] = betas[i][j][0]
-                after_trans[i][3][1] = betas[i][j][1]
+    def trans_betas(self):
+        betas = self.network_space
+        after_trans = np.zeros([12, 4, 3])
+        shape = betas.shape
+        for i in range(shape[0]):
+            for j in range(shape[1]):
+                if j == 0:
+                    after_trans[i][0][1] = betas[i][j][1]
+                    after_trans[i][1][0] = betas[i][j][2]
+                if j == 1:
+                    after_trans[i][0][2] = betas[i][j][0]
+                    after_trans[i][1][1] = betas[i][j][1]
+                    after_trans[i][2][0] = betas[i][j][2]
+                if j == 2:
+                    after_trans[i][1][2] = betas[i][j][0]
+                    after_trans[i][2][1] = betas[i][j][1]
+                    after_trans[i][3][0] = betas[i][j][2]
+                if j == 3:
+                    after_trans[i][2][2] = betas[i][j][0]
+                    after_trans[i][3][1] = betas[i][j][1]
 
-    return after_trans
+        self.network_space = after_trans
 
 
 if __name__ == '__main__':
-    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_flexinet_alldata_first_batch24/experiment_1/betas/'
+    path = '/media/dell/DATA/wy/Seg_NAS/run/cityscapes/12layers_flexinet_first/experiment_0/betas/'
     betas_list = OrderedDict()
-    trans = False
+    const_network_list = OrderedDict()
+    trans = True
 
     path_list = OrderedDict()
 
@@ -103,9 +108,8 @@ if __name__ == '__main__':
         for filename in filenames:
             if filename.split('.')[0].split('_')[0] == 'betas':
                 betas_list[filename] = np.load(dirpath + filename)
-                if trans:
-                    betas_list[filename] = trans_betas(betas_list[filename])
                 decoder = Decoder(betas_list[filename], 5)
+                const_network_list[filename] = decoder.network_space
                 path_list[filename] = decoder.viterbi_decode()
     print(path_list)
     order_path_list = []
