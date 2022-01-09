@@ -97,7 +97,7 @@ class Decoder(object):
 
 
 if __name__ == '__main__':
-    path = '/media/dell/DATA/wy/Seg_NAS/run/cityscapes/12layers_flexinet_first/experiment_0/betas/'
+    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_flexinet_alldata_first_batch24/experiment_2/betas/'
     betas_list = OrderedDict()
     const_network_list = OrderedDict()
     trans = True

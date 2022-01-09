@@ -51,7 +51,7 @@ class Saver(object):
             log_file = open(logfile, 'w')
             p = OrderedDict()
             p['datset'] = self.args.dataset
-            p['backbone'] = self.args.backbone
+            p['batchsize'] = self.args.batch_size
             p['out_stride'] = self.args.out_stride
             p['lr'] = self.args.lr
             p['lr_scheduler'] = self.args.lr_scheduler
@@ -64,8 +64,8 @@ class Saver(object):
                 log_file.write(key + ':' + str(val) + '\n')
             log_file.close()
 
-    def save_train_info(self, epoch, acc, miou, fwiou, iou, is_best):
-        train_info = 'epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(epoch+1), str(acc), str(miou), str(fwiou), str(iou))
+    def save_train_info(self, loss, epoch, acc, miou, fwiou, iou, is_best):
+        train_info = 'loss:{}, epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(loss), str(epoch+1), str(acc), str(miou), str(fwiou), str(iou))
         if is_best:
             train_info = train_info + 'new best'
 

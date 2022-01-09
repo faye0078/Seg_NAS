@@ -39,7 +39,7 @@ class Decoder(object):
         self.used_betas = used_betas
 
 if __name__ == '__main__':
-    path = '/media/dell/DATA/wy/Seg_NAS/run/hps-GID/12layers_flexinet_alldata_second_batchsize5/'
+    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_flexinet_alldata_second_batch24/experiment_1/betas/'
     betas_list = OrderedDict()
     used_betas_list = OrderedDict()
 
@@ -47,10 +47,15 @@ if __name__ == '__main__':
         for filename in filenames:
             if filename.split('.')[0].split('_')[0] == 'betas':
                 betas_list[filename] = np.load(dirpath + filename)
-                core_path = [0, 0, 0, 1, 0, 0, 1, 1, 2, 2, 2, 2]
-                core_path_num = [0, 1, 2, 3, 5, 6, 7, 9, 11, 14, 17, 20]
+                core_path = [0, 0, 1, 1, 1, 0, 1, 0, 1, 2, 2, 2]
+                core_path_num = [0, 1, 2, 4, 6, 8, 9, 11, 12, 14, 17, 20]
                 decoder = Decoder(betas_list[filename], core_path, core_path_num)
                 used_betas_list[filename] = decoder.used_betas
+
+    order_path_list = []
+    for i in range(len(used_betas_list)):
+        idx = 'betas_{}.npy'.format(str(i))
+        order_path_list.append(used_betas_list[idx])
     # print(path_list)
     print(used_betas_list)
     # b = np.array(path_list['betas_52.npy'])

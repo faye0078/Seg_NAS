@@ -52,6 +52,7 @@ class Saver(object):
             p = OrderedDict()
             p['datset'] = self.args.dataset
             p['lr'] = self.args.lr
+            p['batchsize'] = self.args.batch_size
             p['lr_scheduler'] = self.args.lr_scheduler
             p['loss_type'] = self.args.loss_type
             p['epoch'] = self.args.epochs
@@ -63,8 +64,8 @@ class Saver(object):
             log_file.close()
 
 
-    def save_train_info(self, epoch, acc, miou, fwiou, iou, is_best):
-        train_info = 'epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(epoch), str(acc), str(miou), str(fwiou), str(iou))
+    def save_train_info(self, loss, epoch, acc, miou, fwiou, iou, is_best):
+        train_info = 'loss:{}, epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(loss), str(epoch), str(acc), str(miou), str(fwiou), str(iou))
         if is_best:
             train_info = train_info + 'new best'
 
@@ -74,8 +75,8 @@ class Saver(object):
         file.write(train_info + '\n')
         file.close()
 
-    def save_test_info(self, epoch, acc, miou, fwiou, iou):
-        train_info = 'epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(epoch+1), str(acc), str(miou), str(fwiou),
+    def save_test_info(self, loss, epoch, acc, miou, fwiou, iou):
+        train_info = 'loss: {}, epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(loss), str(epoch+1), str(acc), str(miou), str(fwiou),
                                                                           str(iou))
         info_file = os.path.join(self.experiment_dir, 'test_info.txt')
         file = open(info_file, 'a')

@@ -4,7 +4,10 @@ from ptflops import get_model_complexity_info
 from thop import profile
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 from configs.test_model_args import obtain_test_args
+from configs.retrain_args import obtain_retrain_args
 from engine.retrainer import Trainer
+from torchsummary import summary
+from torchstat import stat
 
 
 # 为每个卷积层搜索最适合它的卷积实现算法
@@ -12,6 +15,7 @@ from engine.retrainer import Trainer
 
 def main():
     args = obtain_test_args()
+    # args = obtain_retrain_args()
     args.cuda = torch.cuda.is_available()
     if args.cuda:
         try:
@@ -29,13 +33,18 @@ def main():
     torch.manual_seed(args.seed)
     trainer = Trainer(args)
 
-    macs, params = get_model_complexity_info(trainer.model, (4, 512, 512), as_strings=True,
-                                             print_per_layer_stat=True, verbose=True)
+    # device = torch.device("cpu")
+    # model = trainer.model.to(device)
+    #
+    # stat(model, (4, 512, 512))
+    #
+    # macs, params = get_model_complexity_info(trainer.model, (4, 512, 512), as_strings=True,
+    #                                          print_per_layer_stat=True, verbose=True)
+    #
+    # print("this model macs: " + macs)
+    # print("this model params: " + params)
 
-    print("this model macs: " + macs)
-    print("this model params: " + params)
-
-    # trainer.validation(0)
+    trainer.validation(0)
 
 
 

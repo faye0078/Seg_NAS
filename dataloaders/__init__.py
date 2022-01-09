@@ -15,7 +15,7 @@ from dataloaders.datasets.GID import (
 from torchvision import transforms
 def make_data_loader(args, **kwargs):
     if args.dataset == 'GID' or args.dataset == 'hps-GID':
-        data_path = get_data_path('GID')
+        data_path = get_data_path(args.dataset)
         num_class = 5
         composed_trn = transforms.Compose(
             [

@@ -171,7 +171,7 @@ class FlexiNet(nn.Module):
                 for j in range(self.depth):
                     features[i].append(0)
                     for connection in self.connections:
-                        if [i, j] == connection[1]:
+                        if ([i, j] == connection[1]).all():
                             if connection[0][0] == -1:
                                 features[i][j] += self.cells[i][j][str(connection[0])](
                                     pre_feature)

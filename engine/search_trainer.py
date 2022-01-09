@@ -234,4 +234,4 @@ class Trainer(object):
                 'best_pred': self.best_pred,
             }, is_best, 'epoch{}_checkpoint.pth.tar'.format(str(epoch + 1)))
 
-        self.saver.save_train_info(epoch, Acc, mIoU, FWIoU, IoU, is_best)
+        self.saver.save_train_info(test_loss, epoch, Acc, mIoU, FWIoU, IoU, is_best)
