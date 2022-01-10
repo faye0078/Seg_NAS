@@ -29,7 +29,7 @@ class Configuration():
         self.MODEL_ASPP_OUTDIM = 256
         self.MODEL_SHORTCUT_DIM = 48
         self.MODEL_SHORTCUT_KERNEL = 1
-        self.MODEL_NUM_CLASSES = 21
+        self.MODEL_NUM_CLASSES = 5
         self.MODEL_SAVE_DIR = os.path.join(self.ROOT_DIR, 'model', self.EXP_NAME)
 
         self.TRAIN_LR = 0.007

@@ -52,6 +52,7 @@ class deeplabv3plus(nn.Module):
 		self.backbone_layers = self.backbone.get_layers()
 
 	def forward(self, x):
+		# TODO: Find the true deeplabv3
 		x_bottom = self.backbone(x)
 		layers = self.backbone.get_layers()
 		feature_aspp = self.aspp(layers[-1])

@@ -65,7 +65,7 @@ class Trainer(object):
         elif args.model_name == 'deeplabv3plus':
             model = generate_net(args)
         elif args.model_name == 'pspnet':
-            model = build_network('resnet101')
+            model = build_network(args)
         elif args.model_name == 'flexinet':
             layers = np.ones([12, 4])
             # connections = np.load()

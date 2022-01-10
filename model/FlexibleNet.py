@@ -36,17 +36,14 @@ class FlexiNet(nn.Module):
 
         half_base = int(base_multiplier // 2)
         if dataset == 'GID' or dataset == 'hps-GID':
-            self.stem0 = nn.Sequential(
-                nn.Conv2d(4, half_base * self.block_multiplier, 3, stride=2, padding=1),
-                nn.BatchNorm2d(half_base * self.block_multiplier),
-                nn.ReLU()
-            )
+            input_channel = 4
         else:
-            self.stem0 = nn.Sequential(
-                nn.Conv2d(3, half_base * self.block_multiplier, 3, stride=2, padding=1),
-                nn.BatchNorm2d(half_base * self.block_multiplier),
-                nn.ReLU()
-            )
+            input_channel = 3
+        self.stem0 = nn.Sequential(
+            nn.Conv2d(input_channel, half_base * self.block_multiplier, 3, stride=2, padding=1),
+            nn.BatchNorm2d(half_base * self.block_multiplier),
+            nn.ReLU()
+        )
         self.stem1 = nn.Sequential(
             nn.Conv2d(half_base * self.block_multiplier, half_base * self.block_multiplier, 3, stride=1, padding=1),
             nn.BatchNorm2d(half_base * self.block_multiplier),
@@ -67,7 +64,6 @@ class FlexiNet(nn.Module):
                 self.cells[i].append(nn.ModuleDict())
                 num_connect = 0
                 for connection in self.connections:
-                    # if ([i, j] == connection[1]).all():
                     if ([i, j] == connection[1]).all():
                         num_connect += 1
                         if connection[0][0] == -1:

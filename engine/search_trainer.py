@@ -27,7 +27,7 @@ from search.search_model import AutoDeeplab
 from search.search_model_forward import AutoDeeplab_forward
 from model.FlexibleNet import FlexiNet
 from search.copy_state_dict import copy_state_dict
-from model.cell import ReLUConvBN, ReLUConv5BN
+from model.cell import ReLUConvBN, ReLUConv5BN, ConvBNReLU
 
 class Trainer(object):
     def __init__(self, args):
@@ -63,9 +63,14 @@ class Trainer(object):
             if self.args.search_stage == "first":
                 layers = np.ones([12, 4])
                 connections = np.load(self.args.model_encode_path)
-                model = FlexiNet(args.nas, layers, 4, connections, ReLUConv5BN, self.args.dataset, self.nclass)
+                model = FlexiNet(args.nas, layers, 4, connections, ConvBNReLU, self.args.dataset, self.nclass)
 
             elif self.args.search_stage == "second":
+                layers = np.ones([12, 4])
+                connections = np.load(self.args.model_encode_path)
+                core_path = [0, 0, 1, 1, 1, 0, 1, 0, 1, 2, 2, 2]
+                model = FlexiNet(args.nas, layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass, core_path=core_path)
+            elif self.args.search_stage == "third":
                 layers = np.ones([12, 4])
                 connections = np.load(self.args.model_encode_path)
                 core_path = [0, 0, 1, 1, 1, 0, 1, 0, 1, 2, 2, 2]

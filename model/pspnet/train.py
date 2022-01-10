@@ -15,13 +15,11 @@ models = {
 }
 
 
-def build_network(backend):
-    backend = 'resnet101'
-    epoch = 0
-    backend = backend.lower()
-    net = models[backend]()
+def build_network(args):
 
-    net = net.cuda()
+    net = PSPNet(n_classes=args.nclass, sizes=(1, 2, 3, 6), psp_size=2048, deep_features_size=1024, backend='resnet101'),
+
+    net = net[0].cuda()
     return net
 
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu

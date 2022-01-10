@@ -40,7 +40,7 @@ class PSPUpsample(nn.Module):
 
 
 class PSPNet(nn.Module):
-    def __init__(self, n_classes=18, sizes=(1, 2, 3, 6), psp_size=2048, deep_features_size=1024, backend='resnet34',
+    def __init__(self, n_classes=5, sizes=(1, 2, 3, 6), psp_size=2048, deep_features_size=1024, backend='resnet34',
                  pretrained=False):
         super().__init__()
         self.feats = getattr(extractors, backend)(pretrained)
@@ -77,6 +77,4 @@ class PSPNet(nn.Module):
         p = self.up_3(p)
         p = self.drop_2(p)
 
-        auxiliary = F.adaptive_max_pool2d(input=class_f, output_size=(1, 1)).view(-1, class_f.size(1))
-
-        return self.final(p), self.classifier(auxiliary)
+        return self.final(p)

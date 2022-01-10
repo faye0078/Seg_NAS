@@ -33,16 +33,16 @@ def main():
     torch.manual_seed(args.seed)
     trainer = Trainer(args)
 
-    # device = torch.device("cpu")
-    # model = trainer.model.to(device)
-    #
-    # stat(model, (4, 512, 512))
-    #
-    # macs, params = get_model_complexity_info(trainer.model, (4, 512, 512), as_strings=True,
-    #                                          print_per_layer_stat=True, verbose=True)
-    #
-    # print("this model macs: " + macs)
-    # print("this model params: " + params)
+    device = torch.device("cpu")
+    model = trainer.model.to(device)
+
+    stat(model, (4, 512, 512))
+
+    macs, params = get_model_complexity_info(trainer.model, (4, 512, 512), as_strings=True,
+                                             print_per_layer_stat=True, verbose=True)
+
+    print("this model macs: " + macs)
+    print("this model params: " + params)
 
     trainer.validation(0)
 
