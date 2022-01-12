@@ -8,15 +8,15 @@ def obtain_search_args():
     # checking point
     parser.add_argument('--resume', type=str, default=None, help='put the path to resuming file if needed')
     parser.add_argument('--checkname', type=str, default='test', help='set the checkpoint name')
-    parser.add_argument('--model_name', type=str, default='FlexiNet', choices=['AutoDeeplab', 'FlexiNet'], help='set the model name')
-    parser.add_argument('--model_encode_path', type=str, default='/media/dell/DATA/wy/Seg_NAS/model/model_encode/complex_connect_4.npy')
-    parser.add_argument('--search_stage', type=str, default='second', choices=['first', 'second'], help='witch search stage')
+    parser.add_argument('--model_name', type=str, default='FlexiNet', choices=['AutoDeeplab', 'DCNAS', 'FlexiNet'], help='set the model name')
+    parser.add_argument('--model_encode_path', type=str, default='/media/dell/DATA/wy/Seg_NAS/model/model_encode/first_connect_4.npy')
+    parser.add_argument('--search_stage', type=str, default='first', choices=['first', 'second', 'third'], help='witch search stage')
 
-    parser.add_argument('--batch-size', type=int, default=2, metavar='N', help='input batch size for training (default: auto)')
+    parser.add_argument('--batch-size', type=int, default=6, metavar='N', help='input batch size for training (default: auto)')
     parser.add_argument('--backbone', type=str, default='resnet', choices=['resnet', 'xception', 'drn', 'mobilenet'], help='backbone name (default: resnet)')
     parser.add_argument('--opt_level', type=str, default='O0', choices=['O0', 'O1', 'O2', 'O3'], help='opt level for half percision training (default: O0)')
     parser.add_argument('--out-stride', type=int, default=16, help='network output stride (default: 16)')
-    parser.add_argument('--dataset', type=str, default='GID', choices=['pascal', 'coco', 'cityscapes', 'kd', 'GID', 'hps-GID'], help='dataset name (default: pascal)')
+    parser.add_argument('--dataset', type=str, default='GID-15', choices=['pascal', 'coco', 'cityscapes', 'kd', 'GID', 'hps-GID', 'GID-15'], help='dataset name (default: pascal)')
     parser.add_argument('--nas', type=str, default='search', choices=['search', 'train'])
     parser.add_argument('--use-sbd', action='store_true', default=False, help='whether to use SBD dataset (default: False)')
     parser.add_argument('--load-parallel', type=int, default=0)
@@ -35,7 +35,7 @@ def obtain_search_args():
                         ]
 
     parser.add_argument("--normalise-params", type=list, default=NORMALISE_PARAMS, help="Normalisation parameters [scale, mean, std],")
-    parser.add_argument('--nclass', type=int, default=5, help='number of class')
+    parser.add_argument('--nclass', type=int, default=15, help='number of class')
 
     parser.add_argument("--dist", type=bool, default=False)
     # training hyper params
@@ -48,7 +48,7 @@ def obtain_search_args():
 
     parser.add_argument('--num_worker', type=int, default=0, metavar='N', help='numer workers')
 
-    parser.add_argument('--train_batch_size', type=int, default=2, metavar='N', help='input batch size for training (default: auto)')
+    parser.add_argument('--train_batch_size', type=int, default=5, metavar='N', help='input batch size for training (default: auto)')
     parser.add_argument('--val-batch-size', type=int, default=5, metavar='N', help='input batch size for testing (default: auto)')
     parser.add_argument('--test-batch-size', type=int, default=5, metavar='N', help='input batch size for testing (default: auto)')
     parser.add_argument('--use_balanced_weights', action='store_true', default=False, help='whether to use balanced weights (default: False)')

@@ -21,13 +21,15 @@ from dataloaders import make_data_loader
 
 from search.lr_scheduler import LR_Scheduler
 from search.saver import Saver
-# from utils.summaries import TensorboardSummary
 from search.evaluator import Evaluator
 from search.search_model import AutoDeeplab
 from search.search_model_forward import AutoDeeplab_forward
-from model.FlexibleNet import FlexiNet
+from model.DCNAS import DCNASNet
+from model.SearchNetStage1 import SearchNet1
+from model.SearchNetStage2 import SearchNet2
+from model.SearchNetStage3 import SearchNet3
 from search.copy_state_dict import copy_state_dict
-from model.cell import ReLUConvBN, ReLUConv5BN, ConvBNReLU
+from model.cell import ReLUConvBN, ReLUConv5BN, ConvBNReLU, MixedCell, DCNAS_cell
 
 class Trainer(object):
     def __init__(self, args):
@@ -59,22 +61,26 @@ class Trainer(object):
             else:
                 model = AutoDeeplab(self.nclass, 12, self.criterion, self.args.filter_multiplier,
                                  self.args.block_multiplier, self.args.step, self.args.dataset)
+        if self.args.model_name == 'DCNAS':
+            layers = np.ones([12, 4])
+            connections = np.load(self.args.model_encode_path)
+            model = DCNASNet(layers, 4, connections, DCNAS_cell, self.args.dataset, self.nclass)
         elif self.args.model_name == 'FlexiNet':
             if self.args.search_stage == "first":
                 layers = np.ones([12, 4])
                 connections = np.load(self.args.model_encode_path)
-                model = FlexiNet(args.nas, layers, 4, connections, ConvBNReLU, self.args.dataset, self.nclass)
+                model = SearchNet1(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass)
 
             elif self.args.search_stage == "second":
                 layers = np.ones([12, 4])
                 connections = np.load(self.args.model_encode_path)
                 core_path = [0, 0, 1, 1, 1, 0, 1, 0, 1, 2, 2, 2]
-                model = FlexiNet(args.nas, layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass, core_path=core_path)
+                model = SearchNet2(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass, core_path=core_path)
+
             elif self.args.search_stage == "third":
                 layers = np.ones([12, 4])
                 connections = np.load(self.args.model_encode_path)
-                core_path = [0, 0, 1, 1, 1, 0, 1, 0, 1, 2, 2, 2]
-                model = FlexiNet(args.nas, layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass, core_path=core_path)
+                model = SearchNet3(layers, 4, connections, MixedCell, self.args.dataset, self.nclass)
 
 
         optimizer = torch.optim.SGD(
@@ -166,12 +172,20 @@ class Trainer(object):
             train_loss += loss.item()
             tbar.set_description('Train loss: %.3f' % (train_loss / (i + 1)))
 
-        betas = self.model.betas.cpu().detach().numpy()
-        betas_dir = '/media/dell/DATA/wy/Seg_NAS/' + self.saver.experiment_dir + '/betas'
-        if not os.path.exists(betas_dir):
-            os.makedirs(betas_dir)
-        betas_path = betas_dir + '/betas_{}.npy'.format(epoch)
-        np.save(betas_path, betas, allow_pickle=True)
+        if self.args.search_stage == "third":
+            alphas = self.model.alphas.cpu().detach().numpy()
+            alphas_dir = '/media/dell/DATA/wy/Seg_NAS/' + self.saver.experiment_dir + '/alphas'
+            if not os.path.exists(alphas_dir):
+                os.makedirs(alphas_dir)
+            alphas_path = alphas_dir + '/betas_{}.npy'.format(epoch)
+            np.save(alphas_path, alphas, allow_pickle=True)
+        else:
+            betas = self.model.betas.cpu().detach().numpy()
+            betas_dir = '/media/dell/DATA/wy/Seg_NAS/' + self.saver.experiment_dir + '/betas'
+            if not os.path.exists(betas_dir):
+                os.makedirs(betas_dir)
+            betas_path = betas_dir + '/betas_{}.npy'.format(epoch)
+            np.save(betas_path, betas, allow_pickle=True)
 
         print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
         print('Loss: %.3f' % train_loss)

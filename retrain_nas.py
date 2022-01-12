@@ -56,6 +56,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # TODO: add basic [1,1,1,1] model to compare, add stage 1 model to compare
+    # TODO: add basic [0,0,0,0] model to compare, add stage 1 model to compare
 
     # args: gpu_id seed epoch dataset nas(阶段：搜索、再训练) use_amp(使用apex)

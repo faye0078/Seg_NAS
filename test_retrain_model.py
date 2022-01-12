@@ -5,7 +5,9 @@ from thop import profile
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 from configs.test_model_args import obtain_test_args
 from configs.retrain_args import obtain_retrain_args
-from engine.retrainer import Trainer
+from configs.search_args import obtain_search_args
+from engine.retrainer import Trainer as retrainer
+from engine.search_trainer import Trainer as search_trainer
 from torchsummary import summary
 from torchstat import stat
 
@@ -15,7 +17,6 @@ from torchstat import stat
 
 def main():
     args = obtain_test_args()
-    # args = obtain_retrain_args()
     args.cuda = torch.cuda.is_available()
     if args.cuda:
         try:
@@ -31,7 +32,7 @@ def main():
 
     print(args)
     torch.manual_seed(args.seed)
-    trainer = Trainer(args)
+    trainer = retrainer(args)
 
     device = torch.device("cpu")
     model = trainer.model.to(device)

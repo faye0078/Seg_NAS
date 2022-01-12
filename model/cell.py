@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import numpy
 import torch.nn.functional as F
-
+from model.ops import OPS
 class ReLUConvBN(nn.Module):
 
     def __init__(self, C_in, C_out):
@@ -122,28 +122,27 @@ class ReLUConv5BN(nn.Module):
 
 class MixedCell(nn.Module):
 
-    def __init__(self, C_in, C_out, ):
+    def __init__(self, C_in, C_out):
         super(MixedCell, self).__init__()
         kernel_size = 5
         padding = 2
         self.scale = 1
-        self.op = nn.Sequential(
-            nn.ReLU(inplace=False),
-            nn.Conv2d(C_in, C_out, kernel_size, padding=padding, bias=False),
-            nn.BatchNorm2d(C_out)
-        )
-
+        self._ops = nn.ModuleList()
+        for op_name in OPS:
+            op = OPS[op_name](C_in, C_out, 1, True)
+            self._ops.append(op)
+        self.ops_num = len(self._ops)
         self.scale = C_in/C_out
         self._initialize_weights()
 
 
 
-    def forward(self, x):
+    def forward(self, x, cell_alphas):
         if self.scale != 0:
             feature_size_h = self.scale_dimension(x.shape[2], self.scale)
             feature_size_w = self.scale_dimension(x.shape[3], self.scale)
             x = F.interpolate(x, [feature_size_h, feature_size_w], mode='bilinear', align_corners=True)
-        return self.op(x)
+        return sum(w * op(x) for w, op in zip(cell_alphas, self._ops))
 
     def _initialize_weights(self):
         for m in self.modules():
@@ -158,3 +157,7 @@ class MixedCell(nn.Module):
 
     def scale_dimension(self, dim, scale):
         return (int((float(dim) - 1.0) * scale + 1.0) if dim % 2 == 1 else int((float(dim) * scale)))
+
+class DCNAS_cell(nn.Module):
+    def __init__(self):
+        super(DCNAS_cell, self).__init__()

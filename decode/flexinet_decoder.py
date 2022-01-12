@@ -98,6 +98,7 @@ class Decoder(object):
 
 if __name__ == '__main__':
     # TODO: compare conv-bn-relu and relu-conv-bn
+    [0, 0, 1, 1, 1, 0, 1, 0, 1, 2, 2, 2]
     path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_flexinet_alldata_first_batch24_relu/experiment_0/betas/'
     betas_list = OrderedDict()
     const_network_list = OrderedDict()

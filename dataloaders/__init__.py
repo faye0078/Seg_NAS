@@ -14,9 +14,12 @@ from dataloaders.datasets.GID import (
 )
 from torchvision import transforms
 def make_data_loader(args, **kwargs):
-    if args.dataset == 'GID' or args.dataset == 'hps-GID':
+    if 'GID' in args.dataset:
         data_path = get_data_path(args.dataset)
         num_class = 5
+        if args.dataset == 'GID-15':
+            num_class = 15
+
         composed_trn = transforms.Compose(
             [
                 RandomMirror(),
@@ -39,21 +42,21 @@ def make_data_loader(args, **kwargs):
                 Normalise(*args.normalise_params),
                 ToTensor(),
             ])
-        if args.model_name == 'FlexiNet':
-            train_set = GID.GIDDataset(stage="train",
-                                       data_file=data_path['train_list'],
-                                       data_dir=data_path['dir'],
-                                       transform_trn=composed_trn, )
-            val_set = GID.GIDDataset(stage="val",
-                                    data_file=data_path['val_list'],
-                                     data_dir=data_path['dir'],
-                                     transform_val=composed_val, )
-            test_set = GID.GIDDataset(stage="test",
-                                      data_file=data_path['test_list'],
-                                      data_dir=data_path['dir'],
-                                      transform_test=composed_test, )
-        else:
-            if args.nas == 'search':
+        if args.nas == 'search':
+            if args.model_name == 'FlexiNet':
+                train_set = GID.GIDDataset(stage="train",
+                                           data_file=data_path['train_list'],
+                                           data_dir=data_path['dir'],
+                                           transform_trn=composed_trn, )
+                val_set = GID.GIDDataset(stage="val",
+                                        data_file=data_path['val_list'],
+                                         data_dir=data_path['dir'],
+                                         transform_val=composed_val, )
+                test_set = GID.GIDDataset(stage="test",
+                                          data_file=data_path['test_list'],
+                                          data_dir=data_path['dir'],
+                                          transform_test=composed_test, )
+            elif args.model_name == 'AutoDeeplab':
                 train_set = GID.GIDDataset(stage="train",
                                            data_file=data_path['mini_train_list'],
                                             data_dir=data_path['dir'],
@@ -62,21 +65,21 @@ def make_data_loader(args, **kwargs):
                                             data_file=data_path['mini_val_list'],
                                             data_dir=data_path['dir'],
                                             transform_val=composed_val,)
-            elif args.nas == 'train':
-                train_set = GID.GIDDataset(stage="train",
-                                            data_file=data_path['train_list'],
-                                            data_dir=data_path['dir'],
-                                            transform_trn=composed_trn,)
-                val_set = GID.GIDDataset(stage="val",
-                                            data_file=data_path['val_list'],
-                                            data_dir=data_path['dir'],
-                                            transform_val=composed_val,)
-                test_set = GID.GIDDataset(stage="test",
-                                            data_file=data_path['test_list'],
-                                            data_dir=data_path['dir'],
-                                            transform_test=composed_test,)
-            else:
-                raise Exception('nas param not set properly')
+        elif args.nas == 'train':
+            train_set = GID.GIDDataset(stage="train",
+                                        data_file=data_path['train_list'],
+                                        data_dir=data_path['dir'],
+                                        transform_trn=composed_trn,)
+            val_set = GID.GIDDataset(stage="val",
+                                        data_file=data_path['val_list'],
+                                        data_dir=data_path['dir'],
+                                        transform_val=composed_val,)
+            test_set = GID.GIDDataset(stage="test",
+                                        data_file=data_path['test_list'],
+                                        data_dir=data_path['dir'],
+                                        transform_test=composed_test,)
+        else:
+            raise Exception('nas param not set properly')
 
         n_examples = len(train_set)
         n_train = int(n_examples/2)
