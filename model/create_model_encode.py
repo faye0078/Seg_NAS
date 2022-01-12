@@ -1,6 +1,6 @@
 import numpy as np
 
-def normal_connect_4(layer):
+def first_connect_4(layer):
     connections = []
     connections.append([[-1, 0], [0, 0]])
 
@@ -41,7 +41,7 @@ def normal_connect_4(layer):
     return np.array(connections)
 
 
-def core_path_connect(layer, depth, path):
+def second_connect(layer, depth, path):
     connections = []
     for i in range(layer):
         # connections.append([[i, path[i]], [i + 1, path[i + 1]]])
@@ -84,6 +84,8 @@ def core_path_connect(layer, depth, path):
 
     return connections
 
+def third_connect(): # TODO: write
+    a = 0
 
 def test_connections(connections):
     for connection in connections:
@@ -94,14 +96,13 @@ def test_connections(connections):
 
 
 # TODO: def 更严格的test函数（判断是否有通路）
-# TODO: def 通过第二阶段的搜索结果建立相应的connections连接
 
 
 if __name__ == "__main__":
     # connections = normal_connect_4(11)
     # path = np.load('/media/dell/DATA/wy/Seg_NAS/run/hps-GID/12layers_flexinet/path.npy')
     path = [0, 0, 1, 1, 1, 0, 1, 0, 1, 2, 2, 2]
-    connections = core_path_connect(12, 4, path)
+    connections = second_connect(12, 4, path)
     if test_connections(connections):
         np.save('./model_encode/second_connect_4.npy', connections)  # 保存为.npy格式
 

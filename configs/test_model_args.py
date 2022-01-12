@@ -5,10 +5,10 @@ def obtain_test_args():
     parser = argparse.ArgumentParser(description="ReTrain the nas model")
 
     # '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_onepath_retrain/model_best.pth.tar'
-    parser.add_argument('--resume', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_forward_retrain/multi/model_best.pth.tar', help='put the path to resuming file if needed')
+    parser.add_argument('--resume', type=str, default=None, help='put the path to resuming file if needed')
     parser.add_argument('--use_default', type=bool, default=False, help='if use the default arch')
     parser.add_argument('--use_low', type=bool, default=True, help='if use the low level features')
-    parser.add_argument('--model_name', type=str, default='pspnet', choices=['one_path', 'multi', 'hrnet', 'flexinet', 'deeplabv3plus', 'pspnet'],  help='the model name')
+    parser.add_argument('--model_name', type=str, default='deeplabv3plus', choices=['one_path', 'multi', 'hrnet', 'flexinet', 'deeplabv3plus', 'pspnet'],  help='the model name')
     parser.add_argument('--checkname', type=str, default='test', help='set the checkpoint name')
     parser.add_argument('--nclass', type=int, default=5, help='number of class')
 

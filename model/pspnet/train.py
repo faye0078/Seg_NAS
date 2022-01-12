@@ -21,6 +21,3 @@ def build_network(args):
 
     net = net[0].cuda()
     return net
-
-    os.environ["CUDA_VISIBLE_DEVICES"] = gpu
-    net, starting_epoch = build_network(snapshot, backend)

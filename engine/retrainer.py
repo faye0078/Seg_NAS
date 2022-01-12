@@ -26,7 +26,7 @@ from search.evaluator import Evaluator
 from retrain.model_onepath import Retrain_Autodeeplab as Onepath_Autodeeplab
 from retrain.model_multi import Retrain_Autodeeplab as Multi_Autodeeplab
 from model.FlexibleNet import FlexiNet
-from model.deeplabv3plus.generateNet import generate_net
+from model.deeplabv3plus.deeplab import DeepLabv3_plus
 from model.pspnet.train import build_network
 from model.cell import ReLUConvBN
 from model.seg_hrnet import get_seg_model
@@ -63,7 +63,7 @@ class Trainer(object):
         elif args.model_name == 'hrnet':
             model = get_seg_model(args)
         elif args.model_name == 'deeplabv3plus':
-            model = generate_net(args)
+            model = DeepLabv3_plus(4, 5)
         elif args.model_name == 'pspnet':
             model = build_network(args)
         elif args.model_name == 'flexinet':

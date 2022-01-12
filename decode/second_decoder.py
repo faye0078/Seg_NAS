@@ -17,29 +17,35 @@ class Decoder(object):
                 used_betas[i].append([])
                 if j < self.core_path[i]:
                     if j == 0:
-                        used_betas[i][j].append(self._betas[i][j][:2])
+                        if core_path[i-1] == 0:
+                            used_betas[i][j] = self._betas[i][j][:1]
+                        else:
+                            used_betas[i][j] = self._betas[i][j][:2]
                     elif j == 1:
-                        used_betas[i][j].append(self._betas[i][j][:3])
+                        if core_path[i-1] == 1:
+                            used_betas[i][j] = self._betas[i][j][:2]
+                        else:
+                            used_betas[i][j] = self._betas[i][j][:3]
                     elif j == 2 :
-                        used_betas[i][j].append(self._betas[i][j][:3])
+                        if core_path[i-1] == 2:
+                            used_betas[i][j] = self._betas[i][j][:2]
+                        else:
+                            used_betas[i][j] = self._betas[i][j][:3]
                 else:
-                    used_betas[i][j].append(self._betas[i][j][:core_path_num[i]])
+                    used_betas[i][j] = self._betas[i][j][:core_path_num[i]]
 
         for i in range(len(used_betas)):
             for j in range(len(used_betas[i])):
-                for k in range(len(used_betas[i][j][0])):
-                    if used_betas[i][j][0].shape[0] == 0:
-                        used_betas[i][j][k] = []
+                for k in range(len(used_betas[i][j])):
+                    if used_betas[i][j][k] > 0:
+                        used_betas[i][j][k] = 1
                     else:
-                        if used_betas[i][j][0][k] > 0:
-                            used_betas[i][j][0][k] = 1
-                        else:
-                            used_betas[i][j][0][k] = 0
+                        used_betas[i][j][k] = 0
 
         self.used_betas = used_betas
 
 if __name__ == '__main__':
-    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_flexinet_alldata_second_batch24/experiment_1/betas/'
+    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_second_batch24/experiment_1/betas/'
     betas_list = OrderedDict()
     used_betas_list = OrderedDict()
 
