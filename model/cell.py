@@ -158,6 +158,39 @@ class MixedCell(nn.Module):
     def scale_dimension(self, dim, scale):
         return (int((float(dim) - 1.0) * scale + 1.0) if dim % 2 == 1 else int((float(dim) * scale)))
 
+class MixedRetrainCell(nn.Module):
+
+    def __init__(self, C_in, C_out, arch):
+        super(MixedRetrainCell, self).__init__()
+        self.scale = 1
+        self._ops = nn.ModuleList()
+        for i, op_name in enumerate(OPS):
+            if arch[i] == 1:
+                op = OPS[op_name](C_in, C_out, 1, True)
+                self._ops.append(op)
+        self.ops_num = len(self._ops)
+        self.scale = C_in/C_out
+        self._initialize_weights()
+
+    def forward(self, x):
+        if self.scale != 0:
+            feature_size_h = self.scale_dimension(x.shape[2], self.scale)
+            feature_size_w = self.scale_dimension(x.shape[3], self.scale)
+            x = F.interpolate(x, [feature_size_h, feature_size_w], mode='bilinear', align_corners=True)
+        return sum(op(x) for op in self._ops)
+
+    def _initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                torch.nn.init.kaiming_normal_(m.weight)
+            elif isinstance(m, nn.BatchNorm2d):
+                if m.weight is not None:
+                    m.weight.data.fill_(1)
+                    m.bias.data.zero_()
+
+    def scale_dimension(self, dim, scale):
+        return (int((float(dim) - 1.0) * scale + 1.0) if dim % 2 == 1 else int((float(dim) * scale)))
+
 class DCNAS_cell(nn.Module):
     def __init__(self):
         super(DCNAS_cell, self).__init__()

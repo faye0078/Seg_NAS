@@ -2,12 +2,12 @@ import numpy as np
 import torch
 from torch import nn
 import numpy
-from model.cell import ReLUConvBN
+from model.cell import ReLUConvBN, MixedRetrainCell
 import torch.nn.functional as F
 
-class SearchNet3(nn.Module):
+class RetrainNet(nn.Module):
 
-    def __init__(self, layers, depth, connections, cell, dataset, num_classes, base_multiplier=40):
+    def __init__(self, layers, depth, connections, cell_arch, dataset, num_classes, base_multiplier=40):
         '''
         Args:
             layers: layer × depth： one or zero, one means ture
@@ -17,14 +17,14 @@ class SearchNet3(nn.Module):
             dataset: dataset
             base_multiplier: base scale multiplier
         '''
-        super(SearchNet3, self).__init__()
+        super(RetrainNet, self).__init__()
         self.block_multiplier = 1
         self.base_multiplier = base_multiplier
         self.depth = depth
         self.layers = layers
         self.connections = connections
-        self.cell_connect = cell(512, 512).ops_num
         self.node_add_num = np.zeros([len(layers), self.depth])
+        cell = MixedRetrainCell
 
         half_base = int(base_multiplier // 2)
         if dataset == 'GID' or dataset == 'hps-GID':
@@ -59,10 +59,10 @@ class SearchNet3(nn.Module):
                         num_connect += 1
                         if connection[0][0] == -1:
                             self.cells[i][j][str(connection[0])] = cell(self.base_multiplier * multi_dict[0],
-                                                         self.base_multiplier * multi_dict[connection[1][1]])
+                                                         self.base_multiplier * multi_dict[connection[1][1]], cell_arch[i][j])
                         else:
                             self.cells[i][j][str(connection[0])] = cell(self.base_multiplier * multi_dict[connection[0][1]],
-                                                self.base_multiplier * multi_dict[connection[1][1]])
+                                                self.base_multiplier * multi_dict[connection[1][1]],  cell_arch[i][j])
                 self.node_add_num[i][j] = num_connect
 
                 if i == len(self.layers) -1 and num_connect != 0:
@@ -79,7 +79,6 @@ class SearchNet3(nn.Module):
 
 
         print('connections number: \n' + str(self.node_add_num))
-        self.initialize_alphas()
 
     def forward(self, x):
         features = []
@@ -87,13 +86,6 @@ class SearchNet3(nn.Module):
         temp = self.stem0(x)
         temp = self.stem1(temp)
         pre_feature = self.stem2(temp)
-
-        normalized_alphas = torch.randn(len(self.layers), self.depth, self.cell_connect).cuda()
-
-        for i in range(len(self.layers)):
-            for j in range(self.depth):
-                normalized_alphas[i][j] = F.softmax(self.alphas[i][j], dim=-1)
-
 
         for i in range(len(self.layers)):
             features.append([])
@@ -103,9 +95,9 @@ class SearchNet3(nn.Module):
                 for connection in self.connections:
                     if ([i, j] == connection[1]).all():
                         if connection[0][0] == -1:
-                            features[i][j] += self.cells[i][j][str(connection[0])](pre_feature, normalized_alphas[i][j])
+                            features[i][j] += self.cells[i][j][str(connection[0])](pre_feature)
                         else:
-                            features[i][j] += self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]], normalized_alphas[i][j])
+                            features[i][j] += self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
                         k += 1
 
         last_features = [feature for feature in features[len(self.layers)-1] if torch.is_tensor(feature)]
@@ -114,25 +106,4 @@ class SearchNet3(nn.Module):
         result = self.last_conv(result)
         result = nn.Upsample(size=x.size()[2:], mode='bilinear', align_corners=True)(result)
         return result
-
-    def initialize_alphas(self):
-        alphas = (1e-3 * torch.randn(len(self.layers), self.depth, self.cell_connect)).clone().detach().requires_grad_(True)
-
-        self._arch_parameters = [
-            alphas,
-        ]
-        self._arch_param_names = [
-            'alphas',
-        ]
-
-        [self.register_parameter(name, torch.nn.Parameter(param)) for name, param in
-         zip(self._arch_param_names, self._arch_parameters)]
-
-    def arch_parameters(self):
-        return [param for name, param in self.named_parameters() if
-                name in self._arch_param_names]
-
-    def weight_parameters(self):
-        return [param for name, param in self.named_parameters() if
-                name not in self._arch_param_names]
 

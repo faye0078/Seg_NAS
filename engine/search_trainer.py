@@ -177,7 +177,7 @@ class Trainer(object):
             alphas_dir = '/media/dell/DATA/wy/Seg_NAS/' + self.saver.experiment_dir + '/alphas'
             if not os.path.exists(alphas_dir):
                 os.makedirs(alphas_dir)
-            alphas_path = alphas_dir + '/betas_{}.npy'.format(epoch)
+            alphas_path = alphas_dir + '/alphas_{}.npy'.format(epoch)
             np.save(alphas_path, alphas, allow_pickle=True)
         else:
             betas = self.model.betas.cpu().detach().numpy()

@@ -6,66 +6,42 @@ from collections import OrderedDict
 class Decoder(object):
     def __init__(self, alphas, active_node):
         self.active_node = active_node
-        self.alphas = alphas
-        self._num_layers = self._betas.shape[0]
-        self.network_space = torch.zeros(self._num_layers, 4, 3)
+        self.alphas = torch.from_numpy(alphas)
+        self._num_layers = self.alphas.shape[0]
+        self.cell_space = torch.zeros(self._num_layers, 4, 10)
 
-        used_betas = []
         for i in range(self._num_layers):
-            used_betas.append([])
-            for j in range(self.core_path[i] + 1):
-                used_betas[i].append([])
-                if j < self.core_path[i]:
-                    if j == 0:
-                        if core_path[i-1] == 0:
-                            used_betas[i][j] = self._betas[i][j][:1]
-                        else:
-                            used_betas[i][j] = self._betas[i][j][:2]
-                    elif j == 1:
-                        if core_path[i-1] == 1:
-                            used_betas[i][j] = self._betas[i][j][:2]
-                        else:
-                            used_betas[i][j] = self._betas[i][j][:3]
-                    elif j == 2 :
-                        if core_path[i-1] == 2:
-                            used_betas[i][j] = self._betas[i][j][:2]
-                        else:
-                            used_betas[i][j] = self._betas[i][j][:3]
-                else:
-                    used_betas[i][j] = self._betas[i][j][:core_path_num[i]]
+            for j in range(4):
+                self.cell_space[i][j][self.alphas[i][j].sort()[1][-3:]] = 1
 
-        for i in range(len(used_betas)):
-            for j in range(len(used_betas[i])):
-                for k in range(len(used_betas[i][j])):
-                    if used_betas[i][j][k] > 0:
-                        used_betas[i][j][k] = 1
-                    else:
-                        used_betas[i][j][k] = 0
-
-        self.used_betas = used_betas
 
 if __name__ == '__main__':
-    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_second_batch24/experiment_1/alphas/'
+    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_third_batch8_Mixed/experiment_0/alphas/'
     alphas_list = OrderedDict()
-    used_alphas_list = OrderedDict()
+    cell_list = OrderedDict()
 
     for dirpath, dirnames, filenames in os.walk(path):
         for filename in filenames:
-            if filename.split('.')[0].split('_')[0] == 'alphas':
+            # if filename.split('.')[0].split('_')[0] == 'alphas':
+            if filename.split('.')[0].split('_')[0] == 'betas':
                 alphas_list[filename] = np.load(dirpath + filename)
-                active_node = np.load() # TODO: The decoder
+                # active_node = np.load() # TODO: The decoder
+                active_node = [[0, 0], [1, 0], [2, 0], [2, 1], [3, 0], [3, 1], [4, 1],
+                               [5, 0], [6, 0], [6, 1], [7, 0], [8, 1], [9, 1], [9, 2],
+                               [10, 2], [11, 1], [11, 2]]
                 decoder = Decoder(alphas_list[filename], active_node)
-                used_alphas_list[filename] = decoder.used_betas
+                cell_list[filename] = decoder.cell_space
 
-    order_path_list = []
-    for i in range(len(used_alphas_list)):
-        idx = 'alphas_{}.npy'.format(str(i))
-        order_path_list.append(used_alphas_list[idx])
+    order_cell_list = []
+    for i in range(len(cell_list)):
+        # idx = 'alphas_{}.npy'.format(str(i))
+        idx = 'betas_{}.npy'.format(str(i))
+        order_cell_list.append(cell_list[idx])
     # print(path_list)
-    print(used_alphas_list)
-    # b = np.array(path_list['betas_52.npy'])
+    print(cell_list)
+    b = np.array(cell_list['betas_59.npy'])
 
-    # np.save(path + 'path.npy', b)
+    np.save(path + 'cell_operations.npy', b)
     # print(b)
 
 

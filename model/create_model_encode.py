@@ -165,6 +165,11 @@ def test_connections(connections):
             return False
 
     return True
+def get_active_node(connections):
+    active_node = []
+    for connection in connections:
+        if connection[1] not in active_node:
+            active_node.append(connection[1])
 
 
 # TODO: def 更严格的test函数（判断是否有通路）
@@ -187,6 +192,13 @@ if __name__ == "__main__":
     core_path = [0, 0, 1, 1, 1, 0, 1, 0, 1, 2, 2, 2]
     used_betas = get_second_space(betas_path, core_path)[57]
     connections = third_connect(used_betas)
+    test_connections(connections)
+    connections_path = ''
+    np.save(connections_path, connections)
+
+    active_node = get_active_node(connections)
+    node_path = ''
+    np.save(node_path, active_node)
     a = 0
 
     # retrain connections and cell
