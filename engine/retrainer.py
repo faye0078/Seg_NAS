@@ -229,7 +229,6 @@ class Trainer(object):
 
             self.test_model(epoch)
         if new_pred > 0.92: # TODO: 传参
-            is_best = True
             self.best_pred = new_pred
             if torch.cuda.device_count() > 1:
                 state_dict = self.model.module.state_dict()
@@ -387,7 +386,6 @@ def get_connections():
     #     [[6, 0], [7, 0]],
     #     [[6, 1], [7, 0]],
     #
-    #     [[-1, 0], [8, 0]],
     #     [[0, 0], [8, 1]],
     #     [[2, 0], [8, 1]],
     #     [[2, 1], [8, 1]],
