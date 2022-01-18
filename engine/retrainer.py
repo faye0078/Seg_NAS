@@ -28,6 +28,8 @@ from retrain.model_multi import Retrain_Autodeeplab as Multi_Autodeeplab
 from model.RetrainNet import RetrainNet
 from model.deeplabv3plus.deeplab import DeepLabv3_plus
 from model.pspnet.train import build_network
+from model.UNet import U_Net
+from model.RefineNet.RefineNet import rf101
 from model.cell import ReLUConvBN
 from model.seg_hrnet import get_seg_model
 
@@ -66,12 +68,16 @@ class Trainer(object):
             model = DeepLabv3_plus(4, 5)
         elif args.model_name == 'pspnet':
             model = build_network(args)
+        elif args.model_name == 'unet':
+            model = U_Net(4, 5)
+        elif args.model_name == 'refinenet':
+            model = rf101(4, 5)
         elif args.model_name == 'flexinet':
             layers = np.ones([12, 4])
-            cell_arch = np.load('/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_third_batch8_Mixed/experiment_0/alphas/cell_operations.npy')
-            # connections = np.load()
-            connections = get_connections()
-            model = RetrainNet(layers, 4, connections, cell_arch, self.args.dataset, self.nclass)
+            cell_arch = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/cell_operations.npy')
+            connections = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/')
+            # connections = get_connections()
+            model = RetrainNet(layers, 4, connections, cell_arch, self.args.dataset, self.nclass, 'aspp')
         optimizer = torch.optim.SGD(
                 model.parameters(),
                 args.lr,
@@ -211,6 +217,14 @@ class Trainer(object):
         print('Loss: %.3f' % test_loss)
         new_pred = mIoU
         is_best = False
+
+        state_dict = self.model.state_dict()
+        self.saver.save_checkpoint({
+            'epoch': epoch + 1,
+            'state_dict': state_dict,
+            'optimizer': self.optimizer.state_dict(),
+            'best_pred': self.best_pred,
+        }, is_best, 'current_checkpoint.pth.tar')
 
         if new_pred > self.best_pred:
             is_best = True
@@ -358,7 +372,7 @@ def get_connections():
         [[-1, 0], [3, 1]],
         [[2, 0], [3, 1]],
         [[2, 1], [3, 1]],
-
+# [[3, 0], [4, 0]]
         [[-1, 0], [4, 1]],
         [[0, 0], [4, 1]],
         [[3, 0], [4, 1]],
@@ -390,7 +404,7 @@ def get_connections():
         [[4, 1], [8, 1]],
         [[5, 0], [8, 1]],
         [[7, 0], [8, 1]],
-
+# [[8, 0], [9, 0]]
         [[8, 1], [9, 1]],
         [[-1, 0], [9, 2]],
         [[0, 0], [9, 2]],
@@ -399,7 +413,8 @@ def get_connections():
         [[2, 1], [9, 2]],
         [[3, 0], [9, 2]],
         [[8, 1], [9, 2]],
-
+# [[9, 1], [10, 0]]
+# [[]]
         [[-1, 0], [10, 2]],
         [[0, 0], [10, 2]],
         [[1, 0], [10, 2]],
@@ -453,6 +468,8 @@ def get_connections():
     #     [[9, 2], [10, 2]],
     #     [[10, 2], [11, 2]],
     # ]
+
+    # [0, 0, 1, 0, 1, 0, 1, 1, 2, 3]
     return np.array(a)
 
 def get_cell():

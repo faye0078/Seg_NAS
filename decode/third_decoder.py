@@ -4,8 +4,7 @@ from torch.nn import functional as F
 import os
 from collections import OrderedDict
 class Decoder(object):
-    def __init__(self, alphas, active_node):
-        self.active_node = active_node
+    def __init__(self, alphas):
         self.alphas = torch.from_numpy(alphas)
         self._num_layers = self.alphas.shape[0]
         self.cell_space = torch.zeros(self._num_layers, 4, 10)
@@ -23,25 +22,22 @@ if __name__ == '__main__':
     for dirpath, dirnames, filenames in os.walk(path):
         for filename in filenames:
             # if filename.split('.')[0].split('_')[0] == 'alphas':
-            if filename.split('.')[0].split('_')[0] == 'betas':
+            if filename.split('.')[0].split('_')[0] == 'alphas':
                 alphas_list[filename] = np.load(dirpath + filename)
-                # active_node = np.load() # TODO: The decoder
-                active_node = [[0, 0], [1, 0], [2, 0], [2, 1], [3, 0], [3, 1], [4, 1],
-                               [5, 0], [6, 0], [6, 1], [7, 0], [8, 1], [9, 1], [9, 2],
-                               [10, 2], [11, 1], [11, 2]]
-                decoder = Decoder(alphas_list[filename], active_node)
+
+                decoder = Decoder(alphas_list[filename])
                 cell_list[filename] = decoder.cell_space
 
     order_cell_list = []
     for i in range(len(cell_list)):
         # idx = 'alphas_{}.npy'.format(str(i))
-        idx = 'betas_{}.npy'.format(str(i))
+        idx = 'alphas_{}.npy'.format(str(i))
         order_cell_list.append(cell_list[idx])
     # print(path_list)
     print(cell_list)
-    b = np.array(cell_list['betas_59.npy'])
+    b = np.array(cell_list['alphas_59.npy'])
 
-    np.save(path + 'cell_operations.npy', b)
+    np.save('/media/dell/DATA/wy/Seg_NAS/model/model_encode/cell_operations.npy', b)
     # print(b)
 
 

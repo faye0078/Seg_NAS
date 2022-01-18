@@ -3,11 +3,12 @@ import torch
 from torch import nn
 import numpy
 from model.cell import ReLUConvBN, MixedRetrainCell
+from retrain.aspp import ASPP
 import torch.nn.functional as F
 
 class RetrainNet(nn.Module):
 
-    def __init__(self, layers, depth, connections, cell_arch, dataset, num_classes, base_multiplier=40):
+    def __init__(self, layers, depth, connections, cell_arch, dataset, num_classes, decoder, base_multiplier=40):
         '''
         Args:
             layers: layer × depth： one or zero, one means ture
@@ -24,6 +25,7 @@ class RetrainNet(nn.Module):
         self.layers = layers
         self.connections = connections
         self.node_add_num = np.zeros([len(layers), self.depth])
+        self.decoder = decoder
         cell = MixedRetrainCell
 
         half_base = int(base_multiplier // 2)
@@ -67,9 +69,12 @@ class RetrainNet(nn.Module):
 
                 if i == len(self.layers) -1 and num_connect != 0:
                     num_last_features += self.base_multiplier * multi_dict[j]
+        if self.decoder == 'aspp':
+            self.last_conv = nn.Sequential(ASPP(num_last_features, 256, num_classes),
+                                       nn.Conv2d(256, num_classes, kernel_size=1, stride=1))
 
-
-        self.last_conv = nn.Sequential(nn.Conv2d(num_last_features, 256, kernel_size=3, stride=1, padding=1, bias=False),
+        else:
+            self.last_conv = nn.Sequential(nn.Conv2d(num_last_features, 256, kernel_size=3, stride=1, padding=1, bias=False),
                                        nn.BatchNorm2d(256),
                                        nn.Dropout(0.5),
                                        nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),

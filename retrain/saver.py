@@ -65,7 +65,7 @@ class Saver(object):
 
 
     def save_train_info(self, loss, epoch, acc, miou, fwiou, iou, is_best):
-        train_info = 'loss:{}, epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(loss), str(epoch), str(acc), str(miou), str(fwiou), str(iou))
+        train_info = 'loss:{}, epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(loss), str(epoch + 1), str(acc), str(miou), str(fwiou), str(iou))
         if is_best:
             train_info = train_info + 'new best'
 
@@ -76,7 +76,7 @@ class Saver(object):
         file.close()
 
     def save_test_info(self, loss, epoch, acc, miou, fwiou, iou):
-        train_info = 'loss: {}, epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(loss), str(epoch+1), str(acc), str(miou), str(fwiou),
+        train_info = 'loss: {}, epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(loss), str(epoch + 1), str(acc), str(miou), str(fwiou),
                                                                           str(iou))
         info_file = os.path.join(self.experiment_dir, 'test_info.txt')
         file = open(info_file, 'a')

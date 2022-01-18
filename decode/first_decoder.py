@@ -119,5 +119,9 @@ def get_first_space(path):
         order_path_list.append(path_list[idx])
 
     print(order_path_list)
+    return order_path_list
+# path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_first_batch24_relu/experiment_0/betas/'
+# a = get_first_space(path)
+# b = 0
 
 

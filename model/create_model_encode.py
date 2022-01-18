@@ -153,27 +153,32 @@ def third_connect(used_betas):
 
     return connections
 
-def retrain_cell():
-    a = 0
-    # TODO: cell decoder-encoder
-
-
+# def test_forward(target, connections, layer):
+#
+#     if target[1][0] == layer:
+#         return True
+#     forward_connection_list = [connection for connection in connections if connection[0]==target[1]]
+#     for forward_connection in forward_connection_list:
+#         return test_forward(forward_connection, connections, layer)
+#
+#
+# def test_back(target, connections):
+#     if target[0][0] == -1:
+#         return True
+#     back_connection_list = [connection for connection in connections if connection[1] == target[0]]
+#     for back_connection in back_connection_list:
+#         return test_forward(back_connection, connections)
 
 def test_connections(connections):
+    layers = [connection[1][0] for connection in connections]
+    layers.sort()
     for connection in connections:
         if connections.count(connection) != 1:
-            return False
-
-    return True
-def get_active_node(connections):
-    active_node = []
-    for connection in connections:
-        if connection[1] not in active_node:
-            active_node.append(connection[1])
-
-
-# TODO: def 更严格的test函数（判断是否有通路）
-
+            print("have samed connections")
+            exit()
+        # test_forward(connection, connections, layers[-1])
+        # if ~test_back(connection, connections) or ~test_forward(connection, connections, layers[-1]):
+        #     connections.remove([connection])
 
 if __name__ == "__main__":
     # first connections
@@ -181,25 +186,22 @@ if __name__ == "__main__":
     # np.save('./model_encode/first_connect_4.npy', connections)  # 保存为.npy格式
 
     # second connections
-    # path = np.load('/media/dell/DATA/wy/Seg_NAS/run/hps-GID/12layers_flexinet/path.npy')
-    # path = [0, 0, 1, 1, 1, 0, 1, 0, 1, 2, 2, 2]
-    # connections = second_connect(12, 4, path)
+    # betas_path = ''
+    # path = get_first_space(betas_path)
+    # connections = second_connect(12, 4, path[59])
     # if test_connections(connections):
     #     np.save('./model_encode/second_connect_4.npy', connections)  # 保存为.npy格式
 
     # third connections
-    betas_path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_second_batch24/experiment_1/betas/'
-    core_path = [0, 0, 1, 1, 1, 0, 1, 0, 1, 2, 2, 2]
-    used_betas = get_second_space(betas_path, core_path)[57]
+    betas_path_stage1 = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_second_batch24/experiment_1/betas/'
+    betas_path_stage2 = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_second_batch24/experiment_1/betas/'
+    core_path = get_first_space(betas_path_stage1)[59]
+    used_betas = get_second_space(betas_path_stage2, core_path)[57]
     connections = third_connect(used_betas)
     test_connections(connections)
-    connections_path = ''
+    connections_path = './model_encode/third_connect_4.npy'
     np.save(connections_path, connections)
 
-    active_node = get_active_node(connections)
-    node_path = ''
-    np.save(node_path, active_node)
-    a = 0
 
     # retrain connections and cell
 
