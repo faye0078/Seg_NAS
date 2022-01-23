@@ -14,7 +14,7 @@ def image_clip(img_path, size):
 
     # 转换为数组进行分割操作，计算能完整分割的行数(row)、列数(col)
     img_name = img_path.split('.')[-2].split('/')[-1]
-    img_dir = "../../../data/GID-5/1024/image/" + img_name
+    img_dir = "../../../data/GID-5/1600/image/" + img_name
     folder = os.path.exists(img_dir)
     if not folder:
         os.makedirs(img_dir)
@@ -112,7 +112,7 @@ def label_clip(img_path, size):
 
     # 转换为数组进行分割操作，计算能完整分割的行数(row)、列数(col)
     img_name = img_path.split('.')[-2].split('/')[-1].replace('_label', '')
-    img_dir = "../../../data/GID-5/1024/label/" + img_name
+    img_dir = "../../../data/GID-5/1600/label/" + img_name
     folder = os.path.exists(img_dir)
     if not folder:
         os.makedirs(img_dir)
@@ -203,22 +203,22 @@ def label_clip(img_path, size):
         num_row + 2) + "_" + str(num_col + 2) + "_label.png"
     clipImg.save(img_filepath)
 if __name__=='__main__':
-    img_path = '/media/dell/DATA/wy/data/gid-15/GID/ann_dir/train/GF2_PMS1__L1A0000647767-MSS1_15label.png'
-    imarray = np.array(Image.open(img_path))
-    folder = os.path.exists("../../../data/GID-5/1024/label")
-    if not folder:
-        os.makedirs("../../../data/GID-5/1024/label")
-
-    img_dir = '/media/dell/DATA/wy/data/Large-scale Classification_5classes/label_5classes/'
-
-    imgs = glob.glob('{}*.tif'.format(img_dir))
-    for img in imgs:
-        label_clip(img, [1024, 1024])
+    # img_path = '/media/dell/DATA/wy/data/gid-15/GID/ann_dir/train/GF2_PMS1__L1A0000647767-MSS1_15label.png'
+    # imarray = np.array(Image.open(img_path))
+    folder = os.path.exists("../../../data/GID-5/1600/image")
     # if not folder:
-    #     os.makedirs("../../data/GID-15/512/image")
+    #     os.makedirs("../../../data/GID-5/1600/image")
     #
-    # img_dir = '../../data/Large-scale Classification_5classes/image_NirRGB/'
+    # img_dir = '/media/dell/DATA/wy/data/Large-scale Classification_5classes/image_NirRGB/'
+    #
     # imgs = glob.glob('{}*.tif'.format(img_dir))
     # for img in imgs:
-    #     image_clip(img, [512, 512])
+    #     label_clip(img, [1600, 1600])
+    if not folder:
+        os.makedirs("../../../data/GID-5/1600/image")
+
+    img_dir = '/media/dell/DATA/wy/data/Large-scale Classification_5classes/image_NirRGB/'
+    imgs = glob.glob('{}*.tif'.format(img_dir))
+    for img in imgs:
+        image_clip(img, [1600, 1600])
 

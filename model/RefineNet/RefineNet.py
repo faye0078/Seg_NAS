@@ -181,12 +181,12 @@ class RefineNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-        x = self.maxpool(x)
+        x0 = self.conv1(x)
+        x0 = self.bn1(x0)
+        x0 = self.relu(x0)
+        x0 = self.maxpool(x0)
 
-        l1 = self.layer1(x)
+        l1 = self.layer1(x0)
         l2 = self.layer2(l1)
         l3 = self.layer3(l2)
         l4 = self.layer4(l3)
@@ -232,6 +232,7 @@ class RefineNet(nn.Module):
         x1 = self.do(x1)
 
         out = self.clf_conv(x1)
+        out = nn.Upsample(size=x.size()[2:], mode='bilinear', align_corners=True)(out)
         return out
 
 

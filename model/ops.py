@@ -65,6 +65,18 @@ OPS = {
     ),
 }
 
+OPS_mini = {
+    "sep_conv_3x3": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
+        C_in, C_out, 3, stride, 1, affine=affine, repeats=repeats
+    ),
+    "sep_conv_5x5": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
+        C_in, C_out, 5, stride, 2, affine=affine, repeats=repeats
+    ),
+    "sep_conv_7x7": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
+        C_in, C_out, 7, stride, 3, affine=affine, repeats=repeats
+    )
+}
+
 
 def conv_bn(C_in, C_out, kernel_size, stride, padding, affine=True):
     return nn.Sequential(

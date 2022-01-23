@@ -105,6 +105,8 @@ class SearchNet3(nn.Module):
                         if connection[0][0] == -1:
                             features[i][j] += self.cells[i][j][str(connection[0])](pre_feature, normalized_alphas[i][j])
                         else:
+                            if isinstance(features[connection[0][0]][connection[0][1]], int):
+                                continue
                             features[i][j] += self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]], normalized_alphas[i][j])
                         k += 1
 
@@ -135,4 +137,5 @@ class SearchNet3(nn.Module):
     def weight_parameters(self):
         return [param for name, param in self.named_parameters() if
                 name not in self._arch_param_names]
+
 

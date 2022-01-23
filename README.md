@@ -18,7 +18,7 @@ The code is under development.
   **input:** betas_path, **output:** 'model_encode/second{}.npy'
 
 
-* Train the second surperNet: **train_search.py/train-search-flexinet.sh**
+* Train the second superNet: **train_search.py/train-search-flexinet.sh**
 
   **input:** model_name=flexinet, search_stage=second, model_encode_path=second{}.npy
 ---
@@ -28,7 +28,7 @@ The code is under development.
   **input:** betas_path_stage1, betas_path_stage2, **output:** 'model_encode/third{}.npy'
 
 
-* Train the third surperNet: **train_search.py/train-search-flexinet.sh**
+* Train the third superNet: **train_search.py/train-search-flexinet.sh**
 
   **input:** model_name=flexinet, search_stage=third, model_encode_path=third{}.npy
 

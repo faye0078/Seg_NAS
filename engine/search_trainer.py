@@ -29,7 +29,7 @@ from model.SearchNetStage1 import SearchNet1
 from model.SearchNetStage2 import SearchNet2
 from model.SearchNetStage3 import SearchNet3
 from search.copy_state_dict import copy_state_dict
-from model.cell import ReLUConvBN, ReLUConv5BN, ConvBNReLU, MixedCell, DCNAS_cell
+from model.cell import ReLUConvBN, ReLUConv5BN, ConvBNReLU, MixedCell, DCNAS_cell, MixedCellMini
 
 class Trainer(object):
     def __init__(self, args):
@@ -67,20 +67,21 @@ class Trainer(object):
             model = DCNASNet(layers, 4, connections, DCNAS_cell, self.args.dataset, self.nclass)
         elif self.args.model_name == 'FlexiNet':
             if self.args.search_stage == "first":
-                layers = np.ones([12, 4])
+                layers = np.ones([7, 4])
                 connections = np.load(self.args.model_encode_path)
                 model = SearchNet1(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass)
 
             elif self.args.search_stage == "second":
-                layers = np.ones([12, 4])
+                layers = np.ones([14, 4])
                 connections = np.load(self.args.model_encode_path)
-                core_path = [0, 0, 1, 1, 1, 0, 1, 0, 1, 2, 2, 2]
+                core_path = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/core_path.npy').tolist()
                 model = SearchNet2(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass, core_path=core_path)
 
             elif self.args.search_stage == "third":
-                layers = np.ones([12, 4])
+                layers = np.ones([14, 4])
                 connections = np.load(self.args.model_encode_path)
-                model = SearchNet3(layers, 4, connections, MixedCell, self.args.dataset, self.nclass)
+                # connections = 0
+                model = SearchNet3(layers, 4, connections, MixedCellMini, self.args.dataset, self.nclass)
 
 
         optimizer = torch.optim.SGD(

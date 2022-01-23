@@ -74,7 +74,7 @@ class Decoder(object):
 
     def trans_betas(self):
         betas = self.network_space
-        after_trans = np.zeros([12, 4, 3])
+        after_trans = np.zeros([14, 4, 3])
         shape = betas.shape
         for i in range(shape[0]):
             for j in range(shape[1]):

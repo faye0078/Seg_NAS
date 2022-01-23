@@ -24,7 +24,7 @@ class SearchNet2(nn.Module):
         self.depth = depth
         self.layers = layers
         self.connections = connections
-        self.core_path_betas = np.ones([12])
+        self.core_path_betas = np.ones([int(len(self.layers))])
         self.core_connections = None
         if core_path:
             self.core_connections = []
@@ -33,7 +33,7 @@ class SearchNet2(nn.Module):
                 self.core_connections.append([[i, core_path[i]], [i + 1, core_path[i + 1]]])
 
         half_base = int(base_multiplier // 2)
-        if dataset == 'GID' or dataset == 'hps-GID':
+        if 'GID' in dataset:
             input_channel = 4
         else:
             input_channel = 3
