@@ -73,11 +73,11 @@ class Trainer(object):
         elif args.model_name == 'refinenet':
             model = rf101(4, 5)
         elif args.model_name == 'flexinet':
-            layers = np.ones([12, 4])
-            cell_arch = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/12layers_mixedcell1_3operation/cell_operations.npy')
-            connections = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/12layers_mixedcell1_3operation/third_connect_4.npy')
+            layers = np.ones([14, 4])
+            cell_arch = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/14layers_mixedcell1_4operation/cell_operations_0.npy')
+            connections = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/14layers_mixedcell1_4operation/third_connect_4.npy')
             # connections = get_connections()
-            model = RetrainNet(layers, 4, connections, cell_arch, self.args.dataset, self.nclass, 'aspp')
+            model = RetrainNet(layers, 4, connections, cell_arch, self.args.dataset, self.nclass, 'normal')
         optimizer = torch.optim.SGD(
                 model.parameters(),
                 args.lr,

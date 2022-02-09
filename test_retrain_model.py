@@ -2,7 +2,7 @@ import os
 import torch
 from ptflops import get_model_complexity_info
 from thop import profile
-os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 from configs.test_model_args import obtain_test_args
 from configs.retrain_args import obtain_retrain_args
 from configs.search_args import obtain_search_args
@@ -37,9 +37,9 @@ def main():
     device = torch.device("cpu")
     model = trainer.model.to(device)
 
-    stat(model, (4, 1024, 1024))
+    stat(model, (4, 512, 512))
 
-    macs, params = get_model_complexity_info(trainer.model, (4, 1024, 1024), as_strings=True,
+    macs, params = get_model_complexity_info(trainer.model, (4, 512, 512), as_strings=True,
                                              print_per_layer_stat=True, verbose=True)
 
     print("this model macs: " + macs)

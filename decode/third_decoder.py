@@ -15,7 +15,7 @@ class Decoder(object):
 
 
 if __name__ == '__main__':
-    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_third_batch8_Mixed/experiment_0/alphas/'
+    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/14layers_third/experiment_1/alphas/'
     alphas_list = OrderedDict()
     cell_list = OrderedDict()
 
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     print(cell_list)
     b = np.array(cell_list['alphas_59.npy'])
 
-    np.save('/media/dell/DATA/wy/Seg_NAS/model/model_encode/cell_operations.npy', b)
+    np.save('/media/dell/DATA/wy/Seg_NAS/model/model_encode/cell_operations_0.npy', b)
     # print(b)
 
 

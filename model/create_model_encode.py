@@ -169,15 +169,14 @@ def third_connect(used_betas):
 #     for back_connection in back_connection_list:
 #         return test_forward(back_connection, connections)
 
-def test_connections(connections, core_path):
+def test_connections(connections):
     layers = [connection[1][0] for connection in connections]
     layers.sort()
     for connection in connections:
         if connections.count(connection) != 1:
             print("have samed connections")
             exit()
-        if connection[0] != core_path:
-            a = 0
+
         # test_forward(connection, connections, layers[-1])
         # if ~test_back(connection, connections) or ~test_forward(connection, connections, layers[-1]):
         #     connections.remove([connection])

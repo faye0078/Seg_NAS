@@ -102,6 +102,8 @@ class RetrainNet(nn.Module):
                         if connection[0][0] == -1:
                             features[i][j] += self.cells[i][j][str(connection[0])](pre_feature)
                         else:
+                            if isinstance(features[connection[0][0]][connection[0][1]], int):
+                                continue
                             features[i][j] += self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
                         k += 1
 
