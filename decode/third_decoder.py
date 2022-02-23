@@ -7,7 +7,7 @@ class Decoder(object):
     def __init__(self, alphas):
         self.alphas = torch.from_numpy(alphas)
         self._num_layers = self.alphas.shape[0]
-        self.cell_space = torch.zeros(self._num_layers, 4, 10)
+        self.cell_space = torch.zeros(self._num_layers, 4, 7)
 
         for i in range(self._num_layers):
             for j in range(4):
@@ -15,7 +15,7 @@ class Decoder(object):
 
 
 if __name__ == '__main__':
-    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/14layers_third/experiment_1/alphas/'
+    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/1024/14layers_third/experiment_0/alphas/'
     alphas_list = OrderedDict()
     cell_list = OrderedDict()
 

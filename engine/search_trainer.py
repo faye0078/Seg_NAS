@@ -81,7 +81,7 @@ class Trainer(object):
                 layers = np.ones([14, 4])
                 connections = np.load(self.args.model_encode_path)
                 # connections = 0
-                model = SearchNet3(layers, 4, connections, MixedCellMini, self.args.dataset, self.nclass)
+                model = SearchNet3(layers, 4, connections, MixedCell, self.args.dataset, self.nclass)
 
 
         optimizer = torch.optim.SGD(

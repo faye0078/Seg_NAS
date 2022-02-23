@@ -32,6 +32,8 @@ from model.UNet import U_Net
 from model.RefineNet.RefineNet import rf101
 from model.cell import ReLUConvBN
 from model.seg_hrnet import get_seg_model
+from model.fast_nas.make_fastnas_model import fastNas
+from model.SrNet import SrNet
 
 from search.copy_state_dict import copy_state_dict
 
@@ -72,10 +74,14 @@ class Trainer(object):
             model = U_Net(4, 5)
         elif args.model_name == 'refinenet':
             model = rf101(4, 5)
+        elif args.model_name == 'fast-nas':
+            model = fastNas()
+        elif args.model_name == 'SrNet':
+            model = SrNet()
         elif args.model_name == 'flexinet':
             layers = np.ones([14, 4])
-            cell_arch = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/14layers_mixedcell1_4operation/cell_operations_0.npy')
-            connections = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/14layers_mixedcell1_4operation/third_connect_4.npy')
+            cell_arch = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/cell_operations_0.npy')
+            connections = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/third_connect_4.npy')
             # connections = get_connections()
             model = RetrainNet(layers, 4, connections, cell_arch, self.args.dataset, self.nclass, 'normal')
         optimizer = torch.optim.SGD(
@@ -193,7 +199,7 @@ class Trainer(object):
         for i, sample in enumerate(tbar):
             image, target = sample['image'], sample['mask']
             if self.args.cuda:
-                image, target = image.cuda(), target.cuda()
+                image, target = image.cuda().float(), target.cuda().float()
             with torch.no_grad():
                 output = self.model(image)
             loss = self.criterion(output, target)
@@ -265,7 +271,7 @@ class Trainer(object):
         for i, sample in enumerate(tbar):
             image, target = sample['image'], sample['mask']
             if self.args.cuda:
-                image, target = image.cuda(), target.cuda()
+                image, target = image.cuda().float(), target.cuda().float()
             with torch.no_grad():
                 output = self.model(image)
             loss = self.criterion(output, target)

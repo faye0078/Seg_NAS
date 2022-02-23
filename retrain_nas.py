@@ -2,7 +2,7 @@ import os
 import torch
 import numpy as np
 import random
-# os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 from configs.retrain_args import obtain_retrain_args
 from engine.retrainer import Trainer
 

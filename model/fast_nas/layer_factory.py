@@ -25,11 +25,39 @@ def conv1x1(in_planes, out_planes, stride=1, bias=False):
 
 
 OPS = {
-    # "conv1x1": lambda C_in, C_out, stride, affine, repeats=1: nn.Sequential(
-    #     conv1x1(C_in, C_out, stride=stride),
-    #     nn.BatchNorm2d(C_out, affine=affine),
-    #     nn.ReLU(inplace=False),
-    # ),
+    "none": lambda C_in, C_out, stride, affine, repeats=1: Zero(C_in, C_out, stride),
+    "avg_pool_3x3": lambda C_in, C_out, stride, affine, repeats=1: Pool(
+        C_in, C_out, stride, repeats, ksize=3, mode="avg"
+    ),
+    "max_pool_3x3": lambda C_in, C_out, stride, affine, repeats=1: Pool(
+        C_in, C_out, stride, repeats, ksize=3, mode="max"
+    ),
+    "global_average_pool": lambda C_in, C_out, stride, affine, repeats=1: GAPConv1x1(
+        C_in, C_out
+    ),
+    "skip_connect": lambda C_in, C_out, stride, affine, repeats=1: Skip(
+        C_in, C_out, stride
+    ),
+    "sep_conv_3x3": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
+        C_in, C_out, 3, stride, 1, affine=affine, repeats=repeats
+    ),
+    "sep_conv_5x5": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
+        C_in, C_out, 5, stride, 2, affine=affine, repeats=repeats
+    ),
+    "sep_conv_7x7": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
+        C_in, C_out, 7, stride, 3, affine=affine, repeats=repeats
+    ),
+    "dil_conv_3x3": lambda C_in, C_out, stride, affine, repeats=1: DilConv(
+        C_in, C_out, 3, stride, 2, 2, affine=affine
+    ),
+    "dil_conv_5x5": lambda C_in, C_out, stride, affine, repeats=1: DilConv(
+        C_in, C_out, 5, stride, 4, 2, affine=affine
+    ),
+    "conv1x1": lambda C_in, C_out, stride, affine, repeats=1: nn.Sequential(
+        conv1x1(C_in, C_out, stride=stride),
+        nn.BatchNorm2d(C_out, affine=affine),
+        nn.ReLU(inplace=False),
+    ),
     "conv3x3": lambda C_in, C_out, stride, affine, repeats=1: nn.Sequential(
         conv3x3(C_in, C_out, stride=stride),
         nn.BatchNorm2d(C_out, affine=affine),
@@ -45,36 +73,21 @@ OPS = {
         nn.BatchNorm2d(C_out, affine=affine),
         nn.ReLU(inplace=False),
     ),
-    "sep_conv_3x3": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
-        C_in, C_out, 3, stride, 1, affine=affine, repeats=repeats
+    "sep_conv_3x3_dil3": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
+        C_in, C_out, 3, stride, 3, affine=affine, dilation=3, repeats=repeats
     ),
-    "sep_conv_5x5": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
-        C_in, C_out, 5, stride, 2, affine=affine, repeats=repeats
+    "sep_conv_5x5_dil6": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
+        C_in, C_out, 5, stride, 12, affine=affine, dilation=6, repeats=repeats
     ),
-    "sep_conv_7x7": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
-        C_in, C_out, 7, stride, 3, affine=affine, repeats=repeats
-    ),
-    # "avg_pool_3x3": lambda C_in, C_out, stride, affine, repeats=1: Pool(
-    #     C_in, C_out, stride, repeats, ksize=3, mode="avg"
-    # ),
-    "max_pool_3x3": lambda C_in, C_out, stride, affine, repeats=1: Pool(
-        C_in, C_out, stride, repeats, ksize=3, mode="max"
-    ),
-    # "global_average_pool": lambda C_in, C_out, stride, affine, repeats=1: GAPConv1x1(
-    #     C_in, C_out
-    # ),
 }
 
-OPS_mini = {
-    "sep_conv_3x3": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
-        C_in, C_out, 3, stride, 1, affine=affine, repeats=repeats
+AGG_OPS = {
+    "psum": lambda C_in0, C_in1, C_out, affine, repeats=1, larger=True: ParamSum(
+        C_in0, C_in1, C_out, larger
     ),
-    "sep_conv_5x5": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
-        C_in, C_out, 5, stride, 2, affine=affine, repeats=repeats
+    "cat": lambda C_in0, C_in1, C_out, affine, repeats=1, larger=True: ConcatReduce(
+        C_in0, C_in1, C_out, affine=affine, repeats=repeats, larger=larger
     ),
-    "sep_conv_7x7": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
-        C_in, C_out, 7, stride, 3, affine=affine, repeats=repeats
-    )
 }
 
 
