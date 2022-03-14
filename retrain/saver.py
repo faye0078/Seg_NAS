@@ -83,4 +83,7 @@ class Saver(object):
         file.write(train_info + '\n')
         file.close()
 
+    def get_fie_path(self):
+        return self.experiment_dir
+
 

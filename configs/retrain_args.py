@@ -11,11 +11,11 @@ def obtain_retrain_args():
     parser.add_argument('--resume', type=str, default=None, help='put the path to resuming file if needed')
     parser.add_argument('--checkname', type=str, default='test', help='set the checkpoint name')
 
-    parser.add_argument('--crop_size', type=int, default=512, help='crop image size')
-    parser.add_argument('--resize', type=int, default=512, help='resize image size')
+    parser.add_argument('--crop_size', type=int, default=4096, help='crop image size')
+    parser.add_argument('--resize', type=int, default=4096, help='resize image size')
     parser.add_argument('--epochs', type=int, default=100, metavar='N', help='number of epochs to train (default: auto)')
     parser.add_argument('--num_worker', type=int, default=4,metavar='N', help='numer workers')
-    parser.add_argument('--batch-size', type=int, default=2, metavar='N', help='input batch size for training (default: auto)')
+    parser.add_argument('--batch-size', type=int, default=1, metavar='N', help='input batch size for training (default: auto)')
     parser.add_argument('--dataset', type=str, default='GID', choices=['pascal', 'coco', 'cityscapes', 'kd', 'GID', 'hps-GID'], help='dataset name (default: pascal)')
 
     parser.add_argument('--affine', default=False, type=bool, help='whether use affine in BN')

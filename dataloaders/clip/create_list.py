@@ -62,16 +62,16 @@ def ReadFileBytxt(txtfilename):
     file = []
 
     for file_name in file_list:
-        file_path = "/media/dell/DATA/wy/data/GID-5/768/image/" + file_name.replace('.tif', '').replace('\n', '') + "/"
+        file_path = "/media/dell/DATA/wy/data/GID-5/4096/image/" + file_name.replace('.tif', '').replace('\n', '') + "/"
         imgs = glob.glob('{}*.tif'.format(file_path))
         if len(imgs) != 56:
             print('drong!')
         for img in imgs:
-            img = img.replace('/media/dell/DATA/wy/data/GID-5/768/', '')
+            img = img.replace('/media/dell/DATA/wy/data/GID-5/4096/', '')
             label = img.replace('image', 'label').replace('img.tif', 'label.png')
             file.append(img + '\t' + label)
     df = pd.DataFrame(file, columns=['one'])
-    df.to_csv("/media/dell/DATA/wy/Seg_NAS/data/lists/gid_768_test.lst", columns=['one'], index=False, header=False)
+    df.to_csv("/media/dell/DATA/wy/Seg_NAS/data/lists/gid_4096_test.lst", columns=['one'], index=False, header=False)
 
 if __name__ == '__main__':
     # InputStra="E:/wangyu_file/rs_Nas/src/data/datasets/VOCdevkit/512/test/label"#数据存在的路径

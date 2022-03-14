@@ -37,7 +37,7 @@ from model.SrNet import SrNet
 
 from search.copy_state_dict import copy_state_dict
 
-class Trainer(object):
+class headTrainer(object):
     def __init__(self, args):
         self.args = args
 
@@ -77,7 +77,7 @@ class Trainer(object):
         elif args.model_name == 'fast-nas':
             model = fastNas()
         elif args.model_name == 'SrNet':
-            model = SrNet(4, fastNas())
+            model = SrNet(3, fastNas())
         elif args.model_name == 'flexinet':
             layers = np.ones([14, 4])
             cell_arch = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/cell_operations_0.npy')
@@ -155,6 +155,12 @@ class Trainer(object):
         self.model.train()
         tbar = tqdm(self.train_loader)
 
+        experiment_dir = self.saver.get_fie_path()
+        if not os.path.exists(experiment_dir + '/clip'):
+            os.makedirs(experiment_dir + '/clip')
+        logfile = os.path.join(experiment_dir, 'clip', 'clip_info_{}.txt'.format(str(epoch)))
+        log_file = open(logfile, 'w')
+
         for i, sample in enumerate(tbar):
             image = sample["image"]
             target = sample["mask"]
@@ -163,7 +169,11 @@ class Trainer(object):
                 image, target = image.cuda().float(), target.cuda().float()
             self.scheduler(self.optimizer, i, epoch, self.best_pred)
             self.optimizer.zero_grad()
-            output = self.model(image)
+            output, img_tree = self.model(image)
+
+            log_file.write(str(output.shape[0]) + '\t')
+
+            target = img_tree.encoding(target)
             loss = self.criterion(output, target)
             if self.use_amp:
                 with amp.scale_loss(loss, self.optimizer) as scaled_loss:
@@ -174,7 +184,8 @@ class Trainer(object):
 
             train_loss += loss.item()
             tbar.set_description('Train loss: %.3f' % (train_loss / (i + 1)))
-
+        log_file.write('\n')
+        log_file.close()
         if not self.args.val:
             # save checkpoint every epoch
             is_best = False
@@ -201,7 +212,8 @@ class Trainer(object):
             if self.args.cuda:
                 image, target = image.cuda().float(), target.cuda().float()
             with torch.no_grad():
-                output = self.model(image)
+                output = self.model(image, 'val')
+
             loss = self.criterion(output, target)
             test_loss += loss.item()
             tbar.set_description('Test loss: %.3f' % (test_loss / (i + 1)))
@@ -273,7 +285,7 @@ class Trainer(object):
             if self.args.cuda:
                 image, target = image.cuda().float(), target.cuda().float()
             with torch.no_grad():
-                output = self.model(image)
+                output = self.model(image, 'test')
             loss = self.criterion(output, target)
             test_loss += loss.item()
             tbar.set_description('Test loss: %.3f' % (test_loss / (i + 1)))

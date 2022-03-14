@@ -2,9 +2,10 @@ import os
 import torch
 import numpy as np
 import random
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 from configs.retrain_args import obtain_retrain_args
 from engine.retrainer import Trainer
+from engine.head_trainer import headTrainer
 
 # 为每个卷积层搜索最适合它的卷积实现算法
 # torch.backends.cudnn.benchmark=True
@@ -33,6 +34,7 @@ def main():
     # print(args)
     setup_seed(args.seed)
     trainer = Trainer(args)
+    # trainer = headTrainer(args)
 
     print('Total Epoches:', trainer.args.epochs)
 
