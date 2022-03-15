@@ -97,7 +97,6 @@ class Decoder(object):
 
 
 def get_first_space(path):
-    # TODO: compare conv-bn-relu and relu-conv-bn
     # path = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_flexinet_alldata_first_batch24_relu/experiment_0/betas/'
     betas_list = OrderedDict()
     const_network_list = OrderedDict()

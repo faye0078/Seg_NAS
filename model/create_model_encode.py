@@ -184,8 +184,8 @@ def test_connections(connections):
 
 if __name__ == "__main__":
     # first connections
-    # connections = first_connect_4(6)
-    # np.save('./model_encode/first_connect_4.npy', connections)  # 保存为.npy格式
+    connections = first_connect_4(13, ) # TODO: 重构stage123代码，添加cell_arch输入参数
+    np.save('./model_encode/first_connect_4.npy', connections)  # 保存为.npy格式
 
     # second connections
     # betas_path = '/media/dell/DATA/wy/Seg_NAS/run/GID/1024/14layers_first/experiment_0/betas/'
@@ -196,14 +196,14 @@ if __name__ == "__main__":
     #     np.save('./model_encode/second_connect_4.npy', connections)  # 保存为.npy格式
 
     # third connections
-    betas_path_stage1 = '/media/dell/DATA/wy/Seg_NAS/run/GID/1024/14layers_first/experiment_0/betas/'
-    betas_path_stage2 = '/media/dell/DATA/wy/Seg_NAS/run/GID/1024/14layers_second/experiment_0/betas/'
-    core_path = get_first_space(betas_path_stage1)[59]
-    used_betas = get_second_space(betas_path_stage2, core_path)[59]
-    connections = third_connect(used_betas)
-    test_connections(connections)
-    connections_path = './model_encode/third_connect_4.npy'
-    np.save(connections_path, connections)
+    # betas_path_stage1 = '/media/dell/DATA/wy/Seg_NAS/run/GID/1024/14layers_first/experiment_0/betas/'
+    # betas_path_stage2 = '/media/dell/DATA/wy/Seg_NAS/run/GID/1024/14layers_second/experiment_0/betas/'
+    # core_path = get_first_space(betas_path_stage1)[59]
+    # used_betas = get_second_space(betas_path_stage2, core_path)[59]
+    # connections = third_connect(used_betas)
+    # test_connections(connections)
+    # connections_path = './model_encode/third_connect_4.npy'
+    # np.save(connections_path, connections)
 
     # retrain connections and cell
 

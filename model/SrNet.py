@@ -47,7 +47,6 @@ class imgTree:
         return upper_left, upper_right, lower_left, lower_right
 
     def resize(self):
-        # TODO: If size type is tensor?
         img_list = [nn.Upsample(size=self.down_size, \
                            mode='bilinear', align_corners=True)(self.img[index]) \
                            for index in self.img]
@@ -105,8 +104,7 @@ class SrNet(nn.Module):
         super(SrNet, self).__init__()
         self.max_depth = max_depth
         self.backbone = backbone
-        # TODO: If the Module can be used repeatedly
-        # Yes, but to more intuitive, just define all.
+        
         for depth in range(self.max_depth):
             setattr(self, "clipModules_{}".format(depth), nn.ModuleList())
             module_num = int(pow(4, depth))

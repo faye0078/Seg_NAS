@@ -11,7 +11,7 @@ class RetrainNet(nn.Module):
     def __init__(self, layers, depth, connections, cell_arch, dataset, num_classes, decoder, base_multiplier=40):
         '''
         Args:
-            layers: layer × depth： one or zero, one means ture
+            layers: layer × depth： one or zero, one means true
             depth: the model scale depth
             connections: the node connections
             cell: cell type
