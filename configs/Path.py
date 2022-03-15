@@ -11,9 +11,9 @@ def get_data_path(dataset):
     elif dataset == 'GID':
         Path = OrderedDict()
         Path['dir'] = "../data/GID-5/256"
-        Path['train_list'] = "./data/lists/gid_256_train.lst"
-        Path['val_list'] = "./data/lists/gid_256_val.lst"
-        Path['test_list'] = "./data/lists/gid_256_test.lst"
+        Path['train_list'] = "./data/lists/gid_512_train.lst"
+        Path['val_list'] = "./data/lists/gid_512_val.lst"
+        Path['test_list'] = "./data/lists/gid_512_test.lst"
         Path['mini_train_list'] = "./data/lists/mini_rs_train.lst"
         Path['mini_val_list'] = "./data/lists/mini_rs_val.lst"
         # Path['dir'] = "../data/512"
