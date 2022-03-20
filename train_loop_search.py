@@ -2,11 +2,11 @@ import os
 import torch
 import numpy as np
 import random
-from configs.search_args import obtain_search_args
-from engine.search_trainer import Trainer
+from configs.one_search_args import obtain_search_args
+from engine.one_search_trainer import Trainer
 
 # 设置所使用的GPU
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 # 为每个卷积层搜索最适合它的卷积实现算法
 # torch.backends.cudnn.benchmark=True
 def setup_seed(seed):
@@ -36,11 +36,11 @@ def main():
     trainer = Trainer(args)
 
     print('Total Epoches:', trainer.args.epochs)
-    start_epoch = 0 #暂时先设置为0，需要读取保存过的模型
-    for epoch in range(trainer.start_epoch, trainer.args.epochs):
-        trainer.training(epoch)
-        trainer.validation(epoch)
-
+    loops = 5
+    for loop in range(loops):
+        trainer.training_stage1(2)
+        trainer.training_stage2(2)
+        trainer.training_stage3(2)
 
 if __name__ == "__main__":
     main()

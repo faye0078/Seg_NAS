@@ -74,3 +74,14 @@ class Saver(object):
 
         file.write(train_info + '\n')
         file.close()
+
+    def save_loop_train_info(self, loss, epoch, acc, miou, fwiou, iou, is_best, file_name):
+        train_info = 'loss:{}, epoch:{}, acc:{}, miou:{}, fwiou:{}, iou:{}'.format(str(loss), str(epoch+1), str(acc), str(miou), str(fwiou), str(iou))
+        if is_best:
+            train_info = train_info + 'new best'
+
+        info_file = os.path.join(self.experiment_dir, file_name)
+        file = open(info_file, 'a')
+
+        file.write(train_info + '\n')
+        file.close()

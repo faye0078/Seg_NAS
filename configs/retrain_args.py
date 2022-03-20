@@ -7,7 +7,7 @@ def obtain_retrain_args():
     parser.add_argument('--use_default', type=bool, default=False,  help='if use the default arch')
     parser.add_argument('--use_low', type=bool, default=True,  help='if use the low level features')
 
-    parser.add_argument('--model_name', type=str, default='SrNet', choices=['multi', 'hrnet', 'flexinet', 'deeplabv3plus', 'pspnet', 'unet', 'refinenet', 'fast-nas', 'SrNet'], help='the model name')
+    parser.add_argument('--model_name', type=str, default='flexinet', choices=['multi', 'hrnet', 'flexinet', 'deeplabv3plus', 'pspnet', 'unet', 'refinenet', 'fast-nas', 'SrNet'], help='the model name')
     parser.add_argument('--resume', type=str, default=None, help='put the path to resuming file if needed')
     parser.add_argument('--checkname', type=str, default='test', help='set the checkpoint name')
 

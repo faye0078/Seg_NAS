@@ -7,7 +7,7 @@ class Decoder(object):
     def __init__(self, alphas):
         self.alphas = torch.from_numpy(alphas)
         self._num_layers = self.alphas.shape[0]
-        self.cell_space = torch.zeros(self._num_layers, 4, 7)
+        self.cell_space = torch.zeros(self._num_layers, 4, 10)
 
         for i in range(self._num_layers):
             for j in range(4):
@@ -15,13 +15,12 @@ class Decoder(object):
 
 
 if __name__ == '__main__':
-    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/1024/14layers_third/experiment_0/alphas/'
+    path = '/media/dell/DATA/wy/Seg_NAS/run/GID/1024/14layers_third/experiment_2/alphas/'
     alphas_list = OrderedDict()
     cell_list = OrderedDict()
 
     for dirpath, dirnames, filenames in os.walk(path):
         for filename in filenames:
-            # if filename.split('.')[0].split('_')[0] == 'alphas':
             if filename.split('.')[0].split('_')[0] == 'alphas':
                 alphas_list[filename] = np.load(dirpath + filename)
 
@@ -35,7 +34,7 @@ if __name__ == '__main__':
         order_cell_list.append(cell_list[idx])
     # print(path_list)
     print(cell_list)
-    b = np.array(cell_list['alphas_59.npy'])
+    b = np.array(cell_list['alphas_56.npy'])
 
     np.save('/media/dell/DATA/wy/Seg_NAS/model/model_encode/cell_operations_0.npy', b)
     # print(b)

@@ -153,6 +153,11 @@ def third_connect(used_betas):
 
     return connections
 
+def loop_stage1_cell_arch_init():
+    a = np.zeros([14, 4, 11])
+    a[:, :, 1] = 1
+    return a
+
 # def test_forward(target, connections, layer):
 #
 #     if target[1][0] == layer:
@@ -181,11 +186,10 @@ def test_connections(connections):
         # if ~test_back(connection, connections) or ~test_forward(connection, connections, layers[-1]):
         #     connections.remove([connection])
     return True
-
 if __name__ == "__main__":
     # first connections
-    connections = first_connect_4(13, ) # TODO: 重构stage123代码，添加cell_arch输入参数
-    np.save('./model_encode/first_connect_4.npy', connections)  # 保存为.npy格式
+    # connections = first_connect_4(13, ) # TODO: 重构stage123代码，添加cell_arch输入参数
+    # np.save('./model_encode/first_connect_4.npy', connections)  # 保存为.npy格式
 
     # second connections
     # betas_path = '/media/dell/DATA/wy/Seg_NAS/run/GID/1024/14layers_first/experiment_0/betas/'
@@ -205,5 +209,7 @@ if __name__ == "__main__":
     # connections_path = './model_encode/third_connect_4.npy'
     # np.save(connections_path, connections)
 
-    # retrain connections and cell
-
+    # get init cellarch
+    cell_arch = loop_stage1_cell_arch_init()
+    path = './model_encode/GID-5/one_loop_14layers_mixedcell1_3operation/init_cell_arch.npy'
+    np.save(path, cell_arch)

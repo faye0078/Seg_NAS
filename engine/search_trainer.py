@@ -67,7 +67,7 @@ class Trainer(object):
             model = DCNASNet(layers, 4, connections, DCNAS_cell, self.args.dataset, self.nclass)
         elif self.args.model_name == 'FlexiNet':
             if self.args.search_stage == "first":
-                layers = np.ones([7, 4])
+                layers = np.ones([14, 4])
                 connections = np.load(self.args.model_encode_path)
                 model = SearchNet1(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass)
 
@@ -170,7 +170,29 @@ class Trainer(object):
                     arch_loss.backward()
                 self.architect_optimizer.step()
 
+            for name, module in self.model.named_modules():
+                if 'sobel_operator.filter' in name:
+                    tem = module.weight.abs().squeeze()
+                    g1 = (tem[0][0] + tem[2][2]) / 2
+                    g2 = (tem[0][1] + tem[2][1]) / 2
+                    g3 = (tem[0][2] + tem[2][0]) / 2
+                    g4 = (tem[1][2] + tem[1][0]) / 2
+                    G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
+                    G = G.unsqueeze(0).unsqueeze(0)
+                    module.weight.data = nn.Parameter(G).cuda()
+
+            # for name, module in self.model.named_modules():
+            #     if 'denoising_operator.filter' in name:
+            #         tem = module.weight.abs().squeeze()
+            #         g1 = (tem[0][0] + tem[2][2]) / 2
+            #         g2 = (tem[0][1] + tem[2][1]) / 2
+            #         g3 = (tem[0][2] + tem[2][0]) / 2
+            #         g4 = (tem[1][2] + tem[1][0]) / 2
+            #         G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
+            #         G = G.unsqueeze(0).unsqueeze(0)
+            #         module.weight.data = nn.Parameter(G).cuda()
             train_loss += loss.item()
+            # print(self.model.cells[0][0]['[-1  0]']._ops['sobel_operator'].filter.weight)
             tbar.set_description('Train loss: %.3f' % (train_loss / (i + 1)))
 
         if self.args.search_stage == "third":

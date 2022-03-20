@@ -9,8 +9,8 @@ def obtain_search_args():
     parser.add_argument('--resume', type=str, default=None, help='put the path to resuming file if needed')
     parser.add_argument('--checkname', type=str, default='test', help='set the checkpoint name')
     parser.add_argument('--model_name', type=str, default='FlexiNet', choices=['AutoDeeplab', 'DCNAS', 'FlexiNet'], help='set the model name')
-    parser.add_argument('--model_encode_path', type=str, default='/media/dell/DATA/wy/Seg_NAS/model/model_encode/third_connect_4.npy')
-    parser.add_argument('--search_stage', type=str, default='third', choices=['first', 'second', 'third'], help='witch search stage')
+    parser.add_argument('--model_encode_path', type=str, default='/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/one_loop_14layers_mixedcell1_3operation/first_connect_4.npy')
+    parser.add_argument('--model_cell_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/one_loop_14layers_mixedcell1_3operation/init_cell_arch.npy', help='the initial cell arch')
 
     parser.add_argument('--batch-size', type=int, default=2, metavar='N', help='input batch size for training (default: auto)')
     parser.add_argument('--backbone', type=str, default='resnet', choices=['resnet', 'xception', 'drn', 'mobilenet'], help='backbone name (default: resnet)')
@@ -44,7 +44,7 @@ def obtain_search_args():
     parser.add_argument('--filter_multiplier', type=int, default=8)
     parser.add_argument('--block_multiplier', type=int, default=5)
     parser.add_argument('--step', type=int, default=5)
-    parser.add_argument('--alpha_epoch', type=int, default=20, metavar='N', help='epoch to start training alphas')
+    parser.add_argument('--alpha_epoch', type=int, default=10, metavar='N', help='epoch to start training alphas')
 
     parser.add_argument('--num_worker', type=int, default=0, metavar='N', help='numer workers')
 

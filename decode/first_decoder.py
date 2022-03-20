@@ -4,10 +4,9 @@ from torch.nn import functional as F
 import os
 from collections import OrderedDict
 class Decoder(object):
-    def __init__(self, betas, steps):
+    def __init__(self, betas):
         self._betas = torch.from_numpy(betas)
         self._num_layers = self._betas.shape[0]
-        self._steps = steps
         self.network_space = torch.zeros(self._num_layers, 4, 3)
         self.path = ['', '', '', '']
 
@@ -108,7 +107,7 @@ def get_first_space(path):
         for filename in filenames:
             if filename.split('.')[0].split('_')[0] == 'betas':
                 betas_list[filename] = np.load(dirpath + filename)
-                decoder = Decoder(betas_list[filename], 5)
+                decoder = Decoder(betas_list[filename])
                 const_network_list[filename] = decoder.network_space
                 path_list[filename] = decoder.viterbi_decode()
     print(path_list)

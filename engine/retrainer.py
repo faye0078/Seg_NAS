@@ -247,7 +247,7 @@ class Trainer(object):
             }, is_best, 'epoch{}_checkpoint.pth.tar'.format(str(epoch + 1)))
 
             self.test_model(epoch)
-        if new_pred > 0.925: # TODO: 传参
+        if new_pred > 0.925:
             if torch.cuda.device_count() > 1:
                 state_dict = self.model.module.state_dict()
             else:

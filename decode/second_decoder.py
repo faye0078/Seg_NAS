@@ -37,7 +37,7 @@ class Decoder(object):
         for i in range(len(used_betas)):
             for j in range(len(used_betas[i])):
                 for k in range(len(used_betas[i][j])):
-                    if used_betas[i][j][k] > 0:
+                    if used_betas[i][j][k] > 0.05:
                         used_betas[i][j][k] = 1
                     else:
                         used_betas[i][j][k] = 0

@@ -31,7 +31,6 @@ class imgTree:
         self.tem_img.clear()
 
     def grow(self, beta, encode):
-        # TODO: If need to multiply beta?
         beta = torch.squeeze(beta)
         # if beta > 0 or encode == '':
         self.tem_img[encode + '0'], self.tem_img[encode + '1'], self.tem_img[encode + '2'], self.tem_img[encode + '3'] = self.quarter(self.img[encode], beta)

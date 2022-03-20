@@ -2,34 +2,32 @@ import numpy as np
 import torch
 from torch import nn
 import numpy
-from model.cell import ReLUConvBN, MixedRetrainCell
-from retrain.aspp import ASPP
+from model.cell import ReLUConvBN
+from collections import OrderedDict
 import torch.nn.functional as F
 
-class RetrainNet(nn.Module):
+class SearchNet1(nn.Module):
 
-    def __init__(self, layers, depth, connections, cell_arch, dataset, num_classes, decoder, base_multiplier=40):
+    def __init__(self, layers, depth, connections, cell_arch, cell, dataset, num_classes, base_multiplier=40):
         '''
         Args:
-            layers: layer × depth： one or zero, one means true
+            layers: layer × depth： one or zero, one means ture
             depth: the model scale depth
             connections: the node connections
             cell: cell type
             dataset: dataset
             base_multiplier: base scale multiplier
         '''
-        super(RetrainNet, self).__init__()
+        super(SearchNet1, self).__init__()
         self.block_multiplier = 1
         self.base_multiplier = base_multiplier
         self.depth = depth
         self.layers = layers
         self.connections = connections
         self.node_add_num = np.zeros([len(layers), self.depth])
-        self.decoder = decoder
-        cell = MixedRetrainCell
 
         half_base = int(base_multiplier // 2)
-        if dataset == 'GID' or dataset == 'hps-GID':
+        if 'GID' in dataset:
             input_channel = 4
         else:
             input_channel = 3
@@ -50,6 +48,7 @@ class RetrainNet(nn.Module):
         )
         self.cells = nn.ModuleList()
         multi_dict = {0: 1, 1: 2, 2: 4, 3: 8}
+        max_num_connect = 0
         num_last_features = 0
         for i in range(len(self.layers)):
             self.cells.append(nn.ModuleList())
@@ -69,21 +68,21 @@ class RetrainNet(nn.Module):
 
                 if i == len(self.layers) -1 and num_connect != 0:
                     num_last_features += self.base_multiplier * multi_dict[j]
-        if self.decoder == 'aspp':
-            self.last_conv = nn.Sequential(ASPP(num_last_features, 256, num_classes),
-                                       nn.Conv2d(256, num_classes, kernel_size=1, stride=1))
 
-        else:
-            self.last_conv = nn.Sequential(nn.Conv2d(num_last_features, 256, kernel_size=3, stride=1, padding=1, bias=False),
+                if num_connect > max_num_connect:
+                    max_num_connect = num_connect
+
+        self.last_conv = nn.Sequential(nn.Conv2d(num_last_features, 256, kernel_size=3, stride=1, padding=1, bias=False),
                                        nn.BatchNorm2d(256),
                                        nn.Dropout(0.5),
                                        nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
                                        nn.BatchNorm2d(256),
                                        nn.Dropout(0.1),
                                        nn.Conv2d(256, num_classes, kernel_size=1, stride=1))
-
-
+        self.max_num_connect = max_num_connect
         print('connections number: \n' + str(self.node_add_num))
+        self.initialize_betas()
+
 
     def forward(self, x):
         features = []
@@ -91,6 +90,16 @@ class RetrainNet(nn.Module):
         temp = self.stem0(x)
         temp = self.stem1(temp)
         pre_feature = self.stem2(temp)
+
+        normalized_betas = torch.randn(len(self.layers), self.depth, self.max_num_connect).cuda()
+
+        for i in range(len(self.layers)):
+            for j in range(self.depth):
+                num = int(self.node_add_num[i][j])
+                if num == 0:
+                    continue
+                normalized_betas[i][j][:num] = F.softmax(self.betas[i][j][:num], dim=-1) * (num / self.max_num_connect)
+                # if the second search progress, the denominato should be 'num'
 
         for i in range(len(self.layers)):
             features.append([])
@@ -100,11 +109,9 @@ class RetrainNet(nn.Module):
                 for connection in self.connections:
                     if ([i, j] == connection[1]).all():
                         if connection[0][0] == -1:
-                            features[i][j] += self.cells[i][j][str(connection[0])](pre_feature)
+                            features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](pre_feature)
                         else:
-                            if isinstance(features[connection[0][0]][connection[0][1]], int):
-                                continue
-                            features[i][j] += self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
+                            features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
                         k += 1
 
         last_features = [feature for feature in features[len(self.layers)-1] if torch.is_tensor(feature)]
@@ -113,4 +120,25 @@ class RetrainNet(nn.Module):
         result = self.last_conv(result)
         result = nn.Upsample(size=x.size()[2:], mode='bilinear', align_corners=True)(result)
         return result
+
+    def initialize_betas(self):
+        betas = (1e-3 * torch.randn(len(self.layers), self.depth, self.max_num_connect)).clone().detach().requires_grad_(True)
+
+        self._arch_parameters = [
+            betas,
+        ]
+        self._arch_param_names = [
+            'betas',
+        ]
+
+        [self.register_parameter(name, torch.nn.Parameter(param)) for name, param in
+         zip(self._arch_param_names, self._arch_parameters)]
+
+    def arch_parameters(self):
+        return [param for name, param in self.named_parameters() if
+                name in self._arch_param_names]
+
+    def weight_parameters(self):
+        return [param for name, param in self.named_parameters() if
+                name not in self._arch_param_names]
 

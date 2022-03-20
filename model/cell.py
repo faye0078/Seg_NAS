@@ -127,10 +127,10 @@ class MixedCell(nn.Module):
         kernel_size = 5
         padding = 2
         self.scale = 1
-        self._ops = nn.ModuleList()
+        self._ops = nn.ModuleDict()
         for op_name in OPS:
             op = OPS[op_name](C_in, C_out, 1, True)
-            self._ops.append(op)
+            self._ops[op_name] = op
         self.ops_num = len(self._ops)
         self.scale = C_in/C_out
         self._initialize_weights()
@@ -142,11 +142,11 @@ class MixedCell(nn.Module):
             feature_size_h = self.scale_dimension(x.shape[2], self.scale)
             feature_size_w = self.scale_dimension(x.shape[3], self.scale)
             x = F.interpolate(x, [feature_size_h, feature_size_w], mode='bilinear', align_corners=True)
-        return sum(w * op(x) for w, op in zip(cell_alphas, self._ops))
+        return sum(w * self._ops[op](x) for w, op in zip(cell_alphas, self._ops))
 
     def _initialize_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
+        for name, m in self.named_modules():
+            if isinstance(m, nn.Conv2d) and 'sobel_operator.filter' not in name:
                 # n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
                 # m.weight.data.normal_(0, math.sqrt(2. / n))
                 torch.nn.init.kaiming_normal_(m.weight)
@@ -163,11 +163,11 @@ class MixedRetrainCell(nn.Module):
     def __init__(self, C_in, C_out, arch):
         super(MixedRetrainCell, self).__init__()
         self.scale = 1
-        self._ops = nn.ModuleList()
+        self._ops = nn.ModuleDict()
         for i, op_name in enumerate(OPS):
             if arch[i] == 1:
                 op = OPS[op_name](C_in, C_out, 1, True)
-                self._ops.append(op)
+                self._ops[op_name] = op
         self.ops_num = len(self._ops)
         self.scale = C_in/C_out
         self._initialize_weights()
@@ -177,11 +177,11 @@ class MixedRetrainCell(nn.Module):
             feature_size_h = self.scale_dimension(x.shape[2], self.scale)
             feature_size_w = self.scale_dimension(x.shape[3], self.scale)
             x = F.interpolate(x, [feature_size_h, feature_size_w], mode='bilinear', align_corners=True)
-        return sum(op(x) for op in self._ops)
+        return sum(self._ops[op](x) for op in self._ops)
 
     def _initialize_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
+        for name, m in self.named_modules():
+            if isinstance(m, nn.Conv2d) and 'sobel_operator.filter' not in name:
                 torch.nn.init.kaiming_normal_(m.weight)
             elif isinstance(m, nn.BatchNorm2d):
                 if m.weight is not None:
@@ -198,10 +198,10 @@ class MixedCellMini(nn.Module):
         kernel_size = 5
         padding = 2
         self.scale = 1
-        self._ops = nn.ModuleList()
+        self._ops = nn.ModuleDict()
         for op_name in OPS_mini:
             op = OPS_mini[op_name](C_in, C_out, 1, True)
-            self._ops.append(op)
+            self._ops[op_name] = op
         self.ops_num = len(self._ops)
         self.scale = C_in / C_out
         self._initialize_weights()
@@ -211,11 +211,11 @@ class MixedCellMini(nn.Module):
             feature_size_h = self.scale_dimension(x.shape[2], self.scale)
             feature_size_w = self.scale_dimension(x.shape[3], self.scale)
             x = F.interpolate(x, [feature_size_h, feature_size_w], mode='bilinear', align_corners=True)
-        return sum(w * op(x) for w, op in zip(cell_alphas, self._ops))
+        return sum(w * self._ops[op](x) for w, op in zip(cell_alphas, self._ops))
 
     def _initialize_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
+        for name, m in self.named_modules():
+            if isinstance(m, nn.Conv2d) and 'sobel_operator.filter' not in name:
                 # n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
                 # m.weight.data.normal_(0, math.sqrt(2. / n))
                 torch.nn.init.kaiming_normal_(m.weight)

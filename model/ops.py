@@ -25,11 +25,11 @@ def conv1x1(in_planes, out_planes, stride=1, bias=False):
 
 
 OPS = {
-    # "conv1x1": lambda C_in, C_out, stride, affine, repeats=1: nn.Sequential(
-    #     conv1x1(C_in, C_out, stride=stride),
-    #     nn.BatchNorm2d(C_out, affine=affine),
-    #     nn.ReLU(inplace=False),
-    # ),
+    "conv1x1": lambda C_in, C_out, stride, affine, repeats=1: nn.Sequential(
+        conv1x1(C_in, C_out, stride=stride),
+        nn.BatchNorm2d(C_out, affine=affine),
+        nn.ReLU(inplace=False),
+    ),
     "conv3x3": lambda C_in, C_out, stride, affine, repeats=1: nn.Sequential(
         conv3x3(C_in, C_out, stride=stride),
         nn.BatchNorm2d(C_out, affine=affine),
@@ -54,15 +54,18 @@ OPS = {
     "sep_conv_7x7": lambda C_in, C_out, stride, affine, repeats=1: SepConv(
         C_in, C_out, 7, stride, 3, affine=affine, repeats=repeats
     ),
-    # "avg_pool_3x3": lambda C_in, C_out, stride, affine, repeats=1: Pool(
-    #     C_in, C_out, stride, repeats, ksize=3, mode="avg"
-    # ),
+    "avg_pool_3x3": lambda C_in, C_out, stride, affine, repeats=1: Pool(
+        C_in, C_out, stride, repeats, ksize=3, mode="avg"
+    ),
     "max_pool_3x3": lambda C_in, C_out, stride, affine, repeats=1: Pool(
         C_in, C_out, stride, repeats, ksize=3, mode="max"
     ),
-    # "global_average_pool": lambda C_in, C_out, stride, affine, repeats=1: GAPConv1x1(
+    "global_average_pool": lambda C_in, C_out, stride, affine, repeats=1: GAPConv1x1(
+        C_in, C_out
+    ),
+    # "sobel_operator": lambda C_in, C_out, stride, affine, repeats=1: Sobel(
     #     C_in, C_out
-    # ),
+    # )
 }
 
 OPS_mini = {
@@ -251,6 +254,39 @@ class SepConv(nn.Module):
     def forward(self, x):
         return self.op(x)
 
+class Sobel(nn.Module):
+    def __init__(self, C_in, C_out):
+        super(Sobel, self).__init__()
+        self.out_channels = C_out
+
+        self.filter = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, stride=1, padding=1, bias=False)
+        G = torch.tensor([[1.0, 2.0, -1.0], [2.0, 0.0, -2.0], [1.0, -2.0, -1.0]])
+        G = G.unsqueeze(0).unsqueeze(0)
+        self.filter.weight = nn.Parameter(G)
+
+    def forward(self, img):
+        b, c, w, h = img.shape
+        x = img.mean(1, True)
+        x = self.filter(x)
+        x.repeat(1, self.out_channels, 1, 1)
+        return x
+
+class Denoising(nn.Module):
+    def __init__(self, C_in, C_out):
+        super(Denoising, self).__init__()
+        self.out_channels = C_out
+
+        self.filter = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, stride=1, padding=1, bias=False)
+        G = torch.tensor([[1/9, 1/9, 1/9], [1/9, 1/9, 1/9], [1/9, 1/9, 1/9]])
+        G = G.unsqueeze(0).unsqueeze(0)
+        self.filter.weight = nn.Parameter(G)
+
+    def forward(self, img):
+        b, c, w, h = img.shape
+        x = img.mean(1, True)
+        x = self.filter(x)
+        x.repeat(1, self.out_channels, 1, 1)
+        return x
 
 class Skip(nn.Module):
     def __init__(self, C_in, C_out, stride):
