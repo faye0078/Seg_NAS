@@ -282,12 +282,13 @@ class Trainer(object):
             print('Loss: %.3f' % train_loss)
 
             self.validation(epoch, model, 'stage2')
+
         self.cell_arch_1 = self.tem_cell_arch_1
 
     def training_stage3(self, epochs):
         self.connections_3 = second_connect(14, 4, self.core_path)
         layers = np.ones([14, 4])
-        model = SearchNet3(layers, 4, self.connections_3, self.cell_arch_1, MixedRetrainCell, self.args.dataset, self.nclass)
+        model = SearchNet3(layers, 4, self.connections_3, self.cell_arch_1, MixedRetrainCell, self.args.dataset, self.nclass, core_path=self.core_path)
 
         optimizer = torch.optim.SGD(
             model.weight_parameters(),
@@ -421,7 +422,7 @@ class Trainer(object):
         FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
 
         print('Validation:')
-        print('[Epoch: %d, numImages: %5d]' % (epoch, i * self.args.batch_size + image.data.shape[0]))
+        print('[Epoch: %d, numImages: %5d]' % (epoch+1, i * self.args.batch_size + image.data.shape[0]))
         print("Acc:{}, Acc_class:{}, mIoU:{}, fwIoU: {}, IoU:{}".format(Acc, Acc_class, mIoU, FWIoU, IoU))
         print('Loss: %.3f' % test_loss)
         new_pred = mIoU
@@ -448,7 +449,7 @@ class Trainer(object):
                 core_path_dir = '/media/dell/DATA/wy/Seg_NAS/' + self.saver.experiment_dir + '/path'
                 if not os.path.exists(core_path_dir):
                     os.makedirs(core_path_dir)
-                core_path_path = core_path_dir + '/{}_core_path_epoch{}.npy'.format(str(self.loops), epoch)
+                core_path_path = core_path_dir + '/{}_core_path_epoch{}.npy'.format(str(self.loops), epoch+1)
                 np.save(core_path_path, self.core_path, allow_pickle=True)
             elif stage == 'stage2':
                 alphas = model.alphas.cpu().detach().numpy()
@@ -458,8 +459,9 @@ class Trainer(object):
                 arch_path_dir = '/media/dell/DATA/wy/Seg_NAS/' + self.saver.experiment_dir + '/cell_arch'
                 if not os.path.exists(arch_path_dir):
                     os.makedirs(arch_path_dir)
-                arch_path = arch_path_dir + '/{}_cell_arch_epoch{}.npy'.format(str(self.loops), epoch)
+                arch_path = arch_path_dir + '/{}_cell_arch_epoch{}.npy'.format(str(self.loops), epoch+1)
                 np.save(arch_path, self.tem_cell_arch_1, allow_pickle=True)
+                self.tem_cell_arch_1 = None
             elif stage == 'stage3':
                 betas = model.betas.cpu().detach().numpy()
                 core_path_num = np.zeros(len(self.core_path))
@@ -473,7 +475,7 @@ class Trainer(object):
                 connections_path_dir = '/media/dell/DATA/wy/Seg_NAS/' + self.saver.experiment_dir + '/connections'
                 if not os.path.exists(connections_path_dir):
                     os.makedirs(connections_path_dir)
-                connections_path = connections_path_dir + '/connections_epoch{}.npy'.format(epoch)
+                connections_path = connections_path_dir + '/connections_epoch{}.npy'.format(epoch+1)
                 np.save(connections_path, connections)
 
         file_name = '{}_{}_train_info.txt'.format(str(self.loops), stage)

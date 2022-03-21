@@ -36,11 +36,11 @@ def main():
     trainer = Trainer(args)
 
     print('Total Epoches:', trainer.args.epochs)
-    loops = 5
+    loops = 2
     for loop in range(loops):
         trainer.training_stage1(2)
         trainer.training_stage2(2)
-        trainer.training_stage3(2)
+    trainer.training_stage3(2)
 
 if __name__ == "__main__":
     main()
