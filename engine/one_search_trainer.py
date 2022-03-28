@@ -114,9 +114,9 @@ class Trainer(object):
                   .format(self.args.resume, checkpoint['epoch']))
         else:
             self.start_epoch = 0
-        train_loss = 0.0
 
         for epoch in range(epochs):
+            train_loss = 0.0
             model.train()
             tbar = tqdm(self.train_loaderA)
 
@@ -223,9 +223,9 @@ class Trainer(object):
                   .format(self.args.resume, checkpoint['epoch']))
         else:
             self.start_epoch = 0
-        train_loss = 0.0
 
         for epoch in range(epochs):
+            train_loss = 0.0
             model.train()
             tbar = tqdm(self.train_loaderA)
 
@@ -283,12 +283,12 @@ class Trainer(object):
 
             self.validation(epoch, model, 'stage2')
 
-        self.cell_arch_1 = self.tem_cell_arch_1
+        self.cell_arch_1 = self.tem_cell_arch_1.copy()
 
     def training_stage3(self, epochs):
         self.connections_3 = second_connect(14, 4, self.core_path)
         layers = np.ones([14, 4])
-        model = SearchNet3(layers, 4, self.connections_3, self.cell_arch_1, MixedRetrainCell, self.args.dataset, self.nclass, core_path=self.core_path)
+        model = SearchNet3(layers, 4, self.connections_3, self.cell_arch_1, MixedRetrainCell, self.args.dataset, self.nclass, core_path=self.core_path.tolist())
 
         optimizer = torch.optim.SGD(
             model.weight_parameters(),
@@ -333,9 +333,9 @@ class Trainer(object):
                   .format(self.args.resume, checkpoint['epoch']))
         else:
             self.start_epoch = 0
-        train_loss = 0.0
 
         for epoch in range(epochs):
+            train_loss = 0.0
             model.train()
             tbar = tqdm(self.train_loaderA)
 
@@ -461,7 +461,6 @@ class Trainer(object):
                     os.makedirs(arch_path_dir)
                 arch_path = arch_path_dir + '/{}_cell_arch_epoch{}.npy'.format(str(self.loops), epoch+1)
                 np.save(arch_path, self.tem_cell_arch_1, allow_pickle=True)
-                self.tem_cell_arch_1 = None
             elif stage == 'stage3':
                 betas = model.betas.cpu().detach().numpy()
                 core_path_num = np.zeros(len(self.core_path))

@@ -36,11 +36,14 @@ def main():
     trainer = Trainer(args)
 
     print('Total Epoches:', trainer.args.epochs)
-    loops = 2
-    for loop in range(loops):
-        trainer.training_stage1(2)
-        trainer.training_stage2(2)
-    trainer.training_stage3(2)
+    loops = 3
+
+    # for loop in range(loops):
+    #     trainer.training_stage1(20)
+    #     trainer.training_stage2(20)
+    trainer.cell_arch_1 = np.load('/media/dell/DATA/wy/Seg_NAS/run/GID/one_loop/search/experiment_0/cell_arch/3_cell_arch_epoch17.npy')
+    trainer.core_path = np.load('/media/dell/DATA/wy/Seg_NAS/run/GID/one_loop/search/experiment_0/path/3_core_path_epoch18.npy')
+    trainer.training_stage3(60)
 
 if __name__ == "__main__":
     main()

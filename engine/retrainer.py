@@ -80,8 +80,8 @@ class Trainer(object):
             model = SrNet(4, fastNas())
         elif args.model_name == 'flexinet':
             layers = np.ones([14, 4])
-            cell_arch = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/cell_operations_0.npy')
-            connections = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/third_connect_4.npy')
+            cell_arch = np.load('/media/dell/DATA/wy/Seg_NAS/run/GID/one_loop/search/experiment_0/cell_arch/3_cell_arch_epoch17.npy')
+            connections = np.load('/media/dell/DATA/wy/Seg_NAS/run/GID/one_loop/search/experiment_1/connections/connections_epoch55.npy')
             # connections = get_connections()
             model = RetrainNet(layers, 4, connections, cell_arch, self.args.dataset, self.nclass, 'normal')
         optimizer = torch.optim.SGD(
