@@ -2,7 +2,7 @@
 
 import torch
 import torch.nn as nn
-
+from kornia.filters import median_blur
 
 def conv3x3(in_planes, out_planes, stride=1, bias=False, dilation=1):
     "3x3 convolution with padding"
@@ -254,9 +254,9 @@ class SepConv(nn.Module):
     def forward(self, x):
         return self.op(x)
 
-class Sobel(nn.Module):
+class Edge(nn.Module):
     def __init__(self, C_in, C_out):
-        super(Sobel, self).__init__()
+        super(Edge, self).__init__()
         self.out_channels = C_out
 
         self.filter = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, stride=1, padding=1, bias=False)
@@ -270,6 +270,90 @@ class Sobel(nn.Module):
         x = self.filter(x)
         x.repeat(1, self.out_channels, 1, 1)
         return x
+
+class Sobel(nn.Module):
+    def __init__(self, C_in, C_out):
+        super(Sobel, self).__init__()
+        self.out_channels = C_out
+        self.conv1x1 = conv_bn(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
+
+        self.filter = nn.Conv2d(in_channels=1, out_channels=2, kernel_size=3, stride=1, padding=1, bias=False)
+        Gx = torch.tensor([[1.0, 0.0, -1.0], [2.0, 0.0, -2.0], [1.0, 0.0, -1.0]])
+        Gy = torch.tensor([[1.0, 2.0, 1.0], [0.0, 0.0, 0.0], [-1.0, -2.0, -1.0]])
+        G = torch.cat([Gx.unsqueeze(0), Gy.unsqueeze(0)], 0)
+        G = G.unsqueeze(1)
+        self.filter.weight = nn.Parameter(G, requires_grad=False)
+
+    def forward(self, img):
+        img = self.conv1x1(img)
+        imgs = img.chunk(img.shape[1], dim=1)
+        edge_imgs = []
+        for channel in imgs:
+            x = self.filter(channel)
+            x = torch.mul(x, x)
+            x = torch.sum(x, dim=1, keepdim=True)
+            x = torch.sqrt(x)
+            edge_imgs.append(x)
+        edge_img = torch.cat(edge_imgs, dim=1)
+        return edge_img
+
+class Laplacian(nn.Module):
+    def __init__(self, C_in, C_out):
+        super(Laplacian, self).__init__()
+        self.out_channels = C_out
+        self.conv1x1 = conv_bn(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
+
+        self.filter = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, stride=1, padding=1, bias=False)
+        G = torch.tensor([[0.0, 1.0, 0.0], [1.0, -4.0, 1.0], [0.0, 1.0, 0.0]])
+        G = G.unsqueeze(1)
+        self.filter.weight = nn.Parameter(G, requires_grad=False)
+
+    def forward(self, img):
+        img = self.conv1x1(img)
+        imgs = img.chunk(img.shape[1], dim=1)
+        edge_imgs = []
+        for channel in imgs:
+            x = self.filter(channel)
+            edge_imgs.append(x)
+        edge_img = torch.cat(edge_imgs, dim=1)
+        return edge_img
+
+class Gaussian(nn.Module):
+    def __init__(self, C_in, C_out):
+        super(Gaussian, self).__init__()
+        self.out_channels = C_out
+        self.conv1x1 = conv_bn(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
+
+        self.filter = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, stride=1, padding=1, bias=False)
+        G = torch.tensor([[1.0, 2.0, 1.0], [2.0, 4.0, 2.0], [1.0, 2.0, 1.0]]) / 16.0
+        G = G.unsqueeze(1)
+        self.filter.weight = nn.Parameter(G, requires_grad=False)
+
+    def forward(self, img):
+        img = self.conv1x1(img)
+        imgs = img.chunk(img.shape[1], dim=1)
+        denoise_imgs = []
+        for channel in imgs:
+            x = self.filter(channel)
+            denoise_imgs.append(x)
+        denoise_img = torch.cat(denoise_imgs, dim=1)
+        return denoise_img
+
+class Median(nn.Module):
+    def __init__(self, C_in, C_out):
+        super(Median, self).__init__()
+        self.out_channels = C_out
+        self.conv1x1 = conv_bn(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
+
+        self.filter = median_blur
+        G = torch.tensor([[1.0, 2.0, 1.0], [2.0, 4.0, 2.0], [1.0, 2.0, 1.0]]) / 16.0
+        G = G.unsqueeze(1)
+        self.filter.weight = nn.Parameter(G, requires_grad=False)
+
+    def forward(self, img):
+        img = self.conv1x1(img)
+        denoise_img = self.filter(img, (3, 3))
+        return denoise_img
 
 class Denoising(nn.Module):
     def __init__(self, C_in, C_out):
