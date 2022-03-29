@@ -169,5 +169,5 @@ class SearchNet3(nn.Module):
 
     def weight_parameters(self):
         return [param for name, param in self.named_parameters() if
-                name not in self._arch_param_names]
+                name not in self._arch_param_names and 'filter' not in name ]
 

@@ -154,7 +154,7 @@ def third_connect(used_betas):
     return connections
 
 def loop_stage1_cell_arch_init():
-    a = np.zeros([14, 4, 11])
+    a = np.zeros([14, 4, 14])
     a[:, :, 1] = 1
     return a
 
@@ -211,5 +211,5 @@ if __name__ == "__main__":
 
     # get init cellarch
     cell_arch = loop_stage1_cell_arch_init()
-    path = './model_encode/GID-5/one_loop_14layers_mixedcell1_3operation/init_cell_arch.npy'
+    path = './model_encode/GID-5/one_loop_14layers_mixedcell/init_cell_arch.npy'
     np.save(path, cell_arch)

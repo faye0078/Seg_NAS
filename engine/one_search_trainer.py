@@ -52,7 +52,7 @@ class Trainer(object):
         self.cell_arch_1 = np.load(self.args.model_cell_arch)
         self.tem_cell_arch_1 = None
 
-        self.loops = 0
+        self.loops = 1
 
         self.criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode=args.loss_type)
 
@@ -125,7 +125,7 @@ class Trainer(object):
                 target = sample["mask"]
                 # image, target = sample['image'], sample['label']
                 if self.args.cuda:
-                    image, target = image.cuda(), target.cuda()
+                    image, target = image.cuda().float(), target.cuda().float()
                 scheduler(optimizer, i, epoch+1, self.best_pred)
                 optimizer.zero_grad()
                 output = model(image)
@@ -142,7 +142,7 @@ class Trainer(object):
                     search = next(iter(self.train_loaderB))
                     image_search, target_search = search['image'], search['mask']
                     if self.args.cuda:
-                        image_search, target_search = image_search.cuda(), target_search.cuda()
+                        image_search, target_search = image_search.cuda().float(), target_search.cuda().float()
 
                     architect_optimizer.zero_grad()
                     output_search = model(image_search)
@@ -154,16 +154,16 @@ class Trainer(object):
                         arch_loss.backward()
                     architect_optimizer.step()
 
-                for name, module in model.named_modules():
-                    if 'sobel_operator.filter' in name:
-                        tem = module.weight.abs().squeeze()
-                        g1 = (tem[0][0] + tem[2][2]) / 2
-                        g2 = (tem[0][1] + tem[2][1]) / 2
-                        g3 = (tem[0][2] + tem[2][0]) / 2
-                        g4 = (tem[1][2] + tem[1][0]) / 2
-                        G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
-                        G = G.unsqueeze(0).unsqueeze(0)
-                        module.weight.data = nn.Parameter(G).cuda()
+                # for name, module in model.named_modules():
+                #     if 'sobel_operator.filter' in name:
+                #         tem = module.weight.abs().squeeze()
+                #         g1 = (tem[0][0] + tem[2][2]) / 2
+                #         g2 = (tem[0][1] + tem[2][1]) / 2
+                #         g3 = (tem[0][2] + tem[2][0]) / 2
+                #         g4 = (tem[1][2] + tem[1][0]) / 2
+                #         G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
+                #         G = G.unsqueeze(0).unsqueeze(0)
+                #         module.weight.data = nn.Parameter(G).cuda()
 
                 train_loss += loss.item()
                 # print(self.model.cells[0][0]['[-1  0]']._ops['sobel_operator'].filter.weight)
@@ -178,8 +178,12 @@ class Trainer(object):
 
     def training_stage2(self, epochs):
         layers = np.ones([14, 4])
+        self.connections_2 = get_connections_2(self.core_path)
         model = SearchNet2(layers, 4, self.connections_2, self.cell_arch_1, MixedCell, self.args.dataset, self.nclass)
 
+        for name, module in model.named_modules():
+            if 'filter' in name:
+                print(module)
         optimizer = torch.optim.SGD(
             model.weight_parameters(),
             self.args.lr,
@@ -234,7 +238,7 @@ class Trainer(object):
                 target = sample["mask"]
                 # image, target = sample['image'], sample['label']
                 if self.args.cuda:
-                    image, target = image.cuda(), target.cuda()
+                    image, target = image.cuda().float(), target.cuda().float()
                 scheduler(optimizer, i, epoch+1, self.best_pred)
                 optimizer.zero_grad()
                 output = model(image)
@@ -251,7 +255,7 @@ class Trainer(object):
                     search = next(iter(self.train_loaderB))
                     image_search, target_search = search['image'], search['mask']
                     if self.args.cuda:
-                        image_search, target_search = image_search.cuda(), target_search.cuda()
+                        image_search, target_search = image_search.cuda().float(), target_search.cuda().float()
 
                     architect_optimizer.zero_grad()
                     output_search = model(image_search)
@@ -263,16 +267,16 @@ class Trainer(object):
                         arch_loss.backward()
                     architect_optimizer.step()
 
-                for name, module in model.named_modules():
-                    if 'sobel_operator.filter' in name:
-                        tem = module.weight.abs().squeeze()
-                        g1 = (tem[0][0] + tem[2][2]) / 2
-                        g2 = (tem[0][1] + tem[2][1]) / 2
-                        g3 = (tem[0][2] + tem[2][0]) / 2
-                        g4 = (tem[1][2] + tem[1][0]) / 2
-                        G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
-                        G = G.unsqueeze(0).unsqueeze(0)
-                        module.weight.data = nn.Parameter(G).cuda()
+                # for name, module in model.named_modules():
+                #     if 'sobel_operator.filter' in name:
+                #         tem = module.weight.abs().squeeze()
+                #         g1 = (tem[0][0] + tem[2][2]) / 2
+                #         g2 = (tem[0][1] + tem[2][1]) / 2
+                #         g3 = (tem[0][2] + tem[2][0]) / 2
+                #         g4 = (tem[1][2] + tem[1][0]) / 2
+                #         G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
+                #         G = G.unsqueeze(0).unsqueeze(0)
+                #         module.weight.data = nn.Parameter(G).cuda()
 
                 train_loss += loss.item()
                 # print(self.model.cells[0][0]['[-1  0]']._ops['sobel_operator'].filter.weight)
@@ -344,7 +348,7 @@ class Trainer(object):
                 target = sample["mask"]
                 # image, target = sample['image'], sample['label']
                 if self.args.cuda:
-                    image, target = image.cuda(), target.cuda()
+                    image, target = image.cuda().float(), target.cuda().float()
                 scheduler(optimizer, i, epoch+1, self.best_pred)
                 optimizer.zero_grad()
                 output = model(image)
@@ -361,7 +365,7 @@ class Trainer(object):
                     search = next(iter(self.train_loaderB))
                     image_search, target_search = search['image'], search['mask']
                     if self.args.cuda:
-                        image_search, target_search = image_search.cuda(), target_search.cuda()
+                        image_search, target_search = image_search.cuda().float(), target_search.cuda().float()
 
                     architect_optimizer.zero_grad()
                     output_search = model(image_search)
@@ -373,16 +377,16 @@ class Trainer(object):
                         arch_loss.backward()
                     architect_optimizer.step()
 
-                for name, module in model.named_modules():
-                    if 'sobel_operator.filter' in name:
-                        tem = module.weight.abs().squeeze()
-                        g1 = (tem[0][0] + tem[2][2]) / 2
-                        g2 = (tem[0][1] + tem[2][1]) / 2
-                        g3 = (tem[0][2] + tem[2][0]) / 2
-                        g4 = (tem[1][2] + tem[1][0]) / 2
-                        G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
-                        G = G.unsqueeze(0).unsqueeze(0)
-                        module.weight.data = nn.Parameter(G).cuda()
+                # for name, module in model.named_modules():
+                #     if 'sobel_operator.filter' in name:
+                #         tem = module.weight.abs().squeeze()
+                #         g1 = (tem[0][0] + tem[2][2]) / 2
+                #         g2 = (tem[0][1] + tem[2][1]) / 2
+                #         g3 = (tem[0][2] + tem[2][0]) / 2
+                #         g4 = (tem[1][2] + tem[1][0]) / 2
+                #         G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
+                #         G = G.unsqueeze(0).unsqueeze(0)
+                #         module.weight.data = nn.Parameter(G).cuda()
 
                 train_loss += loss.item()
                 # print(self.model.cells[0][0]['[-1  0]']._ops['sobel_operator'].filter.weight)

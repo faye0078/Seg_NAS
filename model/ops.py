@@ -2,7 +2,7 @@
 
 import torch
 import torch.nn as nn
-from kornia.filters import median_blur
+from kornia.filters import *
 
 def conv3x3(in_planes, out_planes, stride=1, bias=False, dilation=1):
     "3x3 convolution with padding"
@@ -63,9 +63,18 @@ OPS = {
     "global_average_pool": lambda C_in, C_out, stride, affine, repeats=1: GAPConv1x1(
         C_in, C_out
     ),
-    # "sobel_operator": lambda C_in, C_out, stride, affine, repeats=1: Sobel(
-    #     C_in, C_out
-    # )
+    "sobel_operator": lambda C_in, C_out, stride, affine, repeats=1: Sobel(
+        C_in, C_out
+    ),
+    "laplacian_operator": lambda C_in, C_out, stride, affine, repeats=1: Laplacian(
+        C_in, C_out
+    ),
+    "gaussian_operator": lambda C_in, C_out, stride, affine, repeats=1: Gaussian(
+        C_in, C_out
+    ),
+    "median_operator": lambda C_in, C_out, stride, affine, repeats=1: Median(
+            C_in, C_out
+    )
 }
 
 OPS_mini = {
@@ -277,24 +286,16 @@ class Sobel(nn.Module):
         self.out_channels = C_out
         self.conv1x1 = conv_bn(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
 
-        self.filter = nn.Conv2d(in_channels=1, out_channels=2, kernel_size=3, stride=1, padding=1, bias=False)
-        Gx = torch.tensor([[1.0, 0.0, -1.0], [2.0, 0.0, -2.0], [1.0, 0.0, -1.0]])
-        Gy = torch.tensor([[1.0, 2.0, 1.0], [0.0, 0.0, 0.0], [-1.0, -2.0, -1.0]])
-        G = torch.cat([Gx.unsqueeze(0), Gy.unsqueeze(0)], 0)
-        G = G.unsqueeze(1)
-        self.filter.weight = nn.Parameter(G, requires_grad=False)
+        self.filter = sobel
+        # Gx = torch.tensor([[1.0, 0.0, -1.0], [2.0, 0.0, -2.0], [1.0, 0.0, -1.0]])
+        # Gy = torch.tensor([[1.0, 2.0, 1.0], [0.0, 0.0, 0.0], [-1.0, -2.0, -1.0]])
+        # G = torch.cat([Gx.unsqueeze(0), Gy.unsqueeze(0)], 0)
+        # G = G.unsqueeze(1)
+        # self.filter.weight = nn.Parameter(G, requires_grad=False)
 
     def forward(self, img):
         img = self.conv1x1(img)
-        imgs = img.chunk(img.shape[1], dim=1)
-        edge_imgs = []
-        for channel in imgs:
-            x = self.filter(channel)
-            x = torch.mul(x, x)
-            x = torch.sum(x, dim=1, keepdim=True)
-            x = torch.sqrt(x)
-            edge_imgs.append(x)
-        edge_img = torch.cat(edge_imgs, dim=1)
+        edge_img = self.filter(img, (3, 3))
         return edge_img
 
 class Laplacian(nn.Module):
@@ -303,19 +304,11 @@ class Laplacian(nn.Module):
         self.out_channels = C_out
         self.conv1x1 = conv_bn(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
 
-        self.filter = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, stride=1, padding=1, bias=False)
-        G = torch.tensor([[0.0, 1.0, 0.0], [1.0, -4.0, 1.0], [0.0, 1.0, 0.0]])
-        G = G.unsqueeze(1)
-        self.filter.weight = nn.Parameter(G, requires_grad=False)
+        self.filter = laplacian
 
     def forward(self, img):
         img = self.conv1x1(img)
-        imgs = img.chunk(img.shape[1], dim=1)
-        edge_imgs = []
-        for channel in imgs:
-            x = self.filter(channel)
-            edge_imgs.append(x)
-        edge_img = torch.cat(edge_imgs, dim=1)
+        edge_img = self.filter(img, 3)
         return edge_img
 
 class Gaussian(nn.Module):
@@ -324,19 +317,11 @@ class Gaussian(nn.Module):
         self.out_channels = C_out
         self.conv1x1 = conv_bn(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
 
-        self.filter = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, stride=1, padding=1, bias=False)
-        G = torch.tensor([[1.0, 2.0, 1.0], [2.0, 4.0, 2.0], [1.0, 2.0, 1.0]]) / 16.0
-        G = G.unsqueeze(1)
-        self.filter.weight = nn.Parameter(G, requires_grad=False)
+        self.filter = gaussian_blur2d
 
     def forward(self, img):
         img = self.conv1x1(img)
-        imgs = img.chunk(img.shape[1], dim=1)
-        denoise_imgs = []
-        for channel in imgs:
-            x = self.filter(channel)
-            denoise_imgs.append(x)
-        denoise_img = torch.cat(denoise_imgs, dim=1)
+        denoise_img = self.filter(img, (3, 3), (1.5, 1.5))
         return denoise_img
 
 class Median(nn.Module):
@@ -346,9 +331,6 @@ class Median(nn.Module):
         self.conv1x1 = conv_bn(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
 
         self.filter = median_blur
-        G = torch.tensor([[1.0, 2.0, 1.0], [2.0, 4.0, 2.0], [1.0, 2.0, 1.0]]) / 16.0
-        G = G.unsqueeze(1)
-        self.filter.weight = nn.Parameter(G, requires_grad=False)
 
     def forward(self, img):
         img = self.conv1x1(img)
