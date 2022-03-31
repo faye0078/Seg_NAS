@@ -52,7 +52,7 @@ class Trainer(object):
         self.cell_arch_1 = np.load(self.args.model_cell_arch)
         self.tem_cell_arch_1 = None
 
-        self.loops = 1
+        self.loops = 0
 
         self.criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode=args.loss_type)
 
@@ -106,16 +106,16 @@ class Trainer(object):
             if not os.path.isfile(self.args.resume):
                 raise RuntimeError("=> no checkpoint found at '{}'".format(self.args.resume))
             checkpoint = torch.load(self.args.resume)
-            self.start_epoch = checkpoint['epoch']
+            self.start_epoch = 0
             model.load_state_dict(checkpoint['state_dict'])
-            copy_state_dict(optimizer.state_dict(), checkpoint['optimizer'])
+            # copy_state_dict(optimizer.state_dict(), checkpoint['optimizer'])
             self.best_pred = checkpoint['best_pred']
             print("=> loaded checkpoint '{}' (epoch {})"
                   .format(self.args.resume, checkpoint['epoch']))
         else:
             self.start_epoch = 0
 
-        for epoch in range(epochs):
+        for epoch in range(self.start_epoch, epochs):
             train_loss = 0.0
             model.train()
             tbar = tqdm(self.train_loaderA)
@@ -432,7 +432,7 @@ class Trainer(object):
         new_pred = mIoU
         is_best = False
 
-        if new_pred > self.best_pred:
+        if new_pred > self.best_pred or epoch + 1 % 10 == 0:
             is_best = True
             self.best_pred = new_pred
             if torch.cuda.device_count() > 1:

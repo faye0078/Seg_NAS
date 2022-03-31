@@ -38,11 +38,8 @@ def main():
     print('Total Epoches:', trainer.args.epochs)
     loops = 5
 
-    trainer.core_path = np.load('/media/dell/DATA/wy/Seg_NAS/run/GID/one_loop/search/experiment_2/path/1_core_path_epoch7.npy')
-    trainer.training_stage2(10)
-
     for loop in range(loops):
-        trainer.training_stage1(10)
+        trainer.training_stage1(20)
         trainer.training_stage2(10)
 
     trainer.training_stage3(60)

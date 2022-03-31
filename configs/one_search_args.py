@@ -44,7 +44,7 @@ def obtain_search_args():
     parser.add_argument('--filter_multiplier', type=int, default=8)
     parser.add_argument('--block_multiplier', type=int, default=5)
     parser.add_argument('--step', type=int, default=5)
-    parser.add_argument('--alpha_epoch', type=int, default=0, metavar='N', help='epoch to start training alphas')
+    parser.add_argument('--alpha_epoch', type=int, default=40, metavar='N', help='epoch to start training alphas')
 
     parser.add_argument('--num_worker', type=int, default=0, metavar='N', help='numer workers')
 

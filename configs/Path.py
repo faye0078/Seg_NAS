@@ -17,11 +17,11 @@ def get_data_path(dataset):
         # Path['mini_train_list'] = "./data/lists/mini_rs_train.lst"
         # Path['mini_val_list'] = "./data/lists/mini_rs_val.lst"
         Path['dir'] = "../data/512"
-        Path['train_list'] = "./data/lists/rs_train.lst"
-        Path['val_list'] = "./data/lists/rs_val.lst"
-        Path['test_list'] = "./data/lists/rs_test.lst"
-        Path['mini_train_list'] = "./data/lists/mini_rs_train.lst"
-        Path['mini_val_list'] = "./data/lists/mini_rs_val.lst"
+        Path['train_list'] = "./data/lists/GID/rs_train.lst"
+        Path['val_list'] = "./data/lists/GID/rs_val.lst"
+        Path['test_list'] = "./data/lists/GID/rs_test.lst"
+        Path['mini_train_list'] = "./data/lists/GID/mini_rs_train.lst"
+        Path['mini_val_list'] = "./data/lists/GID/mini_rs_val.lst"
     elif dataset == 'GID-15':
         Path = OrderedDict()
         Path['dir'] = "../data/GID-15/512/"
@@ -32,5 +32,14 @@ def get_data_path(dataset):
         Path['mini_val_list'] = "./data/lists/mini_gid15_val.lst"
     elif dataset == 'cityscapes':
         Path = '/media/dell/DATA/wy/data/cityscapes'
+
+    elif dataset == 'uadataset':
+        Path = OrderedDict()
+        Path['dir'] = "../data/512/"
+        Path['train_list'] = "./data/lists/uadataset/uad_512_train.lst"
+        Path['val_list'] = "./data/lists/uadataset/uad_512_val.lst"
+        Path['test_list'] = "./data/lists/uadataset/uad_512_test.lst"
+        Path['mini_train_list'] = "./data/lists/uadataset/mini_uad_512_train.lst"
+        Path['mini_val_list'] = "./data/lists/uadataset/mini_uad_512_val.lst"
 
     return Path
