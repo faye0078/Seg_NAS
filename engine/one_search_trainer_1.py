@@ -41,8 +41,8 @@ class Trainer(object):
         self.opt_level = args.opt_level
 
         # 定义dataloader
-        kwargs = {'num_workers': args.workers, 'pin_memory': True, 'drop_last': True}
-        self.train_loaderA, self.train_loaderB, self.val_loader, self.nclass = make_data_loader(args, **kwargs)
+        self.kwargs = {'num_workers': args.workers, 'pin_memory': True, 'drop_last': True}
+        self.train_loaderA, self.train_loaderB, self.val_loader, self.nclass = make_data_loader(self.args, **self.kwargs)
         self.evaluator = Evaluator(self.nclass)
 
         self.connections_1 = np.load(self.args.model_encode_path)
@@ -122,7 +122,7 @@ class Trainer(object):
 
             for i, sample in enumerate(tbar):
                 image = sample["image"]
-                target = sample["mask"]
+                target = sample["mask"]-1
                 # image, target = sample['image'], sample['label']
                 if self.args.cuda:
                     image, target = image.cuda().float(), target.cuda().float()
@@ -137,10 +137,10 @@ class Trainer(object):
                     loss.backward()
                 optimizer.step()
 
-                if epoch+1 >= self.args.alpha_epoch:
+                if epoch+1 >= int(epochs/2):
                     # if True:
                     search = next(iter(self.train_loaderB))
-                    image_search, target_search = search['image'], search['mask']
+                    image_search, target_search = search['image'], search['mask']-1
                     if self.args.cuda:
                         image_search, target_search = image_search.cuda().float(), target_search.cuda().float()
 
@@ -154,17 +154,6 @@ class Trainer(object):
                         arch_loss.backward()
                     architect_optimizer.step()
 
-                # for name, module in model.named_modules():
-                #     if 'sobel_operator.filter' in name:
-                #         tem = module.weight.abs().squeeze()
-                #         g1 = (tem[0][0] + tem[2][2]) / 2
-                #         g2 = (tem[0][1] + tem[2][1]) / 2
-                #         g3 = (tem[0][2] + tem[2][0]) / 2
-                #         g4 = (tem[1][2] + tem[1][0]) / 2
-                #         G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
-                #         G = G.unsqueeze(0).unsqueeze(0)
-                #         module.weight.data = nn.Parameter(G).cuda()
-
                 train_loss += loss.item()
                 # print(self.model.cells[0][0]['[-1  0]']._ops['sobel_operator'].filter.weight)
                 tbar.set_description('Train loss: %.3f' % (train_loss / (i + 1)))
@@ -172,7 +161,7 @@ class Trainer(object):
             print('[Epoch: %d, numImages: %5d]' % (epoch+1, i * self.args.batch_size + image.data.shape[0]))
             print('Loss: %.3f' % train_loss)
 
-            self.validation(epoch, model, 'stage1')
+            self.validation(epoch, model, optimizer, architect_optimizer, 'stage1')
 
     def training_stage2(self, epochs):
         layers = np.ones([14, 4])
@@ -233,7 +222,7 @@ class Trainer(object):
 
             for i, sample in enumerate(tbar):
                 image = sample["image"]
-                target = sample["mask"]
+                target = sample["mask"]-1
                 # image, target = sample['image'], sample['label']
                 if self.args.cuda:
                     image, target = image.cuda().float(), target.cuda().float()
@@ -248,10 +237,10 @@ class Trainer(object):
                     loss.backward()
                 optimizer.step()
 
-                if epoch+1 >= self.args.alpha_epoch:
+                if epoch+1 >= int(epochs/2):
                     # if True:
                     search = next(iter(self.train_loaderB))
-                    image_search, target_search = search['image'], search['mask']
+                    image_search, target_search = search['image'], search['mask']-1
                     if self.args.cuda:
                         image_search, target_search = image_search.cuda().float(), target_search.cuda().float()
 
@@ -265,17 +254,6 @@ class Trainer(object):
                         arch_loss.backward()
                     architect_optimizer.step()
 
-                # for name, module in model.named_modules():
-                #     if 'sobel_operator.filter' in name:
-                #         tem = module.weight.abs().squeeze()
-                #         g1 = (tem[0][0] + tem[2][2]) / 2
-                #         g2 = (tem[0][1] + tem[2][1]) / 2
-                #         g3 = (tem[0][2] + tem[2][0]) / 2
-                #         g4 = (tem[1][2] + tem[1][0]) / 2
-                #         G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
-                #         G = G.unsqueeze(0).unsqueeze(0)
-                #         module.weight.data = nn.Parameter(G).cuda()
-
                 train_loss += loss.item()
                 # print(self.model.cells[0][0]['[-1  0]']._ops['sobel_operator'].filter.weight)
                 tbar.set_description('Train loss: %.3f' % (train_loss / (i + 1)))
@@ -283,9 +261,7 @@ class Trainer(object):
             print('[Epoch: %d, numImages: %5d]' % (epoch+1, i * self.args.batch_size + image.data.shape[0]))
             print('Loss: %.3f' % train_loss)
 
-            self.validation(epoch, model, 'stage2')
-
-        self.cell_arch_1 = self.tem_cell_arch_1.copy()
+            self.validation(epoch, model, optimizer, architect_optimizer, 'stage2')
 
     def training_stage3(self, epochs):
 
@@ -343,7 +319,7 @@ class Trainer(object):
 
             for i, sample in enumerate(tbar):
                 image = sample["image"]
-                target = sample["mask"]
+                target = sample["mask"]-1
                 # image, target = sample['image'], sample['label']
                 if self.args.cuda:
                     image, target = image.cuda().float(), target.cuda().float()
@@ -358,10 +334,10 @@ class Trainer(object):
                     loss.backward()
                 optimizer.step()
 
-                if epoch+1 >= self.args.alpha_epoch:
+                if epoch+1 >= int(epochs/2):
                     # if True:
                     search = next(iter(self.train_loaderB))
-                    image_search, target_search = search['image'], search['mask']
+                    image_search, target_search = search['image'], search['mask']-1
                     if self.args.cuda:
                         image_search, target_search = image_search.cuda().float(), target_search.cuda().float()
 
@@ -375,27 +351,17 @@ class Trainer(object):
                         arch_loss.backward()
                     architect_optimizer.step()
 
-                # for name, module in model.named_modules():
-                #     if 'sobel_operator.filter' in name:
-                #         tem = module.weight.abs().squeeze()
-                #         g1 = (tem[0][0] + tem[2][2]) / 2
-                #         g2 = (tem[0][1] + tem[2][1]) / 2
-                #         g3 = (tem[0][2] + tem[2][0]) / 2
-                #         g4 = (tem[1][2] + tem[1][0]) / 2
-                #         G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
-                #         G = G.unsqueeze(0).unsqueeze(0)
-                #         module.weight.data = nn.Parameter(G).cuda()
-
                 train_loss += loss.item()
-                # print(self.model.cells[0][0]['[-1  0]']._ops['sobel_operator'].filter.weight)
                 tbar.set_description('Train loss: %.3f' % (train_loss / (i + 1)))
 
             print('[Epoch: %d, numImages: %5d]' % (epoch+1, i * self.args.batch_size + image.data.shape[0]))
             print('Loss: %.3f' % train_loss)
 
-            self.validation(epoch, model, 'stage3')
+            self.validation(epoch, model, optimizer, architect_optimizer, 'stage3')
 
-    def validation(self, epoch, model, stage):
+        self.cell_arch_1 = self.tem_cell_arch_1.copy()
+
+    def validation(self, epoch, model, optimizer, architect_optimizer, stage):
         model.eval()
         self.evaluator.reset()
         tbar = tqdm(self.val_loader, desc='\r')
@@ -439,6 +405,8 @@ class Trainer(object):
                 state_dict = model.state_dict()
             self.saver.save_checkpoint({
                 'epoch': epoch + 1,
+                'optimizer': optimizer.state_dict(),
+                'arch_optimizer': architect_optimizer.state_dict(),
                 'state_dict': state_dict,
                 'best_pred': self.best_pred,
             }, is_best, '{}_{}_epoch{}_checkpoint.pth.tar'.format(str(self.loops), stage, str(epoch + 1)))
@@ -468,7 +436,7 @@ class Trainer(object):
                     os.makedirs(connections_path_dir)
                 connections_path = connections_path_dir + '/connections_epoch{}.npy'.format(epoch+1)
                 np.save(connections_path, connections)
-                self.connections_3 = connections
+                self.connections_3 = connections.copy()
 
             elif stage == 'stage3':
                 alphas = model.alphas.cpu().detach().numpy()
@@ -484,3 +452,7 @@ class Trainer(object):
 
         file_name = '{}_{}_train_info.txt'.format(str(self.loops), stage)
         self.saver.save_loop_train_info(test_loss, epoch, Acc, mIoU, FWIoU, IoU, is_best, file_name)
+
+    def change_batchsize(self, batchsize):
+        self.args.batch_size = batchsize
+        self.train_loaderA, self.train_loaderB, self.val_loader, self.nclass = make_data_loader(self.args, **self.kwargs)

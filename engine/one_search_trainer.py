@@ -124,6 +124,7 @@ class Trainer(object):
                 image = sample["image"]
                 target = sample["mask"]
                 # image, target = sample['image'], sample['label']
+                print(target.min())
                 if self.args.cuda:
                     image, target = image.cuda().float(), target.cuda().float()
                 scheduler(optimizer, i, epoch+1, self.best_pred)

@@ -68,13 +68,16 @@ OPS = {
     ),
     "laplacian_operator": lambda C_in, C_out, stride, affine, repeats=1: Laplacian(
         C_in, C_out
-    ),
-    "gaussian_operator": lambda C_in, C_out, stride, affine, repeats=1: Gaussian(
-        C_in, C_out
-    ),
-    "median_operator": lambda C_in, C_out, stride, affine, repeats=1: Median(
-            C_in, C_out
     )
+    # 'edge_operator':  lambda C_in, C_out, stride, affine, repeats=1: Edge(
+    #     C_in, C_out
+    # ),
+    # "gaussian_operator": lambda C_in, C_out, stride, affine, repeats=1: Gaussian(
+    #     C_in, C_out
+    # ),
+    # "median_operator": lambda C_in, C_out, stride, affine, repeats=1: Median(
+    #         C_in, C_out
+    # )
 }
 
 OPS_mini = {
@@ -284,7 +287,7 @@ class Sobel(nn.Module):
     def __init__(self, C_in, C_out):
         super(Sobel, self).__init__()
         self.out_channels = C_out
-        self.conv1x1 = conv_bn(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
+        self.conv1x1 = conv_bn_relu(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
 
         self.filter = sobel
         # Gx = torch.tensor([[1.0, 0.0, -1.0], [2.0, 0.0, -2.0], [1.0, 0.0, -1.0]])
@@ -294,28 +297,30 @@ class Sobel(nn.Module):
         # self.filter.weight = nn.Parameter(G, requires_grad=False)
 
     def forward(self, img):
-        img = self.conv1x1(img)
-        edge_img = self.filter(img, (3, 3))
-        return edge_img
+        x = img.mean(1, True)
+        x = self.filter(x, (3, 3))
+        x.repeat(1, self.out_channels, 1, 1)
+        return x
 
 class Laplacian(nn.Module):
     def __init__(self, C_in, C_out):
         super(Laplacian, self).__init__()
         self.out_channels = C_out
-        self.conv1x1 = conv_bn(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
+        self.conv1x1 = conv_bn_relu(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
 
         self.filter = laplacian
 
     def forward(self, img):
-        img = self.conv1x1(img)
-        edge_img = self.filter(img, 3)
-        return edge_img
+        x = img.mean(1, True)
+        x = self.filter(x, 3)
+        x.repeat(1, self.out_channels, 1, 1)
+        return x
 
 class Gaussian(nn.Module):
     def __init__(self, C_in, C_out):
         super(Gaussian, self).__init__()
         self.out_channels = C_out
-        self.conv1x1 = conv_bn(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
+        self.conv1x1 = conv_bn_relu(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
 
         self.filter = gaussian_blur2d
 
@@ -328,7 +333,7 @@ class Median(nn.Module):
     def __init__(self, C_in, C_out):
         super(Median, self).__init__()
         self.out_channels = C_out
-        self.conv1x1 = conv_bn(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
+        self.conv1x1 = conv_bn_relu(C_in, C_out, 1, 1, 0) # TODO:是否能够这样做？
 
         self.filter = median_blur
 

@@ -23,9 +23,9 @@ class Decoder_2(object):
         for i in range(self._num_layers):
             for j in range(4):
                 if self.core_path[i] == j:
-                    num = int(self.cell_space[i][j].sum() + 1)
-                    if num > 14:
-                        num = 14
+                    num = int(self.cell_space[i][j].sum() + 3)
+                    if num > 13:
+                        num = 13
                     self.cell_space[i][j] = 0
                     self.cell_space[i][j][self.alphas[i][j].sort()[1][-num:]] = 1
         return self.cell_space

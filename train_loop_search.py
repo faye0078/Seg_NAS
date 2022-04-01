@@ -2,8 +2,10 @@ import os
 import torch
 import numpy as np
 import random
-from configs.one_search_args import obtain_search_args
+# from configs.one_search_args import obtain_search_args
+from configs.one_search_args1 import obtain_search_args
 from engine.one_search_trainer import Trainer
+from engine.one_search_trainer_1 import Trainer as Trainer_1
 
 # 设置所使用的GPU
 os.environ['CUDA_VISIBLE_DEVICES'] = '3'
@@ -33,16 +35,21 @@ def main():
 
     # print(args)
     setup_seed(args.seed)
-    trainer = Trainer(args)
+    trainer = Trainer_1(args)
 
-    print('Total Epoches:', trainer.args.epochs)
-    loops = 5
+    trainer.change_batchsize(12)
+    trainer.training_stage1(20)
+    trainer.change_batchsize(10)
+    trainer.training_stage2(20)
+    trainer.change_batchsize(6)
+    trainer.training_stage3(20)
 
-    for loop in range(loops):
-        trainer.training_stage1(20)
-        trainer.training_stage2(10)
-
-    trainer.training_stage3(60)
+    trainer.change_batchsize(12)
+    trainer.training_stage1(40)
+    trainer.change_batchsize(10)
+    trainer.training_stage2(40)
+    trainer.change_batchsize(6)
+    trainer.training_stage3(40)
 
 
 if __name__ == "__main__":

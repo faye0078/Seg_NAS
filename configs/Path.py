@@ -35,7 +35,7 @@ def get_data_path(dataset):
 
     elif dataset == 'uadataset':
         Path = OrderedDict()
-        Path['dir'] = "../data/512/"
+        Path['dir'] = "../data/"
         Path['train_list'] = "./data/lists/uadataset/uad_512_train.lst"
         Path['val_list'] = "./data/lists/uadataset/uad_512_val.lst"
         Path['test_list'] = "./data/lists/uadataset/uad_512_test.lst"

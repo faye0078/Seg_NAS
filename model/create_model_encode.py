@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 from decode.first_decoder import get_first_space
 from decode.second_decoder import get_second_space
@@ -154,7 +156,7 @@ def third_connect(used_betas):
     return connections
 
 def loop_stage1_cell_arch_init():
-    a = np.zeros([14, 4, 14])
+    a = np.zeros([14, 4, 12])
     a[:, :, 1] = 1
     return a
 
@@ -192,12 +194,12 @@ if __name__ == "__main__":
     # np.save('./model_encode/first_connect_4.npy', connections)  # 保存为.npy格式
 
     # second connections
-    betas_path = '/media/dell/DATA/wy/Seg_NAS/run/GID/14layers_first/experiment_0/betas/'
-    path = get_first_space(betas_path)
-    np.save('./model_encode/core_path.npy', path[59])
-    connections = second_connect(14, 4, path[59])
-    if test_connections(connections):
-        np.save('./model_encode/second_connect_4.npy', connections)  # 保存为.npy格式
+    # betas_path = '/media/dell/DATA/wy/Seg_NAS/run/GID/14layers_first/experiment_0/betas/'
+    # path = get_first_space(betas_path)
+    # np.save('./model_encode/core_path.npy', path[59])
+    # connections = second_connect(14, 4, path[59])
+    # if test_connections(connections):
+    #     np.save('./model_encode/second_connect_4.npy', connections)  # 保存为.npy格式
 
     # third connections
     # betas_path_stage1 = '/media/dell/DATA/wy/Seg_NAS/run/GID/1024/14layers_first/experiment_0/betas/'
@@ -210,6 +212,8 @@ if __name__ == "__main__":
     # np.save(connections_path, connections)
 
     # get init cellarch
-    # cell_arch = loop_stage1_cell_arch_init()
-    # path = './model_encode/GID-5/one_loop_14layers_mixedcell/init_cell_arch.npy'
-    # np.save(path, cell_arch)
+    cell_arch = loop_stage1_cell_arch_init()
+    path = './model_encode/uadataset/one_loop_14layers_mixedcell/'
+    if not os.path.exists(path):
+        os.makedirs(path)
+    np.save(path + 'init_cell_arch.npy', cell_arch)
