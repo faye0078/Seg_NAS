@@ -2,10 +2,12 @@ import os
 import torch
 import numpy as np
 import random
-# os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-from configs.retrain_args import obtain_retrain_args
-from engine.retrainer import Trainer
+
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+from configs.dfc_retrain_args import obtain_retrain_args
+from engine.dfc_retrainer import Trainer
 from engine.head_trainer import headTrainer
+
 
 # 为每个卷积层搜索最适合它的卷积实现算法
 # torch.backends.cudnn.benchmark=True
@@ -15,6 +17,7 @@ def setup_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
     torch.backends.cudnn.deterministic = True
+
 
 def main():
     args = obtain_retrain_args()
@@ -45,7 +48,7 @@ def main():
         trainer.training(epoch)
         trainer.validation(epoch)
         # if epoch % 10 ==0:
-            
+
         #      state_dict = trainer.model.state_dict()
         #      state = {
         #         'epoch': epoch + 1,
@@ -55,7 +58,6 @@ def main():
         #     }
         #      filename = '/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_default_retrain/epoch_{}.pth.tar'.format(epoch)
         #      torch.save(state, filename)
-
 
 
 if __name__ == "__main__":

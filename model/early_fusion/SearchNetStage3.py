@@ -6,7 +6,7 @@ from model.cell import ReLUConvBN
 from collections import OrderedDict
 import torch.nn.functional as F
 
-class SearchNet2(nn.Module):
+class SearchNet3(nn.Module):
 
     def __init__(self, layers, depth, connections, cell_arch, cell, dataset, num_classes, base_multiplier=40, core_path=None):
         '''
@@ -18,7 +18,7 @@ class SearchNet2(nn.Module):
             dataset: dataset
             base_multiplier: base scale multiplier
         '''
-        super(SearchNet2, self).__init__()
+        super(SearchNet3, self).__init__()
         self.block_multiplier = 1
         self.base_multiplier = base_multiplier
         self.depth = depth
@@ -170,7 +170,4 @@ class SearchNet2(nn.Module):
     def weight_parameters(self):
         return [param for name, param in self.named_parameters() if
                 name not in self._arch_param_names and 'filter' not in name ]
-
-
-
 

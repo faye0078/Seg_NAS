@@ -312,7 +312,7 @@ class Laplacian(nn.Module):
 
     def forward(self, img):
         x = img.mean(1, True)
-        x = self.filter(x, 3)
+        x = self.filter(x, 3, normalized=False)
         x.repeat(1, self.out_channels, 1, 1)
         return x
 

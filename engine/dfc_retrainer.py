@@ -56,7 +56,7 @@ class Trainer(object):
         self.train_loader, self.val_loader, self.test_loader, self.nclass = make_data_loader(args, **kwargs)
 
 
-        self.criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode=args.loss_type)
+        self.criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode='gce')
 
         torch.cuda.empty_cache()
         # 定义网络
@@ -80,10 +80,8 @@ class Trainer(object):
             model = SrNet(4, fastNas())
         elif args.model_name == 'flexinet':
             layers = np.ones([14, 4])
-            cell_arch = np.load(
-                '/media/dell/DATA/wy/Seg_NAS/run/uadataset/search/experiment_3/cell_arch/1_cell_arch_epoch24.npy')
-            connections = np.load(
-                '/media/dell/DATA/wy/Seg_NAS/run/uadataset/search/experiment_1/connections/2_connections_epoch37.npy')
+            cell_arch = np.load('/media/dell/DATA/wy/Seg_NAS/run/uadataset/search/experiment_1/cell_arch/1_cell_arch_epoch18.npy')
+            connections = np.load('/media/dell/DATA/wy/Seg_NAS/run/uadataset/search/experiment_1/connections/1_connections_epoch20.npy')
             # connections = get_connections()
             model = RetrainNet(layers, 4, connections, cell_arch, self.args.dataset, self.nclass, 'normal')
         optimizer = torch.optim.SGD(
@@ -100,7 +98,7 @@ class Trainer(object):
         self.evaluator = Evaluator(self.nclass)
         # Define lr scheduler
         self.scheduler = LR_Scheduler(args.lr_scheduler, args.lr,
-                                      args.epochs, 1000, min_lr=args.min_lr)
+                                      args.epochs, len(self.train_loader))
 
         if args.cuda:
             self.model = self.model.cuda()
@@ -159,7 +157,7 @@ class Trainer(object):
 
         for i, sample in enumerate(tbar):
             image = sample["image"]
-            target = sample["mask"]
+            target = sample["mask"].squeeze()
             # image, target = sample['image'], sample['label']
             if self.args.cuda:
                 image, target = image.cuda().float(), target.cuda().float()
@@ -298,184 +296,3 @@ class Trainer(object):
 
         self.saver.save_test_info(test_loss, epoch, Acc, mIoU, FWIoU, IoU)
 
-def get_connections():
-    # train + val
-    # a = [
-    #     [[-1, 0], [0, 0]],
-    #
-    #     [[-1, 0], [1, 0]],
-    #     [[0, 0], [1, 0]],
-    #
-    #     [[0, 0], [2, 0]],
-    #     [[1, 0], [2, 0]],
-    #
-    #     [[1, 0], [3, 1]],
-    #     [[2, 0], [3, 1]],
-    #
-    #     [[-1, 0], [4, 0]],
-    #     [[0, 0], [4, 0]],
-    #     [[3, 1], [4, 0]],
-    #
-    #     [[0, 0], [5, 0]],
-    #     [[4, 0], [5, 0]],
-    #
-    #     [[-1, 0], [6, 1]],
-    #     [[1, 0], [6, 1]],
-    #     [[3, 1], [6, 1]],
-    #     [[5, 0], [6, 1]],
-    #
-    #     [[-1, 0], [7, 1]],
-    #     [[0, 0], [7, 1]],
-    #     [[1, 0], [7, 1]],
-    #     [[4, 0], [7, 1]],
-    #     [[6, 1], [7, 1]],
-    #
-    #     [[7, 1], [8, 1]],
-    #     [[-1, 0], [8, 2]],
-    #     [[0, 0], [8, 2]],
-    #     [[1, 0], [8, 2]],
-    #     [[7, 1], [8, 2]],
-    #     [[8, 2], [9, 1]],
-    #     [[-1, 0], [9, 2]],
-    #     [[1, 0], [9, 2]],
-    #     [[8, 2], [9, 2]],
-    #
-    #     [[9, 1], [10, 0]],
-    #     [[9, 2], [10, 1]],
-    #     [[-1, 0], [10, 2]],
-    #     [[3, 1], [10, 2]],
-    #     [[4, 0], [10, 2]],
-    #     [[5, 0], [10, 2]],
-    #     [[6, 1], [10, 2]],
-    #     [[7, 1], [10, 2]],
-    #     [[8, 1], [10, 2]],
-    #     [[8, 2], [10, 2]],
-    #     [[9, 1], [10, 2]],
-    #     [[9, 2], [10, 2]],
-    #
-    #     [[10, 1], [11, 0]],
-    #     [[10, 2], [11, 1]],
-    #     [[-1, 0], [11, 2]],
-    #     [[0, 0], [11, 2]],
-    #     [[1, 0], [11, 2]],
-    #     [[2, 0], [11, 2]],
-    #     [[5, 0], [11, 2]],
-    #     [[7, 1], [11, 2]],
-    #     [[8, 1], [11, 2]],
-    #     [[8, 2], [11, 2]],
-    #     [[10, 0], [11, 2]],
-    #     [[10, 1], [11, 2]],
-    # ]
-    # train
-    a = [
-        [[-1, 0], [0, 0]],
-
-        [[0, 0], [1, 0]],
-
-        [[1, 0], [2, 0]],
-        [[0, 0], [2, 1]],
-        [[1, 0], [2, 1]],
-
-        [[2, 0], [3, 0]],
-        [[-1, 0], [3, 1]],
-        [[2, 0], [3, 1]],
-        [[2, 1], [3, 1]],
-# [[3, 0], [4, 0]]
-        [[-1, 0], [4, 1]],
-        [[0, 0], [4, 1]],
-        [[3, 0], [4, 1]],
-        [[3, 1], [4, 1]],
-
-        [[0, 0], [5, 0]],
-        [[1, 0], [5, 0]],
-        [[2, 0], [5, 0]],
-        [[3, 1], [5, 0]],
-        [[4, 1], [5, 0]],
-
-        [[5, 0], [6, 0]],
-        [[-1, 0], [6, 1]],
-        [[0, 0], [6, 1]],
-        [[2, 0], [6, 1]],
-        [[5, 0], [6, 1]],
-
-        [[-1, 0], [7, 0]],
-        [[1, 0], [7, 0]],
-        [[2, 0], [7, 0]],
-        [[4, 1], [7, 0]],
-        [[5, 0], [7, 0]],
-        [[6, 0], [7, 0]],
-        [[6, 1], [7, 0]],
-
-        [[0, 0], [8, 1]],
-        [[2, 0], [8, 1]],
-        [[2, 1], [8, 1]],
-        [[4, 1], [8, 1]],
-        [[5, 0], [8, 1]],
-        [[7, 0], [8, 1]],
-# [[8, 0], [9, 0]]
-        [[8, 1], [9, 1]],
-        [[-1, 0], [9, 2]],
-        [[0, 0], [9, 2]],
-        [[1, 0], [9, 2]],
-        [[2, 0], [9, 2]],
-        [[2, 1], [9, 2]],
-        [[3, 0], [9, 2]],
-        [[8, 1], [9, 2]],
-# [[9, 1], [10, 0]]
-# [[]]
-        [[-1, 0], [10, 2]],
-        [[0, 0], [10, 2]],
-        [[1, 0], [10, 2]],
-        [[2, 0], [10, 2]],
-        [[2, 1], [10, 2]],
-        [[4, 1], [10, 2]],
-        [[5, 0], [10, 2]],
-        [[9, 2], [10, 2]],
-
-        [[10, 2], [11, 1]],
-        [[-1, 0], [11, 2]],
-        [[0, 0], [11, 2]],
-        [[1, 0], [11, 2]],
-        [[2, 1], [11, 2]],
-        [[3, 1], [11, 2]],
-        [[4, 1], [11, 2]],
-        [[5, 0], [11, 2]],
-        [[6, 0], [11, 2]],
-        [[6, 1], [11, 2]],
-        [[10, 2], [11, 2]],
-    ]
-
-    # 0, 0, 0, 0
-    # a = [
-    #     [[-1, 0], [0, 0]],
-    #     [[0, 0], [1, 0]],
-    #     [[1, 0], [2, 0]],
-    #     [[2, 0], [3, 0]],
-    #     [[3, 0], [4, 0]],
-    #     [[4, 0], [5, 0]],
-    #     [[5, 0], [6, 0]],
-    #     [[6, 0], [7, 0]],
-    #     [[7, 0], [8, 0]],
-    #     [[8, 0], [9, 0]],
-    #     [[9, 0], [10, 0]],
-    #     [[10, 0], [11, 0]],
-    # ]
-
-    # [0, 0, 1, 1, 1, 0, 1, 0, 1, 2, 2, 2]
-    # b = [
-    #     [[-1, 0], [0, 0]],
-    #     [[0, 0], [1, 0]],
-    #     [[1, 0], [2, 1]],
-    #     [[2, 1], [3, 1]],
-    #     [[3, 1], [4, 1]],
-    #     [[4, 1], [5, 0]],
-    #     [[5, 0], [6, 1]],
-    #     [[6, 1], [7, 0]],
-    #     [[7, 0], [8, 1]],
-    #     [[8, 1], [9, 2]],
-    #     [[9, 2], [10, 2]],
-    #     [[10, 2], [11, 2]],
-    # ]
-
-    # [0, 0, 1, 0, 1, 0, 1, 1, 2, 3]
-    return np.array(a)

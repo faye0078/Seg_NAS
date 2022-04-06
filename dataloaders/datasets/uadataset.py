@@ -262,6 +262,10 @@ class UADataset(Dataset):
             self.datalist = [
                 (k, k) for k in map(lambda x: x.decode("utf-8").strip("\n"), datalist)
             ]
+
+        self.all_classes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        self.valid_classes = [255, 0, 1, 2, 3, 4, 5, 6, 255, 255, 7, 8, 9, 10, 11, 255]
+        self.class_map = dict(zip(self.all_classes, self.valid_classes))
         self.root_dir = data_dir
         self.transform_trn = transform_trn
         self.transform_val = transform_val
@@ -289,6 +293,7 @@ class UADataset(Dataset):
 
         image = read_image(img_name)
         mask = np.array(Image.open(msk_name))
+        # mask = self.encode_segmap(mask).astype(np.float32)
         # if img_name != msk_name:
         #     assert len(mask.shape) == 2, "Masks must be encoded without colourmap"
         sample = {"image": image, "mask": mask}
@@ -302,3 +307,8 @@ class UADataset(Dataset):
             if self.transform_test:
                 sample = self.transform_test(sample)
         return sample
+
+    def encode_segmap(self, mask):
+        for _validc in self.all_classes:
+            mask[mask == _validc] = self.class_map[_validc]
+        return mask

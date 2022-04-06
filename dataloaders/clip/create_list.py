@@ -78,11 +78,11 @@ def ReadFileBypath(path):
     file = []
     for img in imgs:
         img = img.replace('/media/dell/DATA/wy/data/', '')
-        label = img.replace('img', 'label')
+        label = img.replace('img', 'label').replace('320label512', '320label512_map')
         file.append(img + '\t' + label)
     df = pd.DataFrame(file, columns=['one'])
-    sample_data = df.sample(frac=0.2, random_state=1)
-    sample_data.to_csv("/media/dell/DATA/wy/data/uadataset/mini_uad_512_test.lst", columns=['one'], index=False, header=False)
+    # df = df.sample(frac=0.05, random_state=1)
+    df.to_csv("/media/dell/DATA/wy/Seg_NAS/data/lists/uadataset/map_uad_512_val.lst", columns=['one'], index=False, header=False)
 
 if __name__ == '__main__':
     # InputStra="E:/wangyu_file/rs_Nas/src/data/datasets/VOCdevkit/512/test/label"#数据存在的路径
@@ -91,5 +91,5 @@ if __name__ == '__main__':
     # ReadSaveAddr(InputStra, InputStrb)
     # mergeFile()
     # changeFile()
-    path = "/media/dell/DATA/wy/data/uadataset/320img512/test/"
+    path = "/media/dell/DATA/wy/data/uadataset/320img512/val/"
     ReadFileBypath(path)

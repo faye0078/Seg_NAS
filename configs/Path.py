@@ -33,12 +33,12 @@ def get_data_path(dataset):
     elif dataset == 'cityscapes':
         Path = '/media/dell/DATA/wy/data/cityscapes'
 
-    elif dataset == 'uadataset':
+    elif dataset == 'uadataset' or dataset == 'uadataset_dfc':
         Path = OrderedDict()
         Path['dir'] = "../data/"
-        Path['train_list'] = "./data/lists/uadataset/uad_512_train.lst"
-        Path['val_list'] = "./data/lists/uadataset/uad_512_val.lst"
-        Path['test_list'] = "./data/lists/uadataset/uad_512_test.lst"
+        Path['train_list'] = "./data/lists/uadataset/map_uad_512_train.lst"
+        Path['val_list'] = "./data/lists/uadataset/map_uad_512_val.lst"
+        Path['test_list'] = "./data/lists/uadataset/map_uad_512_test.lst"
         Path['mini_train_list'] = "./data/lists/uadataset/mini_uad_512_train.lst"
         Path['mini_val_list'] = "./data/lists/uadataset/mini_uad_512_val.lst"
 

@@ -9,6 +9,7 @@ class SegmentationLosses(object):
         self.weight = weight
         self.size_average = size_average
         self.cuda = cuda
+        self.q = 0.1
 
     def build_loss(self, mode='ce'):
         """Choices: ['ce' or 'focal']"""
@@ -16,6 +17,8 @@ class SegmentationLosses(object):
             return self.CrossEntropyLoss
         elif mode == 'focal':
             return self.FocalLoss
+        elif mode == 'gce':
+            return self.GeneralizedCrossEntropyLoss
         else:
             raise NotImplementedError
 
@@ -27,6 +30,35 @@ class SegmentationLosses(object):
 
         loss = criterion(logit, target.long())
 
+
+        return loss
+
+    def GeneralizedCrossEntropyLoss(self, logit, target):
+        q = self.q
+        n, c, h, w = logit.size()
+        temp = logit[:, 0, :, :]
+        logits = temp[target != self.ignore_index].unsqueeze(1)
+        # print(logits.shape)
+        for i in range(1, c):
+            temp = logit[:, i, :, :]
+            logits = torch.cat([logits, temp[target != self.ignore_index].unsqueeze(1)], dim=1)
+
+        targets = target[target != self.ignore_index].unsqueeze(1).long()
+        # print(indexes.shape)
+        logits = nn.functional.softmax(logits, dim=1)
+        # print(logits.shape)
+        # print(targets.shape)
+        Fj = torch.gather(logits, 1, targets)
+        # print(Fj.shape)
+        if self.weight is not None:
+            if self.cuda:
+                self.weight = self.weight.cuda()
+            loss = torch.mean(((1 - (Fj + 1e-8) ** q) / q) * self.weight[targets])
+        else:
+            loss = torch.mean(((1 - (Fj + 1e-8) ** q) / q))
+
+        # if self.batch_average:
+        #     loss /= n
 
         return loss
 

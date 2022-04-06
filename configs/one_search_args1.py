@@ -10,7 +10,7 @@ def obtain_search_args():
     parser.add_argument('--checkname', type=str, default='test', help='set the checkpoint name')
     parser.add_argument('--model_name', type=str, default='FlexiNet', choices=['AutoDeeplab', 'DCNAS', 'FlexiNet'], help='set the model name')
     parser.add_argument('--model_encode_path', type=str, default='/media/dell/DATA/wy/Seg_NAS/model/model_encode/uadataset/one_loop_14layers_mixedcell/first_connect_4.npy')
-    parser.add_argument('--model_cell_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/model/model_encode/uadataset/one_loop_14layers_mixedcell/init_cell_arch.npy', help='the initial cell arch')
+    parser.add_argument('--model_cell_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/uadataset/search/experiment_1/cell_arch/1_cell_arch_epoch13.npy', help='the initial cell arch')
 
     parser.add_argument('--batch-size', type=int, default=2, metavar='N', help='input batch size for training (default: auto)')
     parser.add_argument('--backbone', type=str, default='resnet', choices=['resnet', 'xception', 'drn', 'mobilenet'], help='backbone name (default: resnet)')

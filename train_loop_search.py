@@ -36,19 +36,20 @@ def main():
     # print(args)
     setup_seed(args.seed)
     trainer = Trainer_1(args)
-
-    trainer.change_batchsize(12)
-    trainer.training_stage1(20)
-    trainer.change_batchsize(10)
-    trainer.training_stage2(20)
-    trainer.change_batchsize(6)
-    trainer.training_stage3(20)
-
-    trainer.change_batchsize(12)
-    trainer.training_stage1(40)
-    trainer.change_batchsize(10)
-    trainer.training_stage2(40)
-    trainer.change_batchsize(6)
+    # trainer.training_stage1(40)
+    #
+    trainer.core_path = np.load('/media/dell/DATA/wy/Seg_NAS/run/uadataset/search/experiment_1/path/2_core_path_epoch29.npy')
+    trainer.cell_arch_1 = np.load('/media/dell/DATA/wy/Seg_NAS/run/uadataset/search/experiment_1/cell_arch/1_cell_arch_epoch18.npy')
+    trainer.connections_3 = np.load('/media/dell/DATA/wy/Seg_NAS/run/uadataset/search/experiment_1/connections/2_connections_epoch37.npy')
+    #
+    # trainer.change_batchsize(6)
+    # trainer.training_stage3(20)
+    #
+    # trainer.change_batchsize(12)
+    # trainer.training_stage1(40)
+    # trainer.change_batchsize(8)
+    # trainer.training_stage2(40)
+    trainer.change_batchsize(5)
     trainer.training_stage3(40)
 
 

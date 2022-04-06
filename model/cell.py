@@ -3,6 +3,7 @@ from torch import nn
 import numpy
 import torch.nn.functional as F
 from model.ops import OPS, OPS_mini
+from model.ops import conv3x3
 class ReLUConvBN(nn.Module):
 
     def __init__(self, C_in, C_out):
@@ -230,3 +231,38 @@ class MixedCellMini(nn.Module):
 class DCNAS_cell(nn.Module):
     def __init__(self):
         super(DCNAS_cell, self).__init__()
+
+class Fusion(nn.Module):
+
+    def __init__(self, C_in, C_out):
+        super(Fusion, self).__init__()
+
+        self.scale = 1
+
+        self.conv = nn.Sequential(
+        conv3x3(C_in, C_out, 1),
+        nn.BatchNorm2d(C_out, 1),
+        nn.ReLU(inplace=False),)
+        self.scale = C_in / C_out
+        self._initialize_weights()
+
+    def forward(self, x):
+        if self.scale != 0:
+            feature_size_h = self.scale_dimension(x.shape[2], self.scale)
+            feature_size_w = self.scale_dimension(x.shape[3], self.scale)
+            x = F.interpolate(x, [feature_size_h, feature_size_w], mode='bilinear', align_corners=True)
+        return self.conv(x)
+
+    def _initialize_weights(self):
+        for name, m in self.named_modules():
+            if isinstance(m, nn.Conv2d) and 'sobel_operator.filter' not in name:
+                # n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+                # m.weight.data.normal_(0, math.sqrt(2. / n))
+                torch.nn.init.kaiming_normal_(m.weight)
+            elif isinstance(m, nn.BatchNorm2d):
+                if m.weight is not None:
+                    m.weight.data.fill_(1)
+                    m.bias.data.zero_()
+
+    def scale_dimension(self, dim, scale):
+        return (int((float(dim) - 1.0) * scale + 1.0) if dim % 2 == 1 else int((float(dim) * scale)))

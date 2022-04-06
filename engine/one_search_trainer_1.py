@@ -16,6 +16,7 @@ from search.lr_scheduler import LR_Scheduler
 from search.saver import Saver
 from search.evaluator import Evaluator
 from model.model_loop.SearchNetStage1 import SearchNet1
+# from model.early_fusion.SearchNetStage1 import SearchNet1
 from model.model_loop.SearchNetStage2 import SearchNet2
 from model.model_loop.SearchNetStage3 import SearchNet3
 from search.copy_state_dict import copy_state_dict
@@ -52,7 +53,7 @@ class Trainer(object):
         self.cell_arch_1 = np.load(self.args.model_cell_arch)
         self.tem_cell_arch_1 = None
 
-        self.loops = 0
+        self.loops = 1
 
         self.criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode=args.loss_type)
 
@@ -108,7 +109,8 @@ class Trainer(object):
             checkpoint = torch.load(self.args.resume)
             self.start_epoch = 0
             model.load_state_dict(checkpoint['state_dict'])
-            # copy_state_dict(optimizer.state_dict(), checkpoint['optimizer'])
+            copy_state_dict(optimizer.state_dict(), checkpoint['optimizer'])
+            copy_state_dict(architect_optimizer.state_dict(), checkpoint['arch_optimizer'])
             self.best_pred = checkpoint['best_pred']
             print("=> loaded checkpoint '{}' (epoch {})"
                   .format(self.args.resume, checkpoint['epoch']))
@@ -166,7 +168,7 @@ class Trainer(object):
     def training_stage2(self, epochs):
         layers = np.ones([14, 4])
         self.connections_2 = second_connect(14, 4, self.core_path)
-        model = SearchNet3(layers, 4, self.connections_2, self.cell_arch_1, MixedRetrainCell, self.args.dataset, self.nclass, core_path=self.core_path.tolist())
+        model = SearchNet2(layers, 4, self.connections_2, self.cell_arch_1, MixedRetrainCell, self.args.dataset, self.nclass, core_path=self.core_path.tolist())
 
         for name, module in model.named_modules():
             if 'filter' in name:
@@ -208,6 +210,7 @@ class Trainer(object):
             checkpoint = torch.load(self.args.resume)
             self.start_epoch = checkpoint['epoch']
             model.load_state_dict(checkpoint['state_dict'])
+            copy_state_dict(architect_optimizer.state_dict(), checkpoint['arch_optimizer'])
             copy_state_dict(optimizer.state_dict(), checkpoint['optimizer'])
             self.best_pred = checkpoint['best_pred']
             print("=> loaded checkpoint '{}' (epoch {})"
@@ -215,7 +218,7 @@ class Trainer(object):
         else:
             self.start_epoch = 0
 
-        for epoch in range(epochs):
+        for epoch in range(self.start_epoch, epochs):
             train_loss = 0.0
             model.train()
             tbar = tqdm(self.train_loaderA)
@@ -266,7 +269,7 @@ class Trainer(object):
     def training_stage3(self, epochs):
 
         layers = np.ones([14, 4])
-        model = SearchNet2(layers, 4, self.connections_3, self.cell_arch_1, MixedCell, self.args.dataset, self.nclass)
+        model = SearchNet3(layers, 4, self.connections_3, self.cell_arch_1, MixedCell, self.args.dataset, self.nclass)
 
         optimizer = torch.optim.SGD(
             model.weight_parameters(),
@@ -305,6 +308,7 @@ class Trainer(object):
             checkpoint = torch.load(self.args.resume)
             self.start_epoch = checkpoint['epoch']
             model.load_state_dict(checkpoint['state_dict'])
+            copy_state_dict(architect_optimizer.state_dict(), checkpoint['arch_optimizer'])
             copy_state_dict(optimizer.state_dict(), checkpoint['optimizer'])
             self.best_pred = checkpoint['best_pred']
             print("=> loaded checkpoint '{}' (epoch {})"
@@ -312,7 +316,7 @@ class Trainer(object):
         else:
             self.start_epoch = 0
 
-        for epoch in range(epochs):
+        for epoch in range(self.start_epoch, epochs):
             train_loss = 0.0
             model.train()
             tbar = tqdm(self.train_loaderA)
@@ -368,7 +372,7 @@ class Trainer(object):
         test_loss = 0.0
 
         for i, sample in enumerate(tbar):
-            image, target = sample['image'], sample['mask']
+            image, target = sample['image'], sample['mask']-1
             if self.args.cuda:
                 image, target = image.cuda(), target.cuda()
             with torch.no_grad():
@@ -434,7 +438,7 @@ class Trainer(object):
                 connections_path_dir = '/media/dell/DATA/wy/Seg_NAS/' + self.saver.experiment_dir + '/connections'
                 if not os.path.exists(connections_path_dir):
                     os.makedirs(connections_path_dir)
-                connections_path = connections_path_dir + '/connections_epoch{}.npy'.format(epoch+1)
+                connections_path = connections_path_dir + '/{}_connections_epoch{}.npy'.format(str(self.loops), epoch+1)
                 np.save(connections_path, connections)
                 self.connections_3 = connections.copy()
 

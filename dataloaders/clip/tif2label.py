@@ -103,7 +103,29 @@ def tif2label(filepath):
             result = Image.fromarray(label_mask, 'P')
             result.save(filename)
 
-img_dir = "E:/wangyu_file/rs_Nas/src/data/datasets/VOCdevkit/512/train/gray_label"
+def map_trans(img_dir):
+
+    all_classes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    valid_classes = [255, 0, 1, 2, 3, 4, 5, 6, 255, 255, 7, 8, 9, 10, 11, 255]
+    class_map = dict(zip(all_classes, valid_classes))
+    labels = glob.glob(('{}*.tif'.format(img_dir)))
+
+    def encode_segmap(mask):
+        for _validc in all_classes:
+            mask[mask == _validc] = class_map[_validc]
+        return mask
+    for label in labels:
+        img = np.array(Image.open(label))
+        img = encode_segmap(img)
+        img = Image.fromarray(img)
+        if not os.path.exists(os.path.dirname(label).replace('320label512', '320label512_map')):
+            os.makedirs(os.path.dirname(label).replace('320label512', '320label512_map'))
+        img.save(label.replace('320label512', '320label512_map'))
+
+
+
+
+img_dir = "/media/dell/DATA/wy/data/uadataset/320label512/test/"
 # img_dir = "E:/wangyu_file/label"
 # tif2label(img_dir)
-getGray(img_dir)
+map_trans(img_dir)
