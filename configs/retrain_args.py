@@ -24,7 +24,7 @@ def obtain_retrain_args():
     parser.add_argument('--net_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_forward/path.npy')
     parser.add_argument('--cell_arch', type=str, default='/media/dell/DATA/wy/Seg_NAS/run/GID/12layers_forward/cell.npy')
 
-    parser.add_argument('--opt_level', type=str, default='O1', choices=['O0', 'O1', 'O2', 'O3'], help='opt level for half percision training (default: O0)')
+    parser.add_argument('--opt_level', type=str, default='O0', choices=['O0', 'O1', 'O2', 'O3'], help='opt level for half percision training (default: O0)')
 
     parser.add_argument('--nas', type=str, default='train', choices=['search', 'train'])
 

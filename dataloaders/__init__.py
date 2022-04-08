@@ -20,7 +20,7 @@ def make_data_loader(args, **kwargs):
         if args.dataset == 'GID-15':
             num_class = 15
         if args.dataset == 'uadataset':
-            num_class = 14
+            num_class = 12
 
         composed_trn = transforms.Compose(
             [

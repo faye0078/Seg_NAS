@@ -1,3 +1,5 @@
+# 添加分辨率搜索头部的trainer
+
 import os
 import numpy as np
 import torch.nn as nn
@@ -153,7 +155,7 @@ class headTrainer(object):
         # except AttributeError:
         #     self.train_loaderA.dataset.dataset.set_stage("train")  # for subset
         self.model.train()
-        tbar = tqdm(self.train_loader)
+        tbar = tqdm(self.train_loader, ncols=80)
 
         experiment_dir = self.saver.get_fie_path()
         if not os.path.exists(experiment_dir + '/clip'):
@@ -204,7 +206,7 @@ class headTrainer(object):
     def validation(self, epoch):
         self.model.eval()
         self.evaluator.reset()
-        tbar = tqdm(self.val_loader, desc='\r')
+        tbar = tqdm(self.val_loader, desc='\r', ncols=80)
         test_loss = 0.0
 
         for i, sample in enumerate(tbar):
@@ -277,7 +279,7 @@ class headTrainer(object):
     def test_model(self, epoch):
         self.model.eval()
         self.evaluator.reset()
-        tbar = tqdm(self.test_loader, desc='\r')
+        tbar = tqdm(self.test_loader, desc='\r', ncols=80)
         test_loss = 0.0
 
         for i, sample in enumerate(tbar):

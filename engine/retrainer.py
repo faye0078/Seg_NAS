@@ -155,7 +155,7 @@ class Trainer(object):
         # except AttributeError:
         #     self.train_loaderA.dataset.dataset.set_stage("train")  # for subset
         self.model.train()
-        tbar = tqdm(self.train_loader)
+        tbar = tqdm(self.train_loader, ncols=80)
 
         for i, sample in enumerate(tbar):
             image = sample["image"]
@@ -195,7 +195,7 @@ class Trainer(object):
     def validation(self, epoch):
         self.model.eval()
         self.evaluator.reset()
-        tbar = tqdm(self.val_loader, desc='\r')
+        tbar = tqdm(self.val_loader, desc='\r', ncols=80)
         test_loss = 0.0
 
         for i, sample in enumerate(tbar):
@@ -267,7 +267,7 @@ class Trainer(object):
     def test_model(self, epoch):
         self.model.eval()
         self.evaluator.reset()
-        tbar = tqdm(self.test_loader, desc='\r')
+        tbar = tqdm(self.test_loader, desc='\r', ncols=80)
         test_loss = 0.0
 
         for i, sample in enumerate(tbar):

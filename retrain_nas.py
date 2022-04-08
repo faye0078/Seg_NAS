@@ -48,6 +48,7 @@ def main():
             
         #      state_dict = trainer.model.state_dict()
         #      state = {
+        #      state = {
         #         'epoch': epoch + 1,
         #         'state_dict': state_dict,
         #         'optimizer':  trainer.optimizer.state_dict(),

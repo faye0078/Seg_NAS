@@ -134,7 +134,7 @@ class Trainer(object):
         train_loss = 0.0
         
         self.model.train()
-        tbar = tqdm(self.train_loaderA)
+        tbar = tqdm(self.train_loaderA, ncols=80)
 
         for i, sample in enumerate(tbar):
             image = sample["image"]
@@ -170,27 +170,6 @@ class Trainer(object):
                     arch_loss.backward()
                 self.architect_optimizer.step()
 
-            for name, module in self.model.named_modules():
-                if 'sobel_operator.filter' in name:
-                    tem = module.weight.abs().squeeze()
-                    g1 = (tem[0][0] + tem[2][2]) / 2
-                    g2 = (tem[0][1] + tem[2][1]) / 2
-                    g3 = (tem[0][2] + tem[2][0]) / 2
-                    g4 = (tem[1][2] + tem[1][0]) / 2
-                    G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
-                    G = G.unsqueeze(0).unsqueeze(0)
-                    module.weight.data = nn.Parameter(G).cuda()
-
-            # for name, module in self.model.named_modules():
-            #     if 'denoising_operator.filter' in name:
-            #         tem = module.weight.abs().squeeze()
-            #         g1 = (tem[0][0] + tem[2][2]) / 2
-            #         g2 = (tem[0][1] + tem[2][1]) / 2
-            #         g3 = (tem[0][2] + tem[2][0]) / 2
-            #         g4 = (tem[1][2] + tem[1][0]) / 2
-            #         G = torch.tensor([[g1, g2, -g3], [g4, 0.0, -g4], [g3, -g2, -g1]])
-            #         G = G.unsqueeze(0).unsqueeze(0)
-            #         module.weight.data = nn.Parameter(G).cuda()
             train_loss += loss.item()
             # print(self.model.cells[0][0]['[-1  0]']._ops['sobel_operator'].filter.weight)
             tbar.set_description('Train loss: %.3f' % (train_loss / (i + 1)))
@@ -231,7 +210,7 @@ class Trainer(object):
     def validation(self, epoch):
         self.model.eval()
         self.evaluator.reset()
-        tbar = tqdm(self.val_loader, desc='\r')
+        tbar = tqdm(self.val_loader, desc='\r', ncols=80)
         test_loss = 0.0
 
         for i, sample in enumerate(tbar):

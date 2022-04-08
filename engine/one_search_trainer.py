@@ -1,3 +1,5 @@
+# 1. path 2. operations 3.connections
+
 import os
 import numpy as np
 import torch.nn as nn
@@ -118,7 +120,7 @@ class Trainer(object):
         for epoch in range(self.start_epoch, epochs):
             train_loss = 0.0
             model.train()
-            tbar = tqdm(self.train_loaderA)
+            tbar = tqdm(self.train_loaderA, ncols=80)
 
             for i, sample in enumerate(tbar):
                 image = sample["image"]
@@ -232,7 +234,7 @@ class Trainer(object):
         for epoch in range(epochs):
             train_loss = 0.0
             model.train()
-            tbar = tqdm(self.train_loaderA)
+            tbar = tqdm(self.train_loaderA, ncols=80)
 
             for i, sample in enumerate(tbar):
                 image = sample["image"]
@@ -342,7 +344,7 @@ class Trainer(object):
         for epoch in range(epochs):
             train_loss = 0.0
             model.train()
-            tbar = tqdm(self.train_loaderA)
+            tbar = tqdm(self.train_loaderA, ncols=80)
 
             for i, sample in enumerate(tbar):
                 image = sample["image"]
@@ -401,7 +403,7 @@ class Trainer(object):
     def validation(self, epoch, model, stage):
         model.eval()
         self.evaluator.reset()
-        tbar = tqdm(self.val_loader, desc='\r')
+        tbar = tqdm(self.val_loader, desc='\r', ncols=80)
         test_loss = 0.0
 
         for i, sample in enumerate(tbar):
