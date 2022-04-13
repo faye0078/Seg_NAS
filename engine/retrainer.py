@@ -26,6 +26,7 @@ from search.evaluator import Evaluator
 from retrain.model_onepath import Retrain_Autodeeplab as Onepath_Autodeeplab
 from retrain.model_multi import Retrain_Autodeeplab as Multi_Autodeeplab
 from model.RetrainNet import RetrainNet
+from model.early_fusion.RetrainNet import RetrainNet as Fusion_RetrainNet
 from model.deeplabv3plus.deeplab import DeepLabv3_plus
 from model.pspnet.train import build_network
 from model.UNet import U_Net
@@ -81,11 +82,13 @@ class Trainer(object):
         elif args.model_name == 'flexinet':
             layers = np.ones([14, 4])
             cell_arch = np.load(
-                '/media/dell/DATA/wy/Seg_NAS/run/uadataset/search/experiment_3/cell_arch/1_cell_arch_epoch24.npy')
+                '/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/14layers_mixedcell1_3operation/cell_operations.npy')
             connections = np.load(
-                '/media/dell/DATA/wy/Seg_NAS/run/uadataset/search/experiment_1/connections/2_connections_epoch37.npy')
+                '/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/14layers_mixedcell1_3operation/third_connect_4.npy')
             # connections = get_connections()
             model = RetrainNet(layers, 4, connections, cell_arch, self.args.dataset, self.nclass, 'normal')
+            # model = Fusion_RetrainNet(layers, 4, connections, cell_arch, self.args.dataset, self.nclass, 'normal')
+
         optimizer = torch.optim.SGD(
                 model.parameters(),
                 args.lr,

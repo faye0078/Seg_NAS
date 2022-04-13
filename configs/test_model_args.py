@@ -21,7 +21,7 @@ def obtain_test_args():
 
     parser.add_argument('--opt_level', type=str, default='O0', choices=['O0', 'O1', 'O2', 'O3'], help='opt level for half percision training (default: O0)')
 
-    parser.add_argument('--dataset', type=str, default='uadataset', choices=['cityscapes', 'GID', 'hps-GID', 'uadataset'], help='dataset name (default: pascal)')
+    parser.add_argument('--dataset', type=str, default='GID', choices=['cityscapes', 'GID', 'hps-GID', 'uadataset'], help='dataset name (default: pascal)')
     parser.add_argument('--nas', type=str, default='train', choices=['search', 'train'])
 
     parser.add_argument('--workers', type=int, default=0, metavar='N', help='dataloader threads')

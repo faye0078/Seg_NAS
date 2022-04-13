@@ -88,7 +88,7 @@ class SearchNet3(nn.Module):
         temp = self.stem1(temp)
         pre_feature = self.stem2(temp)
 
-        normalized_alphas = torch.randn(len(self.layers), self.depth, self.cell_connect).cuda()
+        normalized_alphas = torch.randn(len(self.layers), self.depth, self.cell_connect)
 
         for i in range(len(self.layers)):
             for j in range(self.depth):

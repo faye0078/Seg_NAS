@@ -4,7 +4,7 @@ import torch.nn as nn
 from tqdm import tqdm
 import torch
 from collections import OrderedDict
-
+from torchstat import stat
 import sys 
 sys.path.append("./apex")
 
@@ -28,8 +28,11 @@ from model.DCNAS import DCNASNet
 from model.SearchNetStage1 import SearchNet1
 from model.SearchNetStage2 import SearchNet2
 from model.SearchNetStage3 import SearchNet3
+from model.early_fusion.SearchNetStage1 import SearchNet1 as Fusion_SearchNet1
+from model.early_fusion.SearchNetStage2 import SearchNet2 as Fusion_SearchNet2
+from model.early_fusion.SearchNetStage3 import SearchNet3 as Fusion_SearchNet3
 from search.copy_state_dict import copy_state_dict
-from model.cell import ReLUConvBN, ReLUConv5BN, ConvBNReLU, MixedCell, DCNAS_cell, MixedCellMini
+from model.cell import ReLUConvBN, ReLUConv5BN, ConvBNReLU, MixedCell, DCNAS_cell, MixedCellMini, MixedRetrainCell
 
 class Trainer(object):
     def __init__(self, args):
@@ -70,19 +73,27 @@ class Trainer(object):
                 layers = np.ones([14, 4])
                 connections = np.load(self.args.model_encode_path)
                 model = SearchNet1(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass)
+                # cell_arch = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/uadataset/one_loop_14layers_mixedcell/init_cell_arch.npy')
+                # model = Fusion_SearchNet1(layers, 4, connections, cell_arch, MixedRetrainCell, self.args.dataset, self.nclass)
 
             elif self.args.search_stage == "second":
                 layers = np.ones([14, 4])
                 connections = np.load(self.args.model_encode_path)
-                core_path = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/core_path.npy').tolist()
+                core_path = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/14layers_mixedcell1_3operation/core_path.npy').tolist()
                 model = SearchNet2(layers, 4, connections, ReLUConvBN, self.args.dataset, self.nclass, core_path=core_path)
+                # cell_arch = np.load('/media/dell/DATA/wy/Seg_NAS/model/model_encode/uadataset/one_loop_14layers_mixedcell/init_cell_arch.npy')
+                # model = Fusion_SearchNet2(layers, 4, connections, cell_arch, MixedRetrainCell, self.args.dataset, self.nclass, core_path=core_path)
 
             elif self.args.search_stage == "third":
                 layers = np.ones([14, 4])
                 connections = np.load(self.args.model_encode_path)
                 # connections = 0
                 model = SearchNet3(layers, 4, connections, MixedCell, self.args.dataset, self.nclass)
+                # model = Fusion_SearchNet3(layers, 4, connections, MixedCell, self.args.dataset, self.nclass)
 
+        # device = torch.device("cpu")
+        # model = model.to(device)
+        # stat(model, (4, 512, 512))
 
         optimizer = torch.optim.SGD(
             model.weight_parameters(),

@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torch import nn
 import numpy
-from model.cell import ReLUConvBN
+from model.cell import ReLUConvBN, Fusion
 from collections import OrderedDict
 import torch.nn.functional as F
 
@@ -59,7 +59,7 @@ class SearchNet2(nn.Module):
         num_last_features = 0
         for i in range(len(self.layers)):
             self.cells.append(nn.ModuleList())
-            self.fusions.append(nn.ModuleList)
+            self.fusions.append(nn.ModuleList())
             for j in range(self.depth):
                 self.cells[i].append(cell(self.base_multiplier * multi_dict[j], self.base_multiplier * multi_dict[j], cell_arch[i][j]))
                 self.fusions[i].append(nn.ModuleDict())
@@ -68,11 +68,11 @@ class SearchNet2(nn.Module):
                     if ([i, j] == connection[1]).all():
                         num_connect += 1
                         if connection[0][0] == -1:
-                            self.fusions[i][j][str(connection[0])] = cell(self.base_multiplier * multi_dict[0],
-                                                         self.base_multiplier * multi_dict[connection[1][1]], cell_arch[i][j])
+                            self.fusions[i][j][str(connection[0])] = Fusion(self.base_multiplier * multi_dict[0],
+                                                         self.base_multiplier * multi_dict[connection[1][1]])
                         else:
-                            self.fusions[i][j][str(connection[0])] = cell(self.base_multiplier * multi_dict[connection[0][1]],
-                                                self.base_multiplier * multi_dict[connection[1][1]], cell_arch[i][j])
+                            self.fusions[i][j][str(connection[0])] = Fusion(self.base_multiplier * multi_dict[connection[0][1]],
+                                                self.base_multiplier * multi_dict[connection[1][1]])
                 if i == len(self.layers) -1 and num_connect != 0:
                     num_last_features += self.base_multiplier * multi_dict[j]
 

@@ -63,12 +63,12 @@ OPS = {
     "global_average_pool": lambda C_in, C_out, stride, affine, repeats=1: GAPConv1x1(
         C_in, C_out
     ),
-    "sobel_operator": lambda C_in, C_out, stride, affine, repeats=1: Sobel(
-        C_in, C_out
-    ),
-    "laplacian_operator": lambda C_in, C_out, stride, affine, repeats=1: Laplacian(
-        C_in, C_out
-    )
+    # "sobel_operator": lambda C_in, C_out, stride, affine, repeats=1: Sobel(
+    #     C_in, C_out
+    # ),
+    # "laplacian_operator": lambda C_in, C_out, stride, affine, repeats=1: Laplacian(
+    #     C_in, C_out
+    # )
     # 'edge_operator':  lambda C_in, C_out, stride, affine, repeats=1: Edge(
     #     C_in, C_out
     # ),
