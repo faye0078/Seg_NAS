@@ -41,6 +41,7 @@ def main():
     # trainer.validation(0)
 
     # trainer.start_epoch = 0 #暂时先设置为0，需要读取保存过的模型
+    trainer.test_model(0)
     for epoch in range(trainer.start_epoch, trainer.args.epochs):
         trainer.training(epoch)
         trainer.validation(epoch)

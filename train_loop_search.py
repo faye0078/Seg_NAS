@@ -8,7 +8,7 @@ from engine.one_search_trainer import Trainer
 from engine.one_search_trainer_1 import Trainer as Trainer_1
 
 # 设置所使用的GPU
-os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 # 为每个卷积层搜索最适合它的卷积实现算法
 # torch.backends.cudnn.benchmark=True
 def setup_seed(seed):
