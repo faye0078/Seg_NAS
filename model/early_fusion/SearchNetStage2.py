@@ -53,22 +53,25 @@ class SearchNet2(nn.Module):
             nn.ReLU()
         )
         self.cells = nn.ModuleList()
+        self.fusions = nn.ModuleList()
         multi_dict = {0: 1, 1: 2, 2: 4, 3: 8}
         max_num_connect = 0
         num_last_features = 0
         for i in range(len(self.layers)):
             self.cells.append(nn.ModuleList())
+            self.fusions.append(nn.ModuleList)
             for j in range(self.depth):
-                self.cells[i].append(nn.ModuleDict())
+                self.cells[i].append(cell(self.base_multiplier * multi_dict[j], self.base_multiplier * multi_dict[j], cell_arch[i][j]))
+                self.fusions[i].append(nn.ModuleDict())
                 num_connect = 0
                 for connection in self.connections:
                     if ([i, j] == connection[1]).all():
                         num_connect += 1
                         if connection[0][0] == -1:
-                            self.cells[i][j][str(connection[0])] = cell(self.base_multiplier * multi_dict[0],
+                            self.fusions[i][j][str(connection[0])] = cell(self.base_multiplier * multi_dict[0],
                                                          self.base_multiplier * multi_dict[connection[1][1]], cell_arch[i][j])
                         else:
-                            self.cells[i][j][str(connection[0])] = cell(self.base_multiplier * multi_dict[connection[0][1]],
+                            self.fusions[i][j][str(connection[0])] = cell(self.base_multiplier * multi_dict[connection[0][1]],
                                                 self.base_multiplier * multi_dict[connection[1][1]], cell_arch[i][j])
                 if i == len(self.layers) -1 and num_connect != 0:
                     num_last_features += self.base_multiplier * multi_dict[j]
@@ -130,18 +133,20 @@ class SearchNet2(nn.Module):
                     if ([i, j] == connection[1]).all():
                         if connection[0][0] == -1:
                             if (connection == self.core_connections[i]).all():
-                                features[i][j] += self.core_path_betas[i] * self.cells[i][j][str(connection[0])](pre_feature)
+                                features[i][j] += self.core_path_betas[i] * self.fusions[i][j][str(connection[0])](pre_feature)
                             else:
-                                features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](pre_feature)
+                                features[i][j] += normalized_betas[i][j][k] * self.fusions[i][j][str(connection[0])](pre_feature)
                         else:
                             if (connection == self.core_connections[i]).all():
-                                features[i][j] += self.core_path_betas[i] * self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
+                                features[i][j] += self.core_path_betas[i] * self.fusions[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
                             else:
-                                features[i][j] += normalized_betas[i][j][k] * self.cells[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
+                                features[i][j] += normalized_betas[i][j][k] * self.fusions[i][j][str(connection[0])](features[connection[0][0]][connection[0][1]])
                                 # retest the core path order
                                 if k == self.core_path_num[i]:
                                     print("drong!!!!!!")
                         k += 1
+                if not isinstance(features[i][j], int):
+                    features[i][j] = self.cells[i][j](features[i][j])
 
         last_features = [feature for feature in features[len(self.layers)-1] if torch.is_tensor(feature)]
         last_features = [nn.Upsample(size=last_features[0].size()[2:], mode='bilinear', align_corners=True)(feature) for feature in last_features]
