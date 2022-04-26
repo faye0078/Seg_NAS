@@ -29,6 +29,8 @@ class SearchNet3(nn.Module):
         half_base = int(base_multiplier // 2)
         if dataset == 'GID' or dataset == 'hps-GID':
             input_channel = 4
+        elif dataset == 'uadataset_dfc':
+            input_channel = 5
         else:
             input_channel = 3
         self.stem0 = nn.Sequential(

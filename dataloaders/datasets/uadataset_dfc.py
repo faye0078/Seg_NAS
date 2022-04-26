@@ -91,6 +91,7 @@ class UADataset(Dataset):
             # _arf = arf.read(out_shape=(1, _img.shape[0], _img.shape[1]), resampling=Resampling.bilinear)
             _arf = arf.read()
 
+        _tmp = self.encode_segmap(_tmp).astype(np.float32)
         _img /= 255.0
         _img -= self.mean
         _img /= self.std
@@ -104,7 +105,7 @@ class UADataset(Dataset):
 
         _img = torch.cat((_img, _slp, _arf), 0)
 
-        # mask = self.encode_segmap(mask).astype(np.float32)
+
         # if img_name != msk_name:
         #     assert len(mask.shape) == 2, "Masks must be encoded without colourmap"
         if 'train' in self.split:

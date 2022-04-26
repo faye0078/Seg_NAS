@@ -82,10 +82,10 @@ class Trainer(object):
         elif args.model_name == 'flexinet':
             layers = np.ones([14, 4])
             cell_arch = np.load(
-                '/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/14layers_mixedcell1_3operation/cell_operations.npy')
+                '/media/dell/DATA/wy/Seg_NAS/run/uadataset/search/experiment_0/cell_arch/2_cell_arch_epoch_nors24.npy')
             connections = np.load(
-                '/media/dell/DATA/wy/Seg_NAS/model/model_encode/GID-5/14layers_mixedcell1_3operation/third_connect_4.npy')
-            # connections = get_connections()
+                '/media/dell/DATA/wy/Seg_NAS/run/uadataset/search/experiment_0/connections/2_connections_epoch37.npy')
+
             model = RetrainNet(layers, 4, connections, cell_arch, self.args.dataset, self.nclass, 'normal')
             # model = Fusion_RetrainNet(layers, 4, connections, cell_arch, self.args.dataset, self.nclass, 'normal')
 
